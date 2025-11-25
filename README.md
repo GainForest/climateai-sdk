@@ -174,10 +174,8 @@ You can cherry-pick the utilities instead of reaching deep into `src` paths:
 - `customTransformer`: plug this into any tRPC link/router so client and server agree on the same serialization rules (already used internally).
 
 ```ts
-import { getBlobUrl } from "climateai-sdk/utilities";
 import { deserialize } from "climateai-sdk/utilities/transformer";
 
-const url = getBlobUrl("climateai.org", blobRef);
 const record = deserialize(serializedPayload);
 ```
 
