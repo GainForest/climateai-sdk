@@ -1,1219 +1,1221 @@
 /**
+ * The following lines are added by lex-api-mod.ts to fix build errors.
+ */
+import {
+  ComAtprotoRepoListRecords,
+  ComAtprotoRepoGetRecord,
+  ComAtprotoRepoCreateRecord,
+  ComAtprotoRepoPutRecord,
+  ComAtprotoRepoDeleteRecord,
+} from "@atproto/api";
+/**
+ * GENERATED CODE - DO NOT MODIFY
+ */
+
+/**
  * GENERATED CODE - DO NOT MODIFY
  */
 import {
   XrpcClient,
   type FetchHandler,
   type FetchHandlerOptions,
-} from "@atproto/xrpc";
-import { schemas } from "./lexicons.js";
-import { CID } from "multiformats/cid";
-import { type OmitKey, type Un$Typed } from "./util.js";
-import * as AppCertifiedLocation from "./types/app/certified/location.js";
-import * as OrgHypercertsClaimClaim from "./types/org/hypercerts/claim/claim.js";
-import * as OrgHypercertsClaimContribution from "./types/org/hypercerts/claim/contribution.js";
-import * as OrgHypercertsClaimEvaluation from "./types/org/hypercerts/claim/evaluation.js";
-import * as OrgHypercertsClaimEvidence from "./types/org/hypercerts/claim/evidence.js";
-import * as OrgHypercertsClaimMeasurement from "./types/org/hypercerts/claim/measurement.js";
-import * as OrgHypercertsClaimRights from "./types/org/hypercerts/claim/rights.js";
-import * as OrgHypercertsCollection from "./types/org/hypercerts/collection.js";
-import * as OrgHypercertsDefs from "./types/org/hypercerts/defs.js";
-import * as AppGainforestCommonDefs from "./types/app/gainforest/common/defs.js";
-import * as AppGainforestOrganizationDefaultSite from "./types/app/gainforest/organization/defaultSite.js";
-import * as AppGainforestOrganizationGetIndexedOrganizations from "./types/app/gainforest/organization/getIndexedOrganizations.js";
-import * as AppGainforestOrganizationInfo from "./types/app/gainforest/organization/info.js";
-import * as AppGainforestOrganizationMeasuredTrees from "./types/app/gainforest/organization/measuredTrees.js";
-import * as AppGainforestOrganizationSite from "./types/app/gainforest/organization/site.js";
-import * as ComAtprotoRepoStrongRef from "./types/com/atproto/repo/strongRef.js";
-import * as ComAtprotoRepoListRecords from "@atproto/api/dist/client/types/com/atproto/repo/listRecords.js";
-import * as ComAtprotoRepoGetRecord from "@atproto/api/dist/client/types/com/atproto/repo/getRecord.js";
-import * as ComAtprotoRepoCreateRecord from "@atproto/api/dist/client/types/com/atproto/repo/createRecord.js";
-import * as ComAtprotoRepoPutRecord from "@atproto/api/dist/client/types/com/atproto/repo/putRecord.js";
-import * as ComAtprotoRepoDeleteRecord from "@atproto/api/dist/client/types/com/atproto/repo/deleteRecord.js";
+} from '@atproto/xrpc'
+import { schemas } from './lexicons.js'
+import { CID } from 'multiformats/cid'
+import { type OmitKey, type Un$Typed } from './util.js'
+import * as AppCertifiedLocation from './types/app/certified/location.js'
+import * as OrgHypercertsClaimClaim from './types/org/hypercerts/claim/claim.js'
+import * as OrgHypercertsClaimContribution from './types/org/hypercerts/claim/contribution.js'
+import * as OrgHypercertsClaimEvaluation from './types/org/hypercerts/claim/evaluation.js'
+import * as OrgHypercertsClaimEvidence from './types/org/hypercerts/claim/evidence.js'
+import * as OrgHypercertsClaimMeasurement from './types/org/hypercerts/claim/measurement.js'
+import * as OrgHypercertsClaimRights from './types/org/hypercerts/claim/rights.js'
+import * as OrgHypercertsCollection from './types/org/hypercerts/collection.js'
+import * as OrgHypercertsDefs from './types/org/hypercerts/defs.js'
+import * as AppGainforestCommonDefs from './types/app/gainforest/common/defs.js'
+import * as AppGainforestOrganizationDefaultSite from './types/app/gainforest/organization/defaultSite.js'
+import * as AppGainforestOrganizationGetIndexedOrganizations from './types/app/gainforest/organization/getIndexedOrganizations.js'
+import * as AppGainforestOrganizationInfo from './types/app/gainforest/organization/info.js'
+import * as AppGainforestOrganizationMeasuredTrees from './types/app/gainforest/organization/measuredTrees.js'
+import * as AppGainforestOrganizationSite from './types/app/gainforest/organization/site.js'
+import * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef.js'
 
-export * as AppCertifiedLocation from "./types/app/certified/location.js";
-export * as OrgHypercertsClaimClaim from "./types/org/hypercerts/claim/claim.js";
-export * as OrgHypercertsClaimContribution from "./types/org/hypercerts/claim/contribution.js";
-export * as OrgHypercertsClaimEvaluation from "./types/org/hypercerts/claim/evaluation.js";
-export * as OrgHypercertsClaimEvidence from "./types/org/hypercerts/claim/evidence.js";
-export * as OrgHypercertsClaimMeasurement from "./types/org/hypercerts/claim/measurement.js";
-export * as OrgHypercertsClaimRights from "./types/org/hypercerts/claim/rights.js";
-export * as OrgHypercertsCollection from "./types/org/hypercerts/collection.js";
-export * as OrgHypercertsDefs from "./types/org/hypercerts/defs.js";
-export * as AppGainforestCommonDefs from "./types/app/gainforest/common/defs.js";
-export * as AppGainforestOrganizationDefaultSite from "./types/app/gainforest/organization/defaultSite.js";
-export * as AppGainforestOrganizationGetIndexedOrganizations from "./types/app/gainforest/organization/getIndexedOrganizations.js";
-export * as AppGainforestOrganizationInfo from "./types/app/gainforest/organization/info.js";
-export * as AppGainforestOrganizationMeasuredTrees from "./types/app/gainforest/organization/measuredTrees.js";
-export * as AppGainforestOrganizationSite from "./types/app/gainforest/organization/site.js";
-export * as ComAtprotoRepoStrongRef from "./types/com/atproto/repo/strongRef.js";
-export {
-  ComAtprotoRepoListRecords,
-  ComAtprotoRepoGetRecord,
-  ComAtprotoRepoCreateRecord,
-  ComAtprotoRepoPutRecord,
-  ComAtprotoRepoDeleteRecord,
-};
+export * as AppCertifiedLocation from './types/app/certified/location.js'
+export * as OrgHypercertsClaimClaim from './types/org/hypercerts/claim/claim.js'
+export * as OrgHypercertsClaimContribution from './types/org/hypercerts/claim/contribution.js'
+export * as OrgHypercertsClaimEvaluation from './types/org/hypercerts/claim/evaluation.js'
+export * as OrgHypercertsClaimEvidence from './types/org/hypercerts/claim/evidence.js'
+export * as OrgHypercertsClaimMeasurement from './types/org/hypercerts/claim/measurement.js'
+export * as OrgHypercertsClaimRights from './types/org/hypercerts/claim/rights.js'
+export * as OrgHypercertsCollection from './types/org/hypercerts/collection.js'
+export * as OrgHypercertsDefs from './types/org/hypercerts/defs.js'
+export * as AppGainforestCommonDefs from './types/app/gainforest/common/defs.js'
+export * as AppGainforestOrganizationDefaultSite from './types/app/gainforest/organization/defaultSite.js'
+export * as AppGainforestOrganizationGetIndexedOrganizations from './types/app/gainforest/organization/getIndexedOrganizations.js'
+export * as AppGainforestOrganizationInfo from './types/app/gainforest/organization/info.js'
+export * as AppGainforestOrganizationMeasuredTrees from './types/app/gainforest/organization/measuredTrees.js'
+export * as AppGainforestOrganizationSite from './types/app/gainforest/organization/site.js'
+export * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef.js'
 
 export class AtpBaseClient extends XrpcClient {
-  app: AppNS;
-  org: OrgNS;
-  com: ComNS;
+  app: AppNS
+  org: OrgNS
+  com: ComNS
 
   constructor(options: FetchHandler | FetchHandlerOptions) {
-    super(options, schemas);
-    this.app = new AppNS(this);
-    this.org = new OrgNS(this);
-    this.com = new ComNS(this);
+    super(options, schemas)
+    this.app = new AppNS(this)
+    this.org = new OrgNS(this)
+    this.com = new ComNS(this)
   }
 
   /** @deprecated use `this` instead */
   get xrpc(): XrpcClient {
-    return this;
+    return this
   }
 }
 
 export class AppNS {
-  _client: XrpcClient;
-  certified: AppCertifiedNS;
-  gainforest: AppGainforestNS;
+  _client: XrpcClient
+  certified: AppCertifiedNS
+  gainforest: AppGainforestNS
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.certified = new AppCertifiedNS(client);
-    this.gainforest = new AppGainforestNS(client);
+    this._client = client
+    this.certified = new AppCertifiedNS(client)
+    this.gainforest = new AppGainforestNS(client)
   }
 }
 
 export class AppCertifiedNS {
-  _client: XrpcClient;
-  location: AppCertifiedLocationRecord;
+  _client: XrpcClient
+  location: AppCertifiedLocationRecord
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.location = new AppCertifiedLocationRecord(client);
+    this._client = client
+    this.location = new AppCertifiedLocationRecord(client)
   }
 }
 
 export class AppCertifiedLocationRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: AppCertifiedLocation.Record }[];
+    cursor?: string
+    records: { uri: string; value: AppCertifiedLocation.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.certified.location",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.certified.location',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{ uri: string; cid: string; value: AppCertifiedLocation.Record }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.certified.location",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.certified.location',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppCertifiedLocation.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.certified.location";
+    const collection = 'app.certified.location'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppCertifiedLocation.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.certified.location";
+    const collection = 'app.certified.location'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "app.certified.location", ...params },
-      { headers }
-    );
+      { collection: 'app.certified.location', ...params },
+      { headers },
+    )
   }
 }
 
 export class AppGainforestNS {
-  _client: XrpcClient;
-  organization: AppGainforestOrganizationNS;
+  _client: XrpcClient
+  organization: AppGainforestOrganizationNS
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.organization = new AppGainforestOrganizationNS(client);
+    this._client = client
+    this.organization = new AppGainforestOrganizationNS(client)
   }
 }
 
 export class AppGainforestOrganizationNS {
-  _client: XrpcClient;
-  defaultSite: AppGainforestOrganizationDefaultSiteRecord;
-  info: AppGainforestOrganizationInfoRecord;
-  measuredTrees: AppGainforestOrganizationMeasuredTreesRecord;
-  site: AppGainforestOrganizationSiteRecord;
+  _client: XrpcClient
+  defaultSite: AppGainforestOrganizationDefaultSiteRecord
+  info: AppGainforestOrganizationInfoRecord
+  measuredTrees: AppGainforestOrganizationMeasuredTreesRecord
+  site: AppGainforestOrganizationSiteRecord
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.defaultSite = new AppGainforestOrganizationDefaultSiteRecord(client);
-    this.info = new AppGainforestOrganizationInfoRecord(client);
+    this._client = client
+    this.defaultSite = new AppGainforestOrganizationDefaultSiteRecord(client)
+    this.info = new AppGainforestOrganizationInfoRecord(client)
     this.measuredTrees = new AppGainforestOrganizationMeasuredTreesRecord(
-      client
-    );
-    this.site = new AppGainforestOrganizationSiteRecord(client);
+      client,
+    )
+    this.site = new AppGainforestOrganizationSiteRecord(client)
   }
 
   getIndexedOrganizations(
     params?: AppGainforestOrganizationGetIndexedOrganizations.QueryParams,
-    opts?: AppGainforestOrganizationGetIndexedOrganizations.CallOptions
+    opts?: AppGainforestOrganizationGetIndexedOrganizations.CallOptions,
   ): Promise<AppGainforestOrganizationGetIndexedOrganizations.Response> {
     return this._client.call(
-      "app.gainforest.organization.getIndexedOrganizations",
+      'app.gainforest.organization.getIndexedOrganizations',
       params,
       undefined,
-      opts
-    );
+      opts,
+    )
   }
 }
 
 export class AppGainforestOrganizationDefaultSiteRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
+    cursor?: string
     records: {
-      uri: string;
-      value: AppGainforestOrganizationDefaultSite.Record;
-    }[];
+      uri: string
+      value: AppGainforestOrganizationDefaultSite.Record
+    }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.defaultSite",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.gainforest.organization.defaultSite',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: AppGainforestOrganizationDefaultSite.Record;
+    uri: string
+    cid: string
+    value: AppGainforestOrganizationDefaultSite.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.defaultSite",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.gainforest.organization.defaultSite',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationDefaultSite.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.defaultSite";
+    const collection = 'app.gainforest.organization.defaultSite'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       {
         collection,
-        rkey: "self",
+        rkey: 'self',
         ...params,
         record: { ...record, $type: collection },
       },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationDefaultSite.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.defaultSite";
+    const collection = 'app.gainforest.organization.defaultSite'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "app.gainforest.organization.defaultSite", ...params },
-      { headers }
-    );
+      { collection: 'app.gainforest.organization.defaultSite', ...params },
+      { headers },
+    )
   }
 }
 
 export class AppGainforestOrganizationInfoRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: AppGainforestOrganizationInfo.Record }[];
+    cursor?: string
+    records: { uri: string; value: AppGainforestOrganizationInfo.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.info",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.gainforest.organization.info',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: AppGainforestOrganizationInfo.Record;
+    uri: string
+    cid: string
+    value: AppGainforestOrganizationInfo.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.info",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.gainforest.organization.info',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationInfo.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.info";
+    const collection = 'app.gainforest.organization.info'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       {
         collection,
-        rkey: "self",
+        rkey: 'self',
         ...params,
         record: { ...record, $type: collection },
       },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationInfo.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.info";
+    const collection = 'app.gainforest.organization.info'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "app.gainforest.organization.info", ...params },
-      { headers }
-    );
+      { collection: 'app.gainforest.organization.info', ...params },
+      { headers },
+    )
   }
 }
 
 export class AppGainforestOrganizationMeasuredTreesRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
+    cursor?: string
     records: {
-      uri: string;
-      value: AppGainforestOrganizationMeasuredTrees.Record;
-    }[];
+      uri: string
+      value: AppGainforestOrganizationMeasuredTrees.Record
+    }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.measuredTrees",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.gainforest.organization.measuredTrees',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: AppGainforestOrganizationMeasuredTrees.Record;
+    uri: string
+    cid: string
+    value: AppGainforestOrganizationMeasuredTrees.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.measuredTrees",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.gainforest.organization.measuredTrees',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationMeasuredTrees.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.measuredTrees";
+    const collection = 'app.gainforest.organization.measuredTrees'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       {
         collection,
-        rkey: "self",
+        rkey: 'self',
         ...params,
         record: { ...record, $type: collection },
       },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationMeasuredTrees.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.measuredTrees";
+    const collection = 'app.gainforest.organization.measuredTrees'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "app.gainforest.organization.measuredTrees", ...params },
-      { headers }
-    );
+      { collection: 'app.gainforest.organization.measuredTrees', ...params },
+      { headers },
+    )
   }
 }
 
 export class AppGainforestOrganizationSiteRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: AppGainforestOrganizationSite.Record }[];
+    cursor?: string
+    records: { uri: string; value: AppGainforestOrganizationSite.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.site",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.gainforest.organization.site',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: AppGainforestOrganizationSite.Record;
+    uri: string
+    cid: string
+    value: AppGainforestOrganizationSite.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.site",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.gainforest.organization.site',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationSite.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.site";
+    const collection = 'app.gainforest.organization.site'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<AppGainforestOrganizationSite.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "app.gainforest.organization.site";
+    const collection = 'app.gainforest.organization.site'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "app.gainforest.organization.site", ...params },
-      { headers }
-    );
+      { collection: 'app.gainforest.organization.site', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgNS {
-  _client: XrpcClient;
-  hypercerts: OrgHypercertsNS;
+  _client: XrpcClient
+  hypercerts: OrgHypercertsNS
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.hypercerts = new OrgHypercertsNS(client);
+    this._client = client
+    this.hypercerts = new OrgHypercertsNS(client)
   }
 }
 
 export class OrgHypercertsNS {
-  _client: XrpcClient;
-  collection: OrgHypercertsCollectionRecord;
-  claim: OrgHypercertsClaimNS;
+  _client: XrpcClient
+  collection: OrgHypercertsCollectionRecord
+  claim: OrgHypercertsClaimNS
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.claim = new OrgHypercertsClaimNS(client);
-    this.collection = new OrgHypercertsCollectionRecord(client);
+    this._client = client
+    this.claim = new OrgHypercertsClaimNS(client)
+    this.collection = new OrgHypercertsCollectionRecord(client)
   }
 }
 
 export class OrgHypercertsClaimNS {
-  _client: XrpcClient;
-  claim: OrgHypercertsClaimClaimRecord;
-  contribution: OrgHypercertsClaimContributionRecord;
-  evaluation: OrgHypercertsClaimEvaluationRecord;
-  evidence: OrgHypercertsClaimEvidenceRecord;
-  measurement: OrgHypercertsClaimMeasurementRecord;
-  rights: OrgHypercertsClaimRightsRecord;
+  _client: XrpcClient
+  claim: OrgHypercertsClaimClaimRecord
+  contribution: OrgHypercertsClaimContributionRecord
+  evaluation: OrgHypercertsClaimEvaluationRecord
+  evidence: OrgHypercertsClaimEvidenceRecord
+  measurement: OrgHypercertsClaimMeasurementRecord
+  rights: OrgHypercertsClaimRightsRecord
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.claim = new OrgHypercertsClaimClaimRecord(client);
-    this.contribution = new OrgHypercertsClaimContributionRecord(client);
-    this.evaluation = new OrgHypercertsClaimEvaluationRecord(client);
-    this.evidence = new OrgHypercertsClaimEvidenceRecord(client);
-    this.measurement = new OrgHypercertsClaimMeasurementRecord(client);
-    this.rights = new OrgHypercertsClaimRightsRecord(client);
+    this._client = client
+    this.claim = new OrgHypercertsClaimClaimRecord(client)
+    this.contribution = new OrgHypercertsClaimContributionRecord(client)
+    this.evaluation = new OrgHypercertsClaimEvaluationRecord(client)
+    this.evidence = new OrgHypercertsClaimEvidenceRecord(client)
+    this.measurement = new OrgHypercertsClaimMeasurementRecord(client)
+    this.rights = new OrgHypercertsClaimRightsRecord(client)
   }
 }
 
 export class OrgHypercertsClaimClaimRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsClaimClaim.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsClaimClaim.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.claim.claim",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.claim.claim',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsClaimClaim.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsClaimClaim.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.claim.claim",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.claim.claim',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimClaim.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.claim";
+    const collection = 'org.hypercerts.claim.claim'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimClaim.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.claim";
+    const collection = 'org.hypercerts.claim.claim'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.claim.claim", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.claim.claim', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgHypercertsClaimContributionRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsClaimContribution.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsClaimContribution.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.claim.contribution",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.claim.contribution',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsClaimContribution.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsClaimContribution.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.claim.contribution",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.claim.contribution',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimContribution.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.contribution";
+    const collection = 'org.hypercerts.claim.contribution'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimContribution.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.contribution";
+    const collection = 'org.hypercerts.claim.contribution'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.claim.contribution", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.claim.contribution', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgHypercertsClaimEvaluationRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsClaimEvaluation.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsClaimEvaluation.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.claim.evaluation",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.claim.evaluation',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsClaimEvaluation.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsClaimEvaluation.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.claim.evaluation",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.claim.evaluation',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimEvaluation.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.evaluation";
+    const collection = 'org.hypercerts.claim.evaluation'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimEvaluation.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.evaluation";
+    const collection = 'org.hypercerts.claim.evaluation'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.claim.evaluation", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.claim.evaluation', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgHypercertsClaimEvidenceRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsClaimEvidence.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsClaimEvidence.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.claim.evidence",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.claim.evidence',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsClaimEvidence.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsClaimEvidence.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.claim.evidence",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.claim.evidence',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimEvidence.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.evidence";
+    const collection = 'org.hypercerts.claim.evidence'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimEvidence.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.evidence";
+    const collection = 'org.hypercerts.claim.evidence'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.claim.evidence", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.claim.evidence', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgHypercertsClaimMeasurementRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsClaimMeasurement.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsClaimMeasurement.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.claim.measurement",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.claim.measurement',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsClaimMeasurement.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsClaimMeasurement.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.claim.measurement",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.claim.measurement',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimMeasurement.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.measurement";
+    const collection = 'org.hypercerts.claim.measurement'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimMeasurement.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.measurement";
+    const collection = 'org.hypercerts.claim.measurement'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.claim.measurement", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.claim.measurement', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgHypercertsClaimRightsRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsClaimRights.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsClaimRights.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.claim.rights",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.claim.rights',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsClaimRights.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsClaimRights.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.claim.rights",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.claim.rights',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimRights.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.rights";
+    const collection = 'org.hypercerts.claim.rights'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsClaimRights.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.claim.rights";
+    const collection = 'org.hypercerts.claim.rights'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.claim.rights", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.claim.rights', ...params },
+      { headers },
+    )
   }
 }
 
 export class OrgHypercertsCollectionRecord {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 
   async list(
-    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
   ): Promise<{
-    cursor?: string;
-    records: { uri: string; value: OrgHypercertsCollection.Record }[];
+    cursor?: string
+    records: { uri: string; value: OrgHypercertsCollection.Record }[]
   }> {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "org.hypercerts.collection",
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.hypercerts.collection',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async get(
-    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, "collection">
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
   ): Promise<{
-    uri: string;
-    cid: string;
-    value: OrgHypercertsCollection.Record;
+    uri: string
+    cid: string
+    value: OrgHypercertsCollection.Record
   }> {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "org.hypercerts.collection",
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.hypercerts.collection',
       ...params,
-    });
-    return res.data;
+    })
+    return res.data
   }
 
   async create(
     params: OmitKey<
       ComAtprotoRepoCreateRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsCollection.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.collection";
+    const collection = 'org.hypercerts.collection'
     const res = await this._client.call(
-      "com.atproto.repo.createRecord",
+      'com.atproto.repo.createRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async put(
     params: OmitKey<
       ComAtprotoRepoPutRecord.InputSchema,
-      "collection" | "record"
+      'collection' | 'record'
     >,
     record: Un$Typed<OrgHypercertsCollection.Record>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<{ uri: string; cid: string }> {
-    const collection = "org.hypercerts.collection";
+    const collection = 'org.hypercerts.collection'
     const res = await this._client.call(
-      "com.atproto.repo.putRecord",
+      'com.atproto.repo.putRecord',
       undefined,
       { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
+      { encoding: 'application/json', headers },
+    )
+    return res.data
   }
 
   async delete(
-    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, "collection">,
-    headers?: Record<string, string>
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
   ): Promise<void> {
     await this._client.call(
-      "com.atproto.repo.deleteRecord",
+      'com.atproto.repo.deleteRecord',
       undefined,
-      { collection: "org.hypercerts.collection", ...params },
-      { headers }
-    );
+      { collection: 'org.hypercerts.collection', ...params },
+      { headers },
+    )
   }
 }
 
 export class ComNS {
-  _client: XrpcClient;
-  atproto: ComAtprotoNS;
+  _client: XrpcClient
+  atproto: ComAtprotoNS
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.atproto = new ComAtprotoNS(client);
+    this._client = client
+    this.atproto = new ComAtprotoNS(client)
   }
 }
 
 export class ComAtprotoNS {
-  _client: XrpcClient;
-  repo: ComAtprotoRepoNS;
+  _client: XrpcClient
+  repo: ComAtprotoRepoNS
 
   constructor(client: XrpcClient) {
-    this._client = client;
-    this.repo = new ComAtprotoRepoNS(client);
+    this._client = client
+    this.repo = new ComAtprotoRepoNS(client)
   }
 }
 
 export class ComAtprotoRepoNS {
-  _client: XrpcClient;
+  _client: XrpcClient
 
   constructor(client: XrpcClient) {
-    this._client = client;
+    this._client = client
   }
 }

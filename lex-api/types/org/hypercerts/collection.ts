@@ -5,7 +5,7 @@ import { type ValidationResult, BlobRef } from '@atproto/lexicon'
 import { CID } from 'multiformats/cid'
 import { validate as _validate } from '../../../lexicons'
 import { type $Typed, is$typed as _is$typed, type OmitKey } from '../../../util'
-import type * as AppCertifiedDefs from '../../app/certified/defs.js'
+import type * as OrgHypercertsDefs from './defs.js'
 import type * as ComAtprotoRepoStrongRef from '../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
@@ -19,8 +19,8 @@ export interface Main {
   /** A short description of this collection */
   shortDescription?: string
   coverPhoto?:
-    | $Typed<AppCertifiedDefs.Uri>
-    | $Typed<AppCertifiedDefs.SmallBlob>
+    | $Typed<OrgHypercertsDefs.Uri>
+    | $Typed<OrgHypercertsDefs.SmallBlob>
     | { $type: string }
   /** Array of claims with their associated weights in this collection */
   claims: ClaimItem[]

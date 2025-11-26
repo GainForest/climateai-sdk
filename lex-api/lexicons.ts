@@ -489,8 +489,8 @@ export const schemaDict = {
             coverPhoto: {
               type: 'union',
               refs: [
-                'lex:app.certified.defs#uri',
-                'lex:app.certified.defs#smallBlob',
+                'lex:org.hypercerts.defs#uri',
+                'lex:org.hypercerts.defs#smallBlob',
               ],
               description:
                 'The cover photo of this collection (either in URI format or in a blob).',
