@@ -4,6 +4,7 @@ import { AppRouterFactory, type AppRouter } from "./server/routers/_app";
 
 const supportedDomains = ["climateai.org", "hypercerts.org"] as const;
 export const supportedPDSDomainSchema = z.enum(supportedDomains);
+const supportedPDSDomainsSchema = z.array(supportedPDSDomainSchema);
 export type SupportedPDSDomain = (typeof supportedDomains)[number];
 
 export class ClimateAiSDK<T extends SupportedPDSDomain> {
@@ -18,7 +19,7 @@ export class ClimateAiSDK<T extends SupportedPDSDomain> {
     } else if (_allowedPDSDomains.length === 0) {
       throw new Error("There should be at least one allowed domain");
     }
-    if (!supportedPDSDomainSchema.safeParse(_allowedPDSDomains).success) {
+    if (!supportedPDSDomainsSchema.safeParse(_allowedPDSDomains).success) {
       throw new Error(
         "One of the domains is not supported. Supported domains are: " +
           supportedDomains.join(", ") +

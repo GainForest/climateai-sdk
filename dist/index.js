@@ -3438,6 +3438,7 @@ var AppRouterFactory = class {
 // src/index.ts
 var supportedDomains = ["climateai.org", "hypercerts.org"];
 var supportedPDSDomainSchema = z22.enum(supportedDomains);
+var allowedPDSDomainsSchema = z22.array(supportedPDSDomainSchema);
 var ClimateAiSDK = class {
   allowedPDSDomains;
   appRouter;
@@ -3449,7 +3450,7 @@ var ClimateAiSDK = class {
     } else if (_allowedPDSDomains.length === 0) {
       throw new Error("There should be at least one allowed domain");
     }
-    if (!supportedPDSDomainSchema.safeParse(_allowedPDSDomains).success) {
+    if (!allowedPDSDomainsSchema.safeParse(_allowedPDSDomains).success) {
       throw new Error(
         "One of the domains is not supported. Supported domains are: " + supportedDomains.join(", ") + ". Received domains: " + JSON.stringify(_allowedPDSDomains, null, 2)
       );
