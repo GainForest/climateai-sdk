@@ -27,7 +27,7 @@ module.exports = __toCommonJS(utilities_exports);
 
 // src/utilities/getBlobUrl.ts
 var import_api = require("@atproto/api");
-var getBlobUrl = (did, imageData, pdsUrl) => {
+var getBlobUrl = (did, imageData, pdsDomain) => {
   if (typeof imageData === "string") {
     const imageUrl = new URL(imageData);
     return imageUrl.toString();
@@ -37,7 +37,7 @@ var getBlobUrl = (did, imageData, pdsUrl) => {
     const ref = imageData.ref;
     const cid = typeof ref === "string" ? ref : ref?.$link ?? String(ref);
     const encodedCid = encodeURIComponent(cid);
-    return `${pdsUrl}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
+    return `https://${pdsDomain}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
   }
   if (imageData.$type === "app.gainforest.common.defs#uri") {
     const uri = imageData.uri;
@@ -45,19 +45,19 @@ var getBlobUrl = (did, imageData, pdsUrl) => {
   }
   if (imageData.$type === "app.gainforest.common.defs#smallBlob" || imageData.$type === "app.gainforest.common.defs#largeBlob") {
     const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsUrl);
+    return getBlobUrl(did, blob, pdsDomain);
   }
   if (imageData.$type === "app.gainforest.common.defs#smallImage" || imageData.$type === "app.gainforest.common.defs#largeImage") {
     const image = imageData.image;
-    return getBlobUrl(did, image, pdsUrl);
+    return getBlobUrl(did, image, pdsDomain);
   }
   if ("blob" in imageData) {
     const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsUrl);
+    return getBlobUrl(did, blob, pdsDomain);
   }
   if ("image" in imageData) {
     const image = imageData.image;
-    return getBlobUrl(did, image, pdsUrl);
+    return getBlobUrl(did, image, pdsDomain);
   }
   if ("uri" in imageData) {
     const uri = imageData.uri;

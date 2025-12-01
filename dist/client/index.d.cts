@@ -1,6 +1,6 @@
 import * as node_modules__trpc_react_query_dist_getQueryKey_d_CruH3ncI_d_mts from 'node_modules/@trpc/react-query/dist/getQueryKey.d-CruH3ncI.d.mts';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4 } from '../info-qqTZyivl.cjs';
-import { M as Main$3 } from '../claim-CeQVbJ5a.cjs';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4 } from '../info-D5rd8I7f.cjs';
+import { M as Main$3 } from '../claim-CsQa9nQY.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
@@ -8,15 +8,13 @@ import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@
 import { G as GetRecordResponse, P as PutRecordResponse } from '../response-types-a9c2mEQD.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
-import { S as SupportedPDSDomain, A as AppRouter, a as StoredSession } from '../index-BsJjDmyL.cjs';
+import { S as SupportedPDSDomain, A as AppRouter, a as StoredSession } from '../index-BG5wsP8T.cjs';
 import * as _trpc_react_query from '@trpc/react-query';
 import * as _trpc_client from '@trpc/client';
-import '../util-CbiaqOMs.cjs';
 import '@atproto/lexicon';
-import '../defs-BfYv75nX.cjs';
 import '../blobref-CzIHHOw4.cjs';
 import 'zod';
-import 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
+import '@trpc/server/unstable-core-do-not-import';
 import '@atproto/oauth-client-node';
 
 declare const createTRPCClient: <T extends SupportedPDSDomain>(trpcEndpoint: string) => _trpc_client.TRPCClient<AppRouter<T>>;

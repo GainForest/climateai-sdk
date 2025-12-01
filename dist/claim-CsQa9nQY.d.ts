@@ -1,5 +1,30 @@
-import { a as $TypedObject, $ as $Typed } from './util-CbiaqOMs.cjs';
 import { BlobRef, ValidationResult } from '@atproto/lexicon';
+
+/**
+ * GENERATED CODE - DO NOT MODIFY
+ */
+
+type OmitKey<T, K extends keyof T> = {
+    [K2 in keyof T as K2 extends K ? never : K2]: T[K2];
+};
+type $Typed<V, T extends string = string> = V & {
+    $type: T;
+};
+type Un$Typed<V extends {
+    $type?: string;
+}> = OmitKey<V, '$type'>;
+type $Type<Id extends string, Hash extends string> = Hash extends 'main' ? Id : `${Id}#${Hash}`;
+type $TypedObject<V, Id extends string, Hash extends string> = V extends {
+    $type: $Type<Id, Hash>;
+} ? V : V extends {
+    $type?: string;
+} ? V extends {
+    $type?: infer T extends $Type<Id, Hash>;
+} ? V & {
+    $type: T;
+} : never : V & {
+    $type: $Type<Id, Hash>;
+};
 
 /** Object containing a URI to external data */
 interface Uri {
@@ -110,4 +135,4 @@ declare namespace OrgHypercertsClaimClaim {
   export { type OrgHypercertsClaimClaim_Main as Main, type Main as Record, OrgHypercertsClaimClaim_isMain as isMain, isMain as isRecord, OrgHypercertsClaimClaim_validateMain as validateMain, validateMain as validateRecord };
 }
 
-export { type Main as M, OrgHypercertsClaimClaim as O, type SmallBlob as S, type Uri as U, type Main$1 as a, defs as d, strongRef as s };
+export { type $Typed as $, type Main as M, type OmitKey as O, type SmallBlob as S, type Uri as U, type Main$1 as a, type $TypedObject as b, type Un$Typed as c, OrgHypercertsClaimClaim as d, defs as e, strongRef as s };

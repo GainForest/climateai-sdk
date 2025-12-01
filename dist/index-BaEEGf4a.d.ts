@@ -1,15 +1,13 @@
-import { $ as $Typed } from './util-CbiaqOMs.cjs';
-import { U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './defs-BfYv75nX.cjs';
-import { B as BlobRefGenerator } from './blobref-CzIHHOw4.cjs';
+import { M as Main$3, $ as $Typed } from './claim-CsQa9nQY.js';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, U as Uri, S as SmallImage, L as LargeImage, d as SmallBlob, e as LargeBlob } from './info-Dh28bSRe.js';
+import { B as BlobRefGenerator } from './blobref-CzIHHOw4.js';
 import * as _atproto_lexicon from '@atproto/lexicon';
-import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4 } from './info-qqTZyivl.cjs';
-import { M as Main$3 } from './claim-CeQVbJ5a.cjs';
+import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.cjs';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 import { JwtPayload } from '@atproto/oauth-client-node';
@@ -317,7 +315,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
         };
     }>>;
     constructor(_allowedPDSDomains: T[]);
-    getServerCaller: () => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
@@ -904,7 +902,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
             };
         };
     }>>;
-    getServerCaller: () => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
@@ -1186,7 +1184,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
         };
     }>>;
     utilities: {
-        getBlobUrl: (did: string, imageData: string | _atproto_lexicon.BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsUrl: T) => string;
+        getBlobUrl: (did: string, imageData: string | _atproto_lexicon.BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
         parseAtUri: (atUri: string) => {
             did: string | undefined;
             rkey: string;

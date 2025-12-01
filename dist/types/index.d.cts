@@ -1,6 +1,5 @@
-import { M as Main } from '../claim-CeQVbJ5a.cjs';
+import { M as Main } from '../claim-CsQa9nQY.cjs';
 import { G as GetRecordResponse } from '../response-types-a9c2mEQD.cjs';
-import '../util-CbiaqOMs.cjs';
 import '@atproto/lexicon';
 
 type Ecocert = {
