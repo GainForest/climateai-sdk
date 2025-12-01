@@ -19,13 +19,11 @@ Create a single configuration module (e.g. `src/server/climateai-sdk.config.ts`)
 import { ClimateAiSDK, SupportedPDSDomain } from "climateai-sdk";
 
 // keep this list in one place so both the SDK and your app agree on it
-export const allowedPDSDomains = ["climateai.org", "hypercerts.org"] as const;
+export const allowedPDSDomains: SupportedPDSDomain[] = ["climateai.org"];
 
 export type AllowedPDSDomain = (typeof allowedPDSDomains)[number];
 
-export const climateAiSdk = new ClimateAiSDK<AllowedPDSDomain>(
-  allowedPDSDomains
-);
+export const climateAiSdk = new ClimateAiSDK(allowedPDSDomains);
 ```
 
 The constructor validates the domains against `supportedPDSDomainSchema`, so initialization fails fast if a domain is not recognized.
@@ -63,21 +61,30 @@ If you keep the `allowedPDSDomains` array exported from your config file, you ca
 
 Use the React bindings when you need hooks (`useQuery`, `useMutation`, …). The helper `createTRPCReactApi` ensures your component tree stays type-safe.
 
+### TRPC Provider Setup
+
+To set up trpc provider and hooks for querying and mutating data, we need to set up a provider first.
+
+#### Configure the Provider
+
 ```tsx
 "use client";
 
 import { ReactNode, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
-import { createTRPCReactApi } from "climateai-sdk/client";
+import { createTRPCReact } from "@trpc/react-query";
+import { AppRouter } from "climateai-sdk";
 import { customTransformer } from "climateai-sdk/utilities/transformer";
 import { AllowedPDSDomain } from "@/server/climateai-sdk.config";
 
-const api = createTRPCReactApi<AllowedPDSDomain>();
+export const trpcApi = createTRPCReact<AppRouter<AllowedPDSDomain>>();
 
 function getBaseUrl() {
   if (typeof window !== "undefined") return "";
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return process.env.VERCEL_PROJECT_PRODUCTION_URL ?
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:8910";
 }
 
 export function TrpcProvider({ children }: { children: ReactNode }) {
@@ -85,7 +92,7 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
 
   const trpcClient = useMemo(
     () =>
-      api.createClient({
+      trpcApi.createClient({
         links: [
           loggerLink({ enabled: () => process.env.NODE_ENV === "development" }),
           httpBatchLink({
@@ -98,11 +105,37 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <api.Provider client={trpcClient} queryClient={queryClient}>
+    <trpcApi.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </api.Provider>
+    </trpcApi.Provider>
   );
 }
+```
+
+#### Wrap the children with the provider in `layout.tsx`
+
+```tsx
+import { TrpcProvider } from "@/components/providers/trpc-provider.tsx";
+
+const RootLayout = ({ children }: { children }) => {
+  return <TrpcProvider>{children}</TrpcProvider>;
+};
+```
+
+### Usage:
+
+```tsx
+import { trpcApi } from "@/components/providers/trpc-provider.tsx";
+
+const {
+  data: info,
+  isPending,
+  error,
+  isPlaceholderData,
+} = trpcApi.gainforest.organization.info.get.useQuery({
+  did: organizationDid ?? "",
+  pdsDomain: "climateai.org",
+});
 ```
 
 ## 4. Non-React usage on client
@@ -111,7 +144,7 @@ If you need to use the queries or mutations on the client, but out of the react 
 you can use the `trpcClient`.
 
 ```ts
-import { createTRPCClient } from "climateai-sdk";
+import { createTRPCClient } from "climateai-sdk/client";
 import type { AllowedPDSDomain } from "@/server/climateai-sdk.config";
 
 const trpcClient = createTRPCClient<AllowedPDSDomain>("/api/trpc");
@@ -143,15 +176,15 @@ const ServerSidePage = async () => {
 
 The package ships an explicit [exports map](./package.json) so consumers can import only what they need:
 
-| Import Path                           | What you get                                                                                                                      |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `climateai-sdk`                       | `ClimateAiSDK`, `SupportedPDSDomain`, `supportedPDSDomainSchema`, `createContext`, `createTRPCClient`, `createTRPCReactApi`, etc. |
-| `climateai-sdk/client`                | React helpers (`createTRPCReactApi`).                                                                                             |
-| `climateai-sdk/utilities`             | `getBlobUrl`, `parseAtUri` helpers.                                                                                               |
-| `climateai-sdk/utilities/transformer` | `serialize`, `deserialize`, `customTransformer`, and the `SerializedSuperjson` helper type.                                       |
-| `climateai-sdk/zod-schemas`           | Blob/file schemas and converters.                                                                                                 |
-| `climateai-sdk/types`                 | Shared domain types such as `Ecocert`.                                                                                            |
-| `climateai-sdk/session`               | The session helper re-export if you need to customize context creation.                                                           |
+| Import Path                           | What you get                                                                                |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `climateai-sdk`                       | `ClimateAiSDK`, `SupportedPDSDomain`, `supportedPDSDomainSchema`, `createContext`           |
+| `climateai-sdk/client`                | React helpers (`createTRPCClient`).                                                         |
+| `climateai-sdk/utilities`             | `getBlobUrl`, `parseAtUri` helpers.                                                         |
+| `climateai-sdk/utilities/transformer` | `serialize`, `deserialize`, `customTransformer`, and the `SerializedSuperjson` helper type. |
+| `climateai-sdk/zod-schemas`           | Blob/file schemas and converters.                                                           |
+| `climateai-sdk/types`                 | Shared domain types such as `Ecocert`.                                                      |
+| `climateai-sdk/session`               | The session helper re-export if you need to customize context creation.                     |
 
 Examples:
 

@@ -1,6 +1,5 @@
 // src/client/index.ts
 import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
 
 // src/utilities/transformer.ts
 import superjson from "superjson";
@@ -80,11 +79,7 @@ var createTRPCClient = (trpcEndpoint) => createTRPCProxyClient({
     })
   ]
 });
-var createTRPCReactApi = () => {
-  return createTRPCReact({});
-};
 export {
-  createTRPCClient,
-  createTRPCReactApi
+  createTRPCClient
 };
 //# sourceMappingURL=index.js.map

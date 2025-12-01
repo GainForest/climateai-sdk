@@ -1,5 +1,5 @@
 import './claim-CsQa9nQY.js';
-import './info-Dh28bSRe.js';
+import './info-D0jX-Dge.js';
 import './blobref-CzIHHOw4.js';
 import '@atproto/lexicon';
 import '@trpc/server/unstable-core-do-not-import';
@@ -10,6 +10,6 @@ import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import './response-types-a9c2mEQD.js';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
-export { A as AppRouter, C as ClimateAiSDK, S as SupportedPDSDomain, d as createContext, b as supportedPDSDomainSchema } from './index-BaEEGf4a.js';
+export { A as AppRouter, C as ClimateAiSDK, S as SupportedPDSDomain, d as createContext, b as supportedPDSDomainSchema } from './index-Hnnn5Xwg.js';
 import 'zod';
 import '@atproto/oauth-client-node';

@@ -30,12 +30,10 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/client/index.ts
 var client_exports = {};
 __export(client_exports, {
-  createTRPCClient: () => createTRPCClient,
-  createTRPCReactApi: () => createTRPCReactApi
+  createTRPCClient: () => createTRPCClient
 });
 module.exports = __toCommonJS(client_exports);
 var import_client = require("@trpc/client");
-var import_react_query = require("@trpc/react-query");
 
 // src/utilities/transformer.ts
 var import_superjson = __toESM(require("superjson"), 1);
@@ -115,7 +113,4 @@ var createTRPCClient = (trpcEndpoint) => (0, import_client.createTRPCProxyClient
     })
   ]
 });
-var createTRPCReactApi = () => {
-  return (0, import_react_query.createTRPCReact)({});
-};
 //# sourceMappingURL=index.cjs.map

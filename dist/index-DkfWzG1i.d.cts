@@ -1,13 +1,13 @@
-import { M as Main$3, $ as $Typed } from './claim-CsQa9nQY.js';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4, U as Uri, S as SmallImage, L as LargeImage, d as SmallBlob, e as LargeBlob } from './info-Dh28bSRe.js';
-import { B as BlobRefGenerator } from './blobref-CzIHHOw4.js';
+import { M as Main$3, $ as $Typed } from './claim-CsQa9nQY.cjs';
+import { M as Main, c as Main$1, d as Main$2, e as Main$4, U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './info-BRi-Y3n_.cjs';
+import { B as BlobRefGenerator } from './blobref-CzIHHOw4.cjs';
 import * as _atproto_lexicon from '@atproto/lexicon';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.js';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 import { JwtPayload } from '@atproto/oauth-client-node';

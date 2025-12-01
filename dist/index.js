@@ -3450,14 +3450,18 @@ var ClimateAiSDK = class {
       throw new Error("There should be at least one allowed domain");
     }
     if (!supportedPDSDomainSchema.safeParse(_allowedPDSDomains).success) {
+      console.error(
+        "Received domain:",
+        JSON.stringify(_allowedPDSDomains, null, 2)
+      );
       throw new Error(
         "One of the domains is not supported. Supported domains are: " + supportedDomains.join(", ")
       );
     }
     this.allowedPDSDomains = _allowedPDSDomains;
-    const appRouter = new AppRouterFactory(this.allowedPDSDomains);
-    this.appRouter = appRouter.appRouter;
-    this.getServerCaller = appRouter.getServerCaller;
+    const appRouterFactory = new AppRouterFactory(this.allowedPDSDomains);
+    this.appRouter = appRouterFactory.appRouter;
+    this.getServerCaller = appRouterFactory.getServerCaller;
     this.utilities = {
       getBlobUrl: getBlobUrl_default,
       parseAtUri: parseAtUri_default

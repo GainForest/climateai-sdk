@@ -169,4 +169,4 @@ declare namespace AppGainforestOrganizationInfo {
   export { type AppGainforestOrganizationInfo_Main as Main, type Main as Record, AppGainforestOrganizationInfo_isMain as isMain, isMain as isRecord, AppGainforestOrganizationInfo_validateMain as validateMain, validateMain as validateRecord };
 }
 
-export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type Main$1 as a, type Main$2 as b, type Main$3 as c, type SmallBlob as d, type LargeBlob as e, defs as f, AppGainforestOrganizationDefaultSite as g, AppGainforestOrganizationInfo as h, AppGainforestOrganizationSite as i };
+export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type SmallBlob as a, type LargeBlob as b, type Main$1 as c, type Main$2 as d, type Main$3 as e, defs as f, AppGainforestOrganizationDefaultSite as g, AppGainforestOrganizationInfo as h, AppGainforestOrganizationSite as i };
