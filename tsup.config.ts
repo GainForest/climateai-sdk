@@ -1,16 +1,16 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: [
-    "src/index.ts",
-    "src/client/index.ts",
-    "src/utilities/index.ts",
-    "src/utilities/transformer.ts",
-    "src/zod-schemas/index.ts",
-    "src/types/index.ts",
-    "src/server/session.ts",
-    "lex-api/index.ts",
-  ],
+  entry: {
+    "index": "src/index.ts",
+    "client/index": "src/client/index.ts",
+    "utilities/index": "src/utilities/index.ts",
+    "utilities/transformer": "src/utilities/transformer.ts",
+    "zod-schemas/index": "src/zod-schemas/index.ts",
+    "types/index": "src/types/index.ts",
+    "server/session": "src/server/session.ts",
+    "lex-api/index": "lex-api/index.ts",
+  },
   format: ["esm", "cjs"],
   dts: true,
   sourcemap: true,
