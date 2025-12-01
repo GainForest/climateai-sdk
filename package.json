@@ -44,6 +44,11 @@
       "types": "./dist/server/session.d.ts",
       "import": "./dist/server/session.js",
       "require": "./dist/server/session.cjs"
+    },
+    "./lex-api": {
+      "types": "./dist/lex-api/index.d.ts",
+      "import": "./dist/lex-api/index.js",
+      "require": "./dist/lex-api/index.cjs"
     }
   },
   "private": true,

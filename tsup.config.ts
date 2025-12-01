@@ -9,6 +9,7 @@ export default defineConfig({
     "src/zod-schemas/index.ts",
     "src/types/index.ts",
     "src/server/session.ts",
+    "lex-api/index.ts",
   ],
   format: ["esm", "cjs"],
   dts: true,
