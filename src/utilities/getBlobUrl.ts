@@ -8,8 +8,9 @@ import {
 import type { $Typed } from "@/../lex-api/util";
 import type { BlobRefGenerator } from "@/zod-schemas/blobref";
 import { BlobRef } from "@atproto/api";
+import { SupportedPDSDomain } from "..";
 
-const getBlobUrl = <T extends string>(
+const getBlobUrl = <T extends SupportedPDSDomain>(
   did: string,
   imageData:
     | string
@@ -21,7 +22,7 @@ const getBlobUrl = <T extends string>(
     | LargeImage
     | SmallBlob
     | LargeBlob,
-  pdsUrl: T
+  pdsDomain: T
 ) => {
   if (typeof imageData === "string") {
     const imageUrl = new URL(imageData);
@@ -35,7 +36,7 @@ const getBlobUrl = <T extends string>(
     const ref = imageData.ref as unknown as { $link?: string } | string;
     const cid = typeof ref === "string" ? ref : (ref?.$link ?? String(ref));
     const encodedCid = encodeURIComponent(cid);
-    return `${pdsUrl}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
+    return `https://${pdsDomain}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
   }
 
   // Handle $Typed cases
@@ -54,7 +55,7 @@ const getBlobUrl = <T extends string>(
     imageData.$type === "app.gainforest.common.defs#largeBlob"
   ) {
     const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsUrl);
+    return getBlobUrl(did, blob, pdsDomain);
   }
 
   if (
@@ -62,17 +63,17 @@ const getBlobUrl = <T extends string>(
     imageData.$type === "app.gainforest.common.defs#largeImage"
   ) {
     const image = imageData.image;
-    return getBlobUrl(did, image, pdsUrl);
+    return getBlobUrl(did, image, pdsDomain);
   }
 
   if ("blob" in imageData) {
     const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsUrl);
+    return getBlobUrl(did, blob, pdsDomain);
   }
 
   if ("image" in imageData) {
     const image = imageData.image;
-    return getBlobUrl(did, image, pdsUrl);
+    return getBlobUrl(did, image, pdsDomain);
   }
 
   if ("uri" in imageData) {
