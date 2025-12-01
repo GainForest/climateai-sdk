@@ -3450,12 +3450,8 @@ var ClimateAiSDK = class {
       throw new Error("There should be at least one allowed domain");
     }
     if (!supportedPDSDomainSchema.safeParse(_allowedPDSDomains).success) {
-      console.error(
-        "Received domain:",
-        JSON.stringify(_allowedPDSDomains, null, 2)
-      );
       throw new Error(
-        "One of the domains is not supported. Supported domains are: " + supportedDomains.join(", ")
+        "One of the domains is not supported. Supported domains are: " + supportedDomains.join(", ") + ". Received domains: " + JSON.stringify(_allowedPDSDomains, null, 2)
       );
     }
     this.allowedPDSDomains = _allowedPDSDomains;
