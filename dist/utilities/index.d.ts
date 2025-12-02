@@ -2,7 +2,7 @@ import { U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeB
 import { $ as $Typed } from '../claim-CsQa9nQY.js';
 import { B as BlobRefGenerator } from '../blobref-CzIHHOw4.js';
 import { BlobRef } from '@atproto/api';
-import { S as SupportedPDSDomain } from '../index-D2rUeDqN.js';
+import { S as SupportedPDSDomain } from '../index-DMG00rc-.js';
 import { GeoJsonObject } from 'geojson';
 import '@atproto/lexicon';
 import 'zod';
@@ -19,7 +19,8 @@ import '@atproto/oauth-client-node';
 declare const getBlobUrl: <T extends SupportedPDSDomain>(did: string, imageData: string | BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
 
 declare const parseAtUri: (atUri: string) => {
-    did: string | undefined;
+    did: string;
+    collection: string;
     rkey: string;
 };
 

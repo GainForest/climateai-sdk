@@ -1226,7 +1226,8 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
     utilities: {
         getBlobUrl: (did: string, imageData: string | _atproto_lexicon.BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
         parseAtUri: (atUri: string) => {
-            did: string | undefined;
+            did: string;
+            collection: string;
             rkey: string;
         };
     };

@@ -709,10 +709,12 @@ var getBlobUrl_default = getBlobUrl;
 
 // src/utilities/parseAtUri.ts
 var parseAtUri = (atUri) => {
-  const cleanedAtUri = atUri.replace("at://", "");
-  const [did, ...rest] = cleanedAtUri.split("/");
-  let rkey = rest.at(-1) ?? "";
-  return { did, rkey };
+  let cleanedAtUri = atUri.replace("at://", "");
+  const splitUri = cleanedAtUri.split("/");
+  const did = splitUri.at(0) ?? "";
+  const collection = splitUri.at(1) ?? "";
+  const rkey = splitUri.at(2) ?? "self";
+  return { did, collection, rkey };
 };
 var parseAtUri_default = parseAtUri;
 
