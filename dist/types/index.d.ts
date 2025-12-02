@@ -13,4 +13,4 @@ type Ecocert = {
     claim: GetRecordResponse<Main>;
 };
 
-export type { Ecocert };
+export { type Ecocert, GetRecordResponse };

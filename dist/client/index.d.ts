@@ -1,8 +1,8 @@
 import * as _trpc_client from '@trpc/client';
-import { S as SupportedPDSDomain, A as AppRouter } from '../index-Hnnn5Xwg.js';
+import { S as SupportedPDSDomain, A as AppRouter } from '../index-D2rUeDqN.js';
 import '../claim-CsQa9nQY.js';
 import '@atproto/lexicon';
-import '../info-D0jX-Dge.js';
+import '../info-wmz5wtzF.js';
 import '../blobref-CzIHHOw4.js';
 import 'zod';
 import '@trpc/server/unstable-core-do-not-import';

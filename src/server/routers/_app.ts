@@ -6,6 +6,7 @@ import { logoutFactory } from "./atproto/auth/logout";
 import { getOrganizationInfoFactory } from "./atproto/gainforest/organizationInfo/get";
 import { getSiteFactory } from "./atproto/gainforest/site/get";
 import { getDefaultProjectSiteFactory } from "./atproto/gainforest/site/getDefault";
+import { getMeasuredTreesFactory } from "./atproto/gainforest/measuredTrees/get";
 import { createHypercertClaimFactory } from "./atproto/hypercerts/claim/create";
 import { createOrUpdateOrganizationInfoFactory } from "./atproto/gainforest/organizationInfo/createOrUpdate";
 import { getAllSitesFactory } from "./atproto/gainforest/site/getAll";
@@ -56,6 +57,9 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
               this.allowedPDSDomainSchema
             ),
             setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema),
+          },
+          measuredTrees: {
+            get: getMeasuredTreesFactory(this.allowedPDSDomainSchema),
           },
         },
       },

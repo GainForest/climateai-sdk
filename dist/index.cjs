@@ -665,7 +665,7 @@ __export(src_exports, {
   supportedPDSDomainSchema: () => supportedPDSDomainSchema
 });
 module.exports = __toCommonJS(src_exports);
-var import_zod22 = require("zod");
+var import_zod23 = require("zod");
 
 // src/utilities/getBlobUrl.ts
 var import_api = require("@atproto/api");
@@ -1301,17 +1301,17 @@ var import_lexicon2 = require("@atproto/lexicon");
 function isObject2(v) {
   return v != null && typeof v === "object";
 }
-function is$type($type, id7, hash) {
-  return hash === "main" ? $type === id7 : (
+function is$type($type, id8, hash) {
+  return hash === "main" ? $type === id8 : (
     // $type === `${id}#${hash}`
-    typeof $type === "string" && $type.length === id7.length + 1 + hash.length && $type.charCodeAt(id7.length) === 35 && $type.startsWith(id7) && $type.endsWith(hash)
+    typeof $type === "string" && $type.length === id8.length + 1 + hash.length && $type.charCodeAt(id8.length) === 35 && $type.startsWith(id8) && $type.endsWith(hash)
   );
 }
-function is$typed(v, id7, hash) {
-  return isObject2(v) && "$type" in v && is$type(v.$type, id7, hash);
+function is$typed(v, id8, hash) {
+  return isObject2(v) && "$type" in v && is$type(v.$type, id8, hash);
 }
-function maybe$typed(v, id7, hash) {
-  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id7, hash) : true);
+function maybe$typed(v, id8, hash) {
+  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id8, hash) : true);
 }
 
 // lex-api/lexicons.ts
@@ -2190,11 +2190,11 @@ var schemaDict = {
 };
 var schemas = Object.values(schemaDict);
 var lexicons = new import_lexicon2.Lexicons(schemas);
-function validate(v, id7, hash, requiredType) {
-  return (requiredType ? is$typed : maybe$typed)(v, id7, hash) ? lexicons.validate(`${id7}#${hash}`, v) : {
+function validate(v, id8, hash, requiredType) {
+  return (requiredType ? is$typed : maybe$typed)(v, id8, hash) ? lexicons.validate(`${id8}#${hash}`, v) : {
     success: false,
     error: new import_lexicon2.ValidationError(
-      `Must be an object with "${hash === "main" ? id7 : `${id7}#${hash}`}" $type property`
+      `Must be an object with "${hash === "main" ? id8 : `${id8}#${hash}`}" $type property`
     )
   };
 }
@@ -2294,9 +2294,9 @@ function validateMain5(v) {
   return validate6(v, id5, hashMain5, true);
 }
 
-// lex-api/types/app/gainforest/organization/site.ts
-var site_exports = {};
-__export(site_exports, {
+// lex-api/types/app/gainforest/organization/measuredTrees.ts
+var measuredTrees_exports = {};
+__export(measuredTrees_exports, {
   isMain: () => isMain6,
   isRecord: () => isMain6,
   validateMain: () => validateMain6,
@@ -2304,13 +2304,32 @@ __export(site_exports, {
 });
 var is$typed7 = is$typed;
 var validate7 = validate;
-var id6 = "app.gainforest.organization.site";
+var id6 = "app.gainforest.organization.measuredTrees";
 var hashMain6 = "main";
 function isMain6(v) {
   return is$typed7(v, id6, hashMain6);
 }
 function validateMain6(v) {
   return validate7(v, id6, hashMain6, true);
+}
+
+// lex-api/types/app/gainforest/organization/site.ts
+var site_exports = {};
+__export(site_exports, {
+  isMain: () => isMain7,
+  isRecord: () => isMain7,
+  validateMain: () => validateMain7,
+  validateRecord: () => validateMain7
+});
+var is$typed8 = is$typed;
+var validate8 = validate;
+var id7 = "app.gainforest.organization.site";
+var hashMain7 = "main";
+function isMain7(v) {
+  return is$typed8(v, id7, hashMain7);
+}
+function validateMain7(v) {
+  return validate8(v, id7, hashMain7, true);
 }
 
 // src/server/utils/classify-xrpc-error.ts
@@ -2428,12 +2447,42 @@ var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
     if (response.success !== true) {
       throw new Error("Failed to get default project site");
     }
+    validateRecordOrThrow(
+      response.data.value,
+      defaultSite_exports
+    );
+    return response.data;
+  });
+};
+
+// src/server/routers/atproto/gainforest/measuredTrees/get.ts
+var import_zod10 = __toESM(require("zod"), 1);
+var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    import_zod10.default.object({
+      did: import_zod10.default.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    const agent = getReadAgent(input.pdsDomain);
+    const response = await agent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.measuredTrees",
+      repo: input.did,
+      rkey: "self"
+    });
+    if (response.success !== true) {
+      throw new Error("Failed to get measured trees");
+    }
+    validateRecordOrThrow(
+      response.data.value,
+      measuredTrees_exports
+    );
     return response.data;
   });
 };
 
 // src/server/routers/atproto/hypercerts/claim/create.ts
-var import_zod10 = __toESM(require("zod"), 1);
+var import_zod11 = __toESM(require("zod"), 1);
 var import_server9 = require("@trpc/server");
 var uploadFile = async (fileGenerator, agent) => {
   const file2 = new File(
@@ -2446,21 +2495,21 @@ var uploadFile = async (fileGenerator, agent) => {
 };
 var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod10.default.object({
-      claim: import_zod10.default.object({
-        title: import_zod10.default.string(),
-        shortDescription: import_zod10.default.string(),
-        description: import_zod10.default.string().optional(),
-        workScope: import_zod10.default.array(import_zod10.default.string()),
-        workTimeFrameFrom: import_zod10.default.string(),
-        workTimeFrameTo: import_zod10.default.string()
+    import_zod11.default.object({
+      claim: import_zod11.default.object({
+        title: import_zod11.default.string(),
+        shortDescription: import_zod11.default.string(),
+        description: import_zod11.default.string().optional(),
+        workScope: import_zod11.default.array(import_zod11.default.string()),
+        workTimeFrameFrom: import_zod11.default.string(),
+        workTimeFrameTo: import_zod11.default.string()
       }),
-      uploads: import_zod10.default.object({
+      uploads: import_zod11.default.object({
         image: FileGeneratorSchema,
-        contributors: import_zod10.default.array(import_zod10.default.string()).refine((v) => v.length > 0, {
+        contributors: import_zod11.default.array(import_zod11.default.string()).refine((v) => v.length > 0, {
           message: "At least one contribution is required"
         }),
-        siteAtUri: import_zod10.default.string()
+        siteAtUri: import_zod11.default.string()
       }),
       pdsDomain: allowedPDSDomainSchema
     })
@@ -2584,22 +2633,22 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/gainforest/organizationInfo/createOrUpdate.ts
-var import_zod11 = __toESM(require("zod"), 1);
+var import_zod12 = __toESM(require("zod"), 1);
 var import_server10 = require("@trpc/server");
 var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(import_zod11.default.object({ did: import_zod11.default.string(), pdsDomain: allowedPDSDomainSchema })).mutation(async ({ input }) => {
+  return protectedProcedure.input(import_zod12.default.object({ did: import_zod12.default.string(), pdsDomain: allowedPDSDomainSchema })).mutation(async ({ input }) => {
     return await protectedProcedure.input(
-      import_zod11.default.object({
-        did: import_zod11.default.string(),
-        info: import_zod11.default.object({
-          displayName: import_zod11.default.string(),
-          shortDescription: import_zod11.default.string(),
-          longDescription: import_zod11.default.string(),
-          website: import_zod11.default.string().optional(),
+      import_zod12.default.object({
+        did: import_zod12.default.string(),
+        info: import_zod12.default.object({
+          displayName: import_zod12.default.string(),
+          shortDescription: import_zod12.default.string(),
+          longDescription: import_zod12.default.string(),
+          website: import_zod12.default.string().optional(),
           logo: BlobRefGeneratorSchema.optional(),
           coverImage: BlobRefGeneratorSchema.optional(),
-          objectives: import_zod11.default.array(
-            import_zod11.default.enum([
+          objectives: import_zod12.default.array(
+            import_zod12.default.enum([
               "Conservation",
               "Research",
               "Education",
@@ -2607,11 +2656,11 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
               "Other"
             ])
           ),
-          startDate: import_zod11.default.string().optional(),
-          country: import_zod11.default.string(),
-          visibility: import_zod11.default.enum(["Public", "Hidden"])
+          startDate: import_zod12.default.string().optional(),
+          country: import_zod12.default.string(),
+          visibility: import_zod12.default.enum(["Public", "Hidden"])
         }),
-        uploads: import_zod11.default.object({
+        uploads: import_zod12.default.object({
           logo: FileGeneratorSchema.optional(),
           coverImage: FileGeneratorSchema.optional()
         }).optional(),
@@ -2662,11 +2711,11 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/gainforest/site/getAll.ts
-var import_zod12 = require("zod");
+var import_zod13 = require("zod");
 var import_server11 = require("@trpc/server");
 var import_xrpc3 = __toESM(require_dist(), 1);
 var getAllSitesFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(import_zod12.z.object({ did: import_zod12.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(import_zod13.z.object({ did: import_zod13.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const listSitesTryCatchPromise = tryCatch(
       agent.com.atproto.repo.listRecords({
@@ -2732,7 +2781,7 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/gainforest/site/create.ts
-var import_zod13 = require("zod");
+var import_zod14 = require("zod");
 var import_server13 = require("@trpc/server");
 
 // src/server/routers/atproto/gainforest/site/utils.ts
@@ -2882,13 +2931,13 @@ async function computeGeojsonFile(file2) {
 // src/server/routers/atproto/gainforest/site/create.ts
 var createSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod13.z.object({
-      rkey: import_zod13.z.string().optional(),
-      site: import_zod13.z.object({
-        name: import_zod13.z.string().min(1)
+    import_zod14.z.object({
+      rkey: import_zod14.z.string().optional(),
+      site: import_zod14.z.object({
+        name: import_zod14.z.string().min(1)
       }),
-      uploads: import_zod13.z.object({
-        shapefile: import_zod13.z.union([import_zod13.z.url(), FileGeneratorSchema])
+      uploads: import_zod14.z.object({
+        shapefile: import_zod14.z.union([import_zod14.z.url(), FileGeneratorSchema])
       }),
       pdsDomain: allowedPDSDomainSchema
     })
@@ -2940,30 +2989,30 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/gainforest/site/update.ts
-var import_zod14 = require("zod");
+var import_zod15 = require("zod");
 var import_server14 = require("@trpc/server");
 var updateSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod14.z.object({
-      rkey: import_zod14.z.string(),
-      site: import_zod14.z.object({
-        name: import_zod14.z.string().min(1),
-        shapefile: import_zod14.z.union([
-          import_zod14.z.object({
-            $type: import_zod14.z.literal("app.gainforest.common.defs#smallBlob"),
+    import_zod15.z.object({
+      rkey: import_zod15.z.string(),
+      site: import_zod15.z.object({
+        name: import_zod15.z.string().min(1),
+        shapefile: import_zod15.z.union([
+          import_zod15.z.object({
+            $type: import_zod15.z.literal("app.gainforest.common.defs#smallBlob"),
             blob: BlobRefGeneratorSchema
           }),
-          import_zod14.z.object({
-            $type: import_zod14.z.literal("app.gainforest.common.defs#uri"),
-            uri: import_zod14.z.string()
+          import_zod15.z.object({
+            $type: import_zod15.z.literal("app.gainforest.common.defs#uri"),
+            uri: import_zod15.z.string()
           })
         ]).optional(),
-        lat: import_zod14.z.string(),
-        lon: import_zod14.z.string(),
-        area: import_zod14.z.string()
+        lat: import_zod15.z.string(),
+        lon: import_zod15.z.string(),
+        area: import_zod15.z.string()
       }),
-      uploads: import_zod14.z.object({
-        shapefile: import_zod14.z.union([import_zod14.z.url(), FileGeneratorSchema]).optional()
+      uploads: import_zod15.z.object({
+        shapefile: import_zod15.z.union([import_zod15.z.url(), FileGeneratorSchema]).optional()
       }).optional(),
       pdsDomain: allowedPDSDomainSchema
     })
@@ -3046,12 +3095,12 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/gainforest/site/setDefault.ts
-var import_zod15 = __toESM(require("zod"), 1);
+var import_zod16 = __toESM(require("zod"), 1);
 var import_server15 = require("@trpc/server");
 var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod15.default.object({
-      siteAtUri: import_zod15.default.string(),
+    import_zod16.default.object({
+      siteAtUri: import_zod16.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -3105,10 +3154,10 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
 
 // src/server/routers/atproto/gainforest/site/delete.ts
 var import_server16 = require("@trpc/server");
-var import_zod16 = __toESM(require("zod"), 1);
+var import_zod17 = __toESM(require("zod"), 1);
 var deleteSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod16.default.object({ siteAtUri: import_zod16.default.string(), pdsDomain: allowedPDSDomainSchema })
+    import_zod17.default.object({ siteAtUri: import_zod17.default.string(), pdsDomain: allowedPDSDomainSchema })
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
@@ -3155,11 +3204,11 @@ var deleteSiteFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/hypercerts/claim/getAllAcrossOrgs.ts
-var import_zod18 = require("zod");
+var import_zod19 = require("zod");
 var import_server18 = require("@trpc/server");
 
 // src/server/routers/atproto/hypercerts/claim/getAll.ts
-var import_zod17 = require("zod");
+var import_zod18 = require("zod");
 var import_server17 = require("@trpc/server");
 var import_xrpc4 = __toESM(require_dist(), 1);
 var getAllClaimsPure = async (did, pdsDomain) => {
@@ -3203,7 +3252,7 @@ var getAllClaimsPure = async (did, pdsDomain) => {
 
 // src/server/routers/atproto/hypercerts/claim/getAllAcrossOrgs.ts
 var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(import_zod18.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(import_zod19.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
       agent.com.atproto.sync.listRepos({
@@ -3273,7 +3322,7 @@ var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/hypercerts/claim/get.ts
-var import_zod19 = require("zod");
+var import_zod20 = require("zod");
 var import_xrpc5 = __toESM(require_dist(), 1);
 var import_server19 = require("@trpc/server");
 var getHypercertClaimPure = async (did, rkey, pdsDomain) => {
@@ -3306,9 +3355,9 @@ var getHypercertClaimPure = async (did, rkey, pdsDomain) => {
 };
 var getHypercertClaimFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod19.z.object({
-      did: import_zod19.z.string(),
-      rkey: import_zod19.z.string(),
+    import_zod20.z.object({
+      did: import_zod20.z.string(),
+      rkey: import_zod20.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -3321,7 +3370,7 @@ var getHypercertClaimFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/hypercerts/location/get.ts
-var import_zod20 = require("zod");
+var import_zod21 = require("zod");
 var import_xrpc6 = __toESM(require_dist(), 1);
 var import_server20 = require("@trpc/server");
 var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
@@ -3354,9 +3403,9 @@ var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
 };
 var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod20.z.object({
-      did: import_zod20.z.string(),
-      rkey: import_zod20.z.string(),
+    import_zod21.z.object({
+      did: import_zod21.z.string(),
+      rkey: import_zod21.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -3369,14 +3418,14 @@ var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/_app.ts
-var import_zod21 = __toESM(require("zod"), 1);
+var import_zod22 = __toESM(require("zod"), 1);
 var AppRouterFactory = class {
   allowedPDSDomains;
   allowedPDSDomainSchema;
   appRouter;
   constructor(_allowedPDSDomains) {
     this.allowedPDSDomains = _allowedPDSDomains;
-    this.allowedPDSDomainSchema = import_zod21.default.enum(this.allowedPDSDomains);
+    this.allowedPDSDomainSchema = import_zod22.default.enum(this.allowedPDSDomains);
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
@@ -3405,6 +3454,9 @@ var AppRouterFactory = class {
               this.allowedPDSDomainSchema
             ),
             setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema)
+          },
+          measuredTrees: {
+            get: getMeasuredTreesFactory(this.allowedPDSDomainSchema)
           }
         }
       },
@@ -3431,8 +3483,8 @@ var AppRouterFactory = class {
 
 // src/index.ts
 var supportedDomains = ["climateai.org", "hypercerts.org"];
-var supportedPDSDomainSchema = import_zod22.z.enum(supportedDomains);
-var supportedPDSDomainsSchema = import_zod22.z.array(supportedPDSDomainSchema);
+var supportedPDSDomainSchema = import_zod23.z.enum(supportedDomains);
+var supportedPDSDomainsSchema = import_zod23.z.array(supportedPDSDomainSchema);
 var ClimateAiSDK = class {
   allowedPDSDomains;
   appRouter;

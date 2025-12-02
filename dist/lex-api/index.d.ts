@@ -1,14 +1,14 @@
 import { ComAtprotoRepoListRecords, ComAtprotoRepoGetRecord, ComAtprotoRepoCreateRecord, ComAtprotoRepoPutRecord, ComAtprotoRepoDeleteRecord } from '@atproto/api';
 import { HeadersMap, XrpcClient, FetchHandler, FetchHandlerOptions } from '@atproto/xrpc';
-import { a as Main$7, b as $TypedObject, $ as $Typed, U as Uri, S as SmallBlob, O as OmitKey, c as Un$Typed, M as Main$c } from '../claim-CsQa9nQY.js';
+import { a as Main$6, b as $TypedObject, $ as $Typed, U as Uri, S as SmallBlob, O as OmitKey, c as Un$Typed, M as Main$c } from '../claim-CsQa9nQY.js';
 export { s as ComAtprotoRepoStrongRef, d as OrgHypercertsClaimClaim, e as OrgHypercertsDefs } from '../claim-CsQa9nQY.js';
-import { I as IndexedOrganization, e as Main$8, d as Main$9, M as Main$a, c as Main$b } from '../info-D0jX-Dge.js';
-export { A as AppCertifiedLocation, f as AppGainforestCommonDefs, g as AppGainforestOrganizationDefaultSite, h as AppGainforestOrganizationInfo, i as AppGainforestOrganizationSite } from '../info-D0jX-Dge.js';
+import { I as IndexedOrganization, f as Main$7, d as Main$8, M as Main$9, e as Main$a, c as Main$b } from '../info-wmz5wtzF.js';
+export { A as AppCertifiedLocation, g as AppGainforestCommonDefs, h as AppGainforestOrganizationDefaultSite, i as AppGainforestOrganizationInfo, j as AppGainforestOrganizationMeasuredTrees, k as AppGainforestOrganizationSite } from '../info-wmz5wtzF.js';
 import { ValidationResult } from '@atproto/lexicon';
 
-interface Main$6 {
+interface Main$5 {
     $type: 'org.hypercerts.claim.contribution';
-    hypercert: Main$7;
+    hypercert: Main$6;
     /** Role or title of the contributor(s). */
     role?: string;
     /** List of the contributors (names, pseudonyms, or DIDs). If multiple contributors are stored in the same hypercertContribution, then they would have the exact same role. */
@@ -23,16 +23,16 @@ interface Main$6 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$6<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.contribution", "main">;
-declare function validateMain$6<V>(v: V): ValidationResult<Main$6 & V>;
+declare function isMain$5<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.contribution", "main">;
+declare function validateMain$5<V>(v: V): ValidationResult<Main$5 & V>;
 
 declare namespace OrgHypercertsClaimContribution {
-  export { type Main$6 as Main, type Main$6 as Record, isMain$6 as isMain, isMain$6 as isRecord, validateMain$6 as validateMain, validateMain$6 as validateRecord };
+  export { type Main$5 as Main, type Main$5 as Record, isMain$5 as isMain, isMain$5 as isRecord, validateMain$5 as validateMain, validateMain$5 as validateRecord };
 }
 
-interface Main$5 {
+interface Main$4 {
     $type: 'org.hypercerts.claim.evaluation';
-    subject: Main$7;
+    subject: Main$6;
     /** DIDs of the evaluators */
     evaluators: string[];
     /** Evaluation data (URIs or blobs) containing detailed reports or methodology */
@@ -45,14 +45,14 @@ interface Main$5 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$5<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.evaluation", "main">;
-declare function validateMain$5<V>(v: V): ValidationResult<Main$5 & V>;
+declare function isMain$4<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.evaluation", "main">;
+declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
 
 declare namespace OrgHypercertsClaimEvaluation {
-  export { type Main$5 as Main, type Main$5 as Record, isMain$5 as isMain, isMain$5 as isRecord, validateMain$5 as validateMain, validateMain$5 as validateRecord };
+  export { type Main$4 as Main, type Main$4 as Record, isMain$4 as isMain, isMain$4 as isRecord, validateMain$4 as validateMain, validateMain$4 as validateRecord };
 }
 
-interface Main$4 {
+interface Main$3 {
     $type: 'org.hypercerts.claim.evidence';
     content: $Typed<Uri> | $Typed<SmallBlob> | {
         $type: string;
@@ -67,16 +67,16 @@ interface Main$4 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$4<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.evidence", "main">;
-declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
+declare function isMain$3<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.evidence", "main">;
+declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
 
 declare namespace OrgHypercertsClaimEvidence {
-  export { type Main$4 as Main, type Main$4 as Record, isMain$4 as isMain, isMain$4 as isRecord, validateMain$4 as validateMain, validateMain$4 as validateRecord };
+  export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
 }
 
-interface Main$3 {
+interface Main$2 {
     $type: 'org.hypercerts.claim.measurement';
-    hypercert: Main$7;
+    hypercert: Main$6;
     /** DIDs of the entity (or entities) that measured this data */
     measurers: string[];
     /** The metric being measured */
@@ -91,14 +91,14 @@ interface Main$3 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$3<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.measurement", "main">;
-declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
+declare function isMain$2<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.measurement", "main">;
+declare function validateMain$2<V>(v: V): ValidationResult<Main$2 & V>;
 
 declare namespace OrgHypercertsClaimMeasurement {
-  export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
+  export { type Main$2 as Main, type Main$2 as Record, isMain$2 as isMain, isMain$2 as isRecord, validateMain$2 as validateMain, validateMain$2 as validateRecord };
 }
 
-interface Main$2 {
+interface Main$1 {
     $type: 'org.hypercerts.claim.rights';
     /** Full name of the rights */
     rightsName: string;
@@ -110,14 +110,14 @@ interface Main$2 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$2<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.rights", "main">;
-declare function validateMain$2<V>(v: V): ValidationResult<Main$2 & V>;
+declare function isMain$1<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.rights", "main">;
+declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
 
 declare namespace OrgHypercertsClaimRights {
-  export { type Main$2 as Main, type Main$2 as Record, isMain$2 as isMain, isMain$2 as isRecord, validateMain$2 as validateMain, validateMain$2 as validateRecord };
+  export { type Main$1 as Main, type Main$1 as Record, isMain$1 as isMain, isMain$1 as isRecord, validateMain$1 as validateMain, validateMain$1 as validateRecord };
 }
 
-interface Main$1 {
+interface Main {
     $type: 'org.hypercerts.collection';
     /** The title of this collection */
     title: string;
@@ -132,12 +132,12 @@ interface Main$1 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$1<V>(v: V): v is $TypedObject<V, "org.hypercerts.collection", "main">;
-declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
+declare function isMain<V>(v: V): v is $TypedObject<V, "org.hypercerts.collection", "main">;
+declare function validateMain<V>(v: V): ValidationResult<Main & V>;
 
 interface ClaimItem {
     $type?: 'org.hypercerts.collection#claimItem';
-    claim: Main$7;
+    claim: Main$6;
     /** The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100. */
     weight: string;
 }
@@ -145,10 +145,13 @@ declare function isClaimItem<V>(v: V): v is $TypedObject<V, "org.hypercerts.coll
 declare function validateClaimItem<V>(v: V): ValidationResult<ClaimItem & V>;
 
 type OrgHypercertsCollection_ClaimItem = ClaimItem;
+type OrgHypercertsCollection_Main = Main;
 declare const OrgHypercertsCollection_isClaimItem: typeof isClaimItem;
+declare const OrgHypercertsCollection_isMain: typeof isMain;
 declare const OrgHypercertsCollection_validateClaimItem: typeof validateClaimItem;
+declare const OrgHypercertsCollection_validateMain: typeof validateMain;
 declare namespace OrgHypercertsCollection {
-  export { type OrgHypercertsCollection_ClaimItem as ClaimItem, type Main$1 as Main, type Main$1 as Record, OrgHypercertsCollection_isClaimItem as isClaimItem, isMain$1 as isMain, isMain$1 as isRecord, OrgHypercertsCollection_validateClaimItem as validateClaimItem, validateMain$1 as validateMain, validateMain$1 as validateRecord };
+  export { type OrgHypercertsCollection_ClaimItem as ClaimItem, type OrgHypercertsCollection_Main as Main, type Main as Record, OrgHypercertsCollection_isClaimItem as isClaimItem, OrgHypercertsCollection_isMain as isMain, isMain as isRecord, OrgHypercertsCollection_validateClaimItem as validateClaimItem, OrgHypercertsCollection_validateMain as validateMain, validateMain as validateRecord };
 }
 
 /**
@@ -181,22 +184,6 @@ declare namespace AppGainforestOrganizationGetIndexedOrganizations {
   export { type AppGainforestOrganizationGetIndexedOrganizations_CallOptions as CallOptions, type AppGainforestOrganizationGetIndexedOrganizations_InputSchema as InputSchema, type AppGainforestOrganizationGetIndexedOrganizations_OutputSchema as OutputSchema, type AppGainforestOrganizationGetIndexedOrganizations_QueryParams as QueryParams, type AppGainforestOrganizationGetIndexedOrganizations_Response as Response, AppGainforestOrganizationGetIndexedOrganizations_toKnownErr as toKnownErr };
 }
 
-interface Main {
-    $type: 'app.gainforest.organization.measuredTrees';
-    /** The uri pointing to the shapefile of the measured trees */
-    shapefile: string;
-    [k: string]: unknown;
-}
-declare function isMain<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.measuredTrees", "main">;
-declare function validateMain<V>(v: V): ValidationResult<Main & V>;
-
-type AppGainforestOrganizationMeasuredTrees_Main = Main;
-declare const AppGainforestOrganizationMeasuredTrees_isMain: typeof isMain;
-declare const AppGainforestOrganizationMeasuredTrees_validateMain: typeof validateMain;
-declare namespace AppGainforestOrganizationMeasuredTrees {
-  export { type AppGainforestOrganizationMeasuredTrees_Main as Main, type Main as Record, AppGainforestOrganizationMeasuredTrees_isMain as isMain, isMain as isRecord, AppGainforestOrganizationMeasuredTrees_validateMain as validateMain, validateMain as validateRecord };
-}
-
 /**
  * The following lines are added by lex-api-mod.ts to fix build errors.
  */
@@ -227,19 +214,19 @@ declare class AppCertifiedLocationRecord {
         cursor?: string;
         records: {
             uri: string;
-            value: Main$8;
+            value: Main$7;
         }[];
     }>;
     get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
         uri: string;
         cid: string;
-        value: Main$8;
+        value: Main$7;
     }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$7>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$7>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
@@ -266,6 +253,31 @@ declare class AppGainforestOrganizationDefaultSiteRecord {
         cursor?: string;
         records: {
             uri: string;
+            value: Main$8;
+        }[];
+    }>;
+    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+        uri: string;
+        cid: string;
+        value: Main$8;
+    }>;
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
+}
+declare class AppGainforestOrganizationInfoRecord {
+    _client: XrpcClient;
+    constructor(client: XrpcClient);
+    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+        cursor?: string;
+        records: {
+            uri: string;
             value: Main$9;
         }[];
     }>;
@@ -284,7 +296,7 @@ declare class AppGainforestOrganizationDefaultSiteRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class AppGainforestOrganizationInfoRecord {
+declare class AppGainforestOrganizationMeasuredTreesRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -304,31 +316,6 @@ declare class AppGainforestOrganizationInfoRecord {
         cid: string;
     }>;
     put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$a>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
-}
-declare class AppGainforestOrganizationMeasuredTreesRecord {
-    _client: XrpcClient;
-    constructor(client: XrpcClient);
-    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-        cursor?: string;
-        records: {
-            uri: string;
-            value: Main;
-        }[];
-    }>;
-    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-        uri: string;
-        cid: string;
-        value: Main;
-    }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
@@ -412,31 +399,6 @@ declare class OrgHypercertsClaimContributionRecord {
         cursor?: string;
         records: {
             uri: string;
-            value: Main$6;
-        }[];
-    }>;
-    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-        uri: string;
-        cid: string;
-        value: Main$6;
-    }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$6>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$6>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
-}
-declare class OrgHypercertsClaimEvaluationRecord {
-    _client: XrpcClient;
-    constructor(client: XrpcClient);
-    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-        cursor?: string;
-        records: {
-            uri: string;
             value: Main$5;
         }[];
     }>;
@@ -455,7 +417,7 @@ declare class OrgHypercertsClaimEvaluationRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class OrgHypercertsClaimEvidenceRecord {
+declare class OrgHypercertsClaimEvaluationRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -480,7 +442,7 @@ declare class OrgHypercertsClaimEvidenceRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class OrgHypercertsClaimMeasurementRecord {
+declare class OrgHypercertsClaimEvidenceRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -505,7 +467,7 @@ declare class OrgHypercertsClaimMeasurementRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class OrgHypercertsClaimRightsRecord {
+declare class OrgHypercertsClaimMeasurementRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -530,7 +492,7 @@ declare class OrgHypercertsClaimRightsRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class OrgHypercertsCollectionRecord {
+declare class OrgHypercertsClaimRightsRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -555,6 +517,31 @@ declare class OrgHypercertsCollectionRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
+declare class OrgHypercertsCollectionRecord {
+    _client: XrpcClient;
+    constructor(client: XrpcClient);
+    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+        cursor?: string;
+        records: {
+            uri: string;
+            value: Main;
+        }[];
+    }>;
+    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+        uri: string;
+        cid: string;
+        value: Main;
+    }>;
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
+}
 declare class ComNS {
     _client: XrpcClient;
     atproto: ComAtprotoNS;
@@ -570,4 +557,4 @@ declare class ComAtprotoRepoNS {
     constructor(client: XrpcClient);
 }
 
-export { AppCertifiedLocationRecord, AppCertifiedNS, AppGainforestNS, AppGainforestOrganizationDefaultSiteRecord, AppGainforestOrganizationGetIndexedOrganizations, AppGainforestOrganizationInfoRecord, AppGainforestOrganizationMeasuredTrees, AppGainforestOrganizationMeasuredTreesRecord, AppGainforestOrganizationNS, AppGainforestOrganizationSiteRecord, AppNS, AtpBaseClient, ComAtprotoNS, ComAtprotoRepoNS, ComNS, OrgHypercertsClaimClaimRecord, OrgHypercertsClaimContribution, OrgHypercertsClaimContributionRecord, OrgHypercertsClaimEvaluation, OrgHypercertsClaimEvaluationRecord, OrgHypercertsClaimEvidence, OrgHypercertsClaimEvidenceRecord, OrgHypercertsClaimMeasurement, OrgHypercertsClaimMeasurementRecord, OrgHypercertsClaimNS, OrgHypercertsClaimRights, OrgHypercertsClaimRightsRecord, OrgHypercertsCollection, OrgHypercertsCollectionRecord, OrgHypercertsNS, OrgNS };
+export { AppCertifiedLocationRecord, AppCertifiedNS, AppGainforestNS, AppGainforestOrganizationDefaultSiteRecord, AppGainforestOrganizationGetIndexedOrganizations, AppGainforestOrganizationInfoRecord, AppGainforestOrganizationMeasuredTreesRecord, AppGainforestOrganizationNS, AppGainforestOrganizationSiteRecord, AppNS, AtpBaseClient, ComAtprotoNS, ComAtprotoRepoNS, ComNS, OrgHypercertsClaimClaimRecord, OrgHypercertsClaimContribution, OrgHypercertsClaimContributionRecord, OrgHypercertsClaimEvaluation, OrgHypercertsClaimEvaluationRecord, OrgHypercertsClaimEvidence, OrgHypercertsClaimEvidenceRecord, OrgHypercertsClaimMeasurement, OrgHypercertsClaimMeasurementRecord, OrgHypercertsClaimNS, OrgHypercertsClaimRights, OrgHypercertsClaimRightsRecord, OrgHypercertsCollection, OrgHypercertsCollectionRecord, OrgHypercertsNS, OrgNS };

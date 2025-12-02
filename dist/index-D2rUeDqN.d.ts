@@ -1,5 +1,5 @@
-import { M as Main$3, $ as $Typed } from './claim-CsQa9nQY.js';
-import { M as Main, c as Main$1, d as Main$2, e as Main$4, U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './info-D0jX-Dge.js';
+import { M as Main$4, $ as $Typed } from './claim-CsQa9nQY.js';
+import { M as Main, c as Main$1, d as Main$2, e as Main$3, f as Main$5, U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './info-wmz5wtzF.js';
 import { B as BlobRefGenerator } from './blobref-CzIHHOw4.js';
 import * as _atproto_lexicon from '@atproto/lexicon';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
@@ -252,6 +252,16 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         meta: object;
                     }>;
                 };
+                measuredTrees: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$3>;
+                        meta: object;
+                    }>;
+                };
             };
         };
         hypercerts: {
@@ -286,7 +296,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     };
                     output: {
                         repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$3>[];
+                        claims: GetRecordResponse<Main$4>[];
                         organizationInfo: Main;
                     }[];
                     meta: object;
@@ -297,7 +307,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$3>;
+                    output: GetRecordResponse<Main$4>;
                     meta: object;
                 }>;
             };
@@ -308,7 +318,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$4>;
+                    output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
             };
@@ -534,6 +544,16 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         meta: object;
                     }>;
                 };
+                measuredTrees: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$3>;
+                        meta: object;
+                    }>;
+                };
             };
         };
         hypercerts: {
@@ -568,7 +588,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     };
                     output: {
                         repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$3>[];
+                        claims: GetRecordResponse<Main$4>[];
                         organizationInfo: Main;
                     }[];
                     meta: object;
@@ -579,7 +599,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$3>;
+                    output: GetRecordResponse<Main$4>;
                     meta: object;
                 }>;
             };
@@ -590,7 +610,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$4>;
+                    output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
             };
@@ -840,6 +860,16 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         meta: object;
                     }>;
                 };
+                measuredTrees: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$3>;
+                        meta: object;
+                    }>;
+                };
             };
         };
         hypercerts: {
@@ -874,7 +904,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                     };
                     output: {
                         repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$3>[];
+                        claims: GetRecordResponse<Main$4>[];
                         organizationInfo: Main;
                     }[];
                     meta: object;
@@ -885,7 +915,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$3>;
+                    output: GetRecordResponse<Main$4>;
                     meta: object;
                 }>;
             };
@@ -896,7 +926,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$4>;
+                    output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
             };
@@ -1121,6 +1151,16 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         meta: object;
                     }>;
                 };
+                measuredTrees: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$3>;
+                        meta: object;
+                    }>;
+                };
             };
         };
         hypercerts: {
@@ -1155,7 +1195,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                     };
                     output: {
                         repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$3>[];
+                        claims: GetRecordResponse<Main$4>[];
                         organizationInfo: Main;
                     }[];
                     meta: object;
@@ -1166,7 +1206,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$3>;
+                    output: GetRecordResponse<Main$4>;
                     meta: object;
                 }>;
             };
@@ -1177,7 +1217,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$4>;
+                    output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
             };

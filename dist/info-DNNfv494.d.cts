@@ -73,7 +73,7 @@ declare namespace defs {
   export { type defs_IndexedOrganization as IndexedOrganization, type defs_LargeBlob as LargeBlob, type defs_LargeImage as LargeImage, type defs_SmallBlob as SmallBlob, type defs_SmallImage as SmallImage, type defs_Uri as Uri, defs_isIndexedOrganization as isIndexedOrganization, defs_isLargeBlob as isLargeBlob, defs_isLargeImage as isLargeImage, defs_isSmallBlob as isSmallBlob, defs_isSmallImage as isSmallImage, defs_isUri as isUri, defs_validateIndexedOrganization as validateIndexedOrganization, defs_validateLargeBlob as validateLargeBlob, defs_validateLargeImage as validateLargeImage, defs_validateSmallBlob as validateSmallBlob, defs_validateSmallImage as validateSmallImage, defs_validateUri as validateUri };
 }
 
-interface Main$3 {
+interface Main$4 {
     $type: 'app.certified.location';
     /** The version of the Location Protocol */
     lpVersion: string;
@@ -92,10 +92,23 @@ interface Main$3 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$3<V>(v: V): v is $TypedObject<V, "app.certified.location", "main">;
-declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
+declare function isMain$4<V>(v: V): v is $TypedObject<V, "app.certified.location", "main">;
+declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
 
 declare namespace AppCertifiedLocation {
+  export { type Main$4 as Main, type Main$4 as Record, isMain$4 as isMain, isMain$4 as isRecord, validateMain$4 as validateMain, validateMain$4 as validateRecord };
+}
+
+interface Main$3 {
+    $type: 'app.gainforest.organization.measuredTrees';
+    /** The uri pointing to the shapefile of the measured trees */
+    shapefile: string;
+    [k: string]: unknown;
+}
+declare function isMain$3<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.measuredTrees", "main">;
+declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
+
+declare namespace AppGainforestOrganizationMeasuredTrees {
   export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
 }
 
@@ -169,4 +182,4 @@ declare namespace AppGainforestOrganizationInfo {
   export { type AppGainforestOrganizationInfo_Main as Main, type Main as Record, AppGainforestOrganizationInfo_isMain as isMain, isMain as isRecord, AppGainforestOrganizationInfo_validateMain as validateMain, validateMain as validateRecord };
 }
 
-export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type SmallBlob as a, type LargeBlob as b, type Main$1 as c, type Main$2 as d, type Main$3 as e, defs as f, AppGainforestOrganizationDefaultSite as g, AppGainforestOrganizationInfo as h, AppGainforestOrganizationSite as i };
+export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type SmallBlob as a, type LargeBlob as b, type Main$1 as c, type Main$2 as d, type Main$3 as e, type Main$4 as f, defs as g, AppGainforestOrganizationDefaultSite as h, AppGainforestOrganizationInfo as i, AppGainforestOrganizationMeasuredTrees as j, AppGainforestOrganizationSite as k };
