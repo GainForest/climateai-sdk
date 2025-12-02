@@ -2348,6 +2348,7 @@ var xrpcErrorToTRPCError = (error) => {
       message: "The resource you are looking for does not exist."
     });
   } else {
+    console.error("xrpc error could not be classified by trpc. error:", error);
     return new import_server6.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred."
@@ -2386,6 +2387,7 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
+      console.error("getOrganizationInfo error:", error);
       throw new import_server8.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
@@ -2393,6 +2395,7 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
     }
   }
   if (response.success !== true) {
+    console.error("getOrganizationInfo error: response.success is not true");
     throw new import_server8.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info."

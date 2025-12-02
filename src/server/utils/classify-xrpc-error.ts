@@ -13,6 +13,7 @@ export const xrpcErrorToTRPCError = (error: XRPCError): TRPCError => {
       message: "The resource you are looking for does not exist.",
     });
   } else {
+    console.error("xrpc error could not be classified by trpc. error:", error);
     return new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred.",

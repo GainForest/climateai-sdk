@@ -27,6 +27,7 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
+      console.error("getOrganizationInfo error:", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred.",
@@ -35,6 +36,7 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
   }
 
   if (response.success !== true) {
+    console.error("getOrganizationInfo error: response.success is not true");
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info.",
