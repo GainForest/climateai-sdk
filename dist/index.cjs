@@ -2376,6 +2376,7 @@ var validateRecordOrThrow = (record, { validateRecord }) => {
 // src/server/routers/atproto/gainforest/organizationInfo/get.ts
 var getOrganizationInfoPure = async (did, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
+  console.log("TEMP DEBUG LOG:", JSON.stringify({ did, pdsDomain }));
   const getRecordPromise = agent.com.atproto.repo.getRecord({
     collection: "app.gainforest.organization.info",
     repo: did,

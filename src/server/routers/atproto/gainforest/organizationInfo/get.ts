@@ -15,6 +15,7 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
   pdsDomain: T
 ) => {
   const agent = getReadAgent(pdsDomain);
+  console.log("TEMP DEBUG LOG:", JSON.stringify({ did, pdsDomain }));
   const getRecordPromise = agent.com.atproto.repo.getRecord({
     collection: "app.gainforest.organization.info",
     repo: did,
