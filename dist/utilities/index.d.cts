@@ -3,6 +3,7 @@ import { $ as $Typed } from '../claim-CsQa9nQY.cjs';
 import { B as BlobRefGenerator } from '../blobref-CzIHHOw4.cjs';
 import { BlobRef } from '@atproto/api';
 import { S as SupportedPDSDomain } from '../index-DkfWzG1i.cjs';
+import { GeoJsonObject } from 'geojson';
 import '@atproto/lexicon';
 import 'zod';
 import '@trpc/server/unstable-core-do-not-import';
@@ -22,4 +23,12 @@ declare const parseAtUri: (atUri: string) => {
     rkey: string;
 };
 
-export { getBlobUrl, parseAtUri };
+/**
+ * Validates if an unknown object is a valid GeoJSON object.
+ * @param value - The value to validate
+ * @returns The validated GeoJSON object
+ * @throws Error if the value is not a valid GeoJSON object
+ */
+declare function validateGeojsonOrThrow(value: unknown): GeoJsonObject;
+
+export { getBlobUrl, parseAtUri, validateGeojsonOrThrow };
