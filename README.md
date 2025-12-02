@@ -232,6 +232,16 @@ return <ClientComponent initialData={serialized} />;
 
 1. **Next.js API route timeout**: Vercel/Next.js Serverless functions hard-stop requests that run longer than ~10 seconds. Long-running ClimateAI calls should be moved to background jobs or queue workers; otherwise, `fetchRequestHandler` will fail with a 504/timeout no matter what the SDK does.
 2. **Passing data to client components**: If you send the raw response from a server component to the client without serializing it first, Next.js might throw `A client component received a class instance` or similar errors. Always wrap data with `serialize(...)` and annotate the prop as `SerializedSuperjson<typeof data>` (for better type support), then deserialize inside the client component before usage.
+3. **Importing server-only code into client components**:
+   - The main `climateai-sdk` entrypoint is **server-only** because it bundles `@trpc/server` and other Node-targeted code.
+   - In any `"use client"` file (or generally any browser code), you **must not** import values from your `climateai-sdk.config.ts` (or wherever you instantiate `new ClimateAiSDK(...)`). That means no `import { climateAiSdk, allowedPDSDomains } from "@/server/climateai-sdk.config";` in client components.
+   - If you need types from that config (e.g. `AllowedPDSDomain` or `AppRouter`), always import them as **types only** so they are erased at compile time and don’t pull server code into the client bundle:
+     ```ts
+     // ✅ safe in client components
+     import type { AllowedPDSDomain } from "@/server/climateai-sdk.config";
+     import type { AppRouter } from "climateai-sdk";
+     ```
+   - For client-side functionality, only import from the **client-safe entrypoints**: `climateai-sdk/client`, `climateai-sdk/utilities`, and `climateai-sdk/utilities/transformer`.
 
 ## 10. Running locally
 
