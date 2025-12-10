@@ -56,6 +56,7 @@ export const setDefaultSiteFactory = <T extends SupportedPDSDomain>(
       const defaultSite: AppGainforestOrganizationDefaultSite.Record = {
         $type: defaultSiteNSID,
         site: siteUri,
+        createdAt: new Date().toISOString(),
       };
       validateRecordOrThrow(defaultSite, AppGainforestOrganizationDefaultSite);
       const updateDefaultSiteResponse = await agent.com.atproto.repo.putRecord({

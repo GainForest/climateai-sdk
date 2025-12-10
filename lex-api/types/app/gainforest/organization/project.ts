@@ -12,12 +12,24 @@ import {
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'app.gainforest.organization.defaultSite'
+const id = 'app.gainforest.organization.project'
 
 export interface Main {
-  $type: 'app.gainforest.organization.defaultSite'
-  /** The reference to the default site record in the PDS */
-  site: string
+  $type: 'app.gainforest.organization.project'
+  /** The name of the site */
+  name: string
+  /** The description of the project in markdown */
+  description?: string
+  /** The short description of the project */
+  shortDescription: string
+  /** An array of at-uris pointing to the records of the ecocerts related to the project */
+  ecocerts: string[]
+  /** An array of at-uris pointing to the records of the layers related to the project */
+  layers: string[]
+  /** An array of at-uris pointing to the records of the sites related to the project */
+  sites: string[]
+  /** An array of at-uris pointing to the records of the measured trees clusters related to the project */
+  measuredTreesClusters: string[]
   /** The date and time of the creation of the record */
   createdAt: string
   [k: string]: unknown

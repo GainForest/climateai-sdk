@@ -55,6 +55,7 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
           $type: "app.gainforest.common.defs#smallBlob",
           blob: geojsonBlobRef,
         },
+        createdAt: new Date().toISOString(),
       };
 
       const validationResult =

@@ -1,4 +1,4 @@
-import { OrgHypercertsClaimClaim } from "@/../lex-api";
+import { OrgHypercertsClaimActivity } from "@/../lex-api";
 import type { GetRecordResponse } from "@/server/utils/response-types";
 
 export type Ecocert = {
@@ -9,5 +9,5 @@ export type Ecocert = {
     name: string;
     logoUrl: string | null;
   };
-  claim: GetRecordResponse<OrgHypercertsClaimClaim.Record>;
+  claim: GetRecordResponse<OrgHypercertsClaimActivity.Record>;
 };

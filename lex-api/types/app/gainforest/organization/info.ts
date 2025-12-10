@@ -41,6 +41,8 @@ export interface Main {
   country: string
   /** The visibility of the organization or project in the Green Globe */
   visibility: 'Public' | 'Hidden'
+  /** The date and time of the creation of the record */
+  createdAt: string
   [k: string]: unknown
 }
 

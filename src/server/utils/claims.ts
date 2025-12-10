@@ -1,5 +1,5 @@
 import type { Ecocert } from "@/types/Ecocert";
-import type { OrganizationWithClaims as OrganizationWithClaimsType } from "@/server/routers/atproto/hypercerts/claim/getAllAcrossOrgs";
+import type { OrganizationWithClaims as OrganizationWithClaimsType } from "@/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs";
 import { getBlobUrl } from "@/utilities";
 import type { SupportedPDSDomain } from "@/index";
 

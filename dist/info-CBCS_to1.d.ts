@@ -1,4 +1,4 @@
-import { b as $TypedObject, $ as $Typed, U as Uri$1, S as SmallBlob$1 } from './claim-CsQa9nQY.cjs';
+import { a as $TypedObject, $ as $Typed, U as Uri$1, S as SmallBlob$1 } from './activity-C2XJbhf5.js';
 import { BlobRef, ValidationResult } from '@atproto/lexicon';
 
 /** Object containing a URI to external data */
@@ -100,15 +100,16 @@ declare namespace AppCertifiedLocation {
 }
 
 interface Main$3 {
-    $type: 'app.gainforest.organization.measuredTrees';
-    /** The uri pointing to the shapefile of the measured trees */
-    shapefile: string;
+    $type: 'app.gainforest.organization.observations.measuredTreesCluster';
+    shapefile: SmallBlob;
+    /** The date and time of the creation of the record */
+    createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$3<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.measuredTrees", "main">;
+declare function isMain$3<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.measuredTreesCluster", "main">;
 declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
 
-declare namespace AppGainforestOrganizationMeasuredTrees {
+declare namespace AppGainforestOrganizationObservationsMeasuredTreesCluster {
   export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
 }
 
@@ -116,6 +117,8 @@ interface Main$2 {
     $type: 'app.gainforest.organization.defaultSite';
     /** The reference to the default site record in the PDS */
     site: string;
+    /** The date and time of the creation of the record */
+    createdAt: string;
     [k: string]: unknown;
 }
 declare function isMain$2<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.defaultSite", "main">;
@@ -135,12 +138,9 @@ interface Main$1 {
     lon: string;
     /** The area of the site in hectares */
     area: string;
-    shapefile: $Typed<Uri> | $Typed<SmallBlob> | {
-        $type: string;
-    };
-    trees?: $Typed<Uri> | $Typed<SmallBlob> | {
-        $type: string;
-    };
+    shapefile: SmallBlob;
+    /** The date and time of the creation of the record */
+    createdAt: string;
     [k: string]: unknown;
 }
 declare function isMain$1<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.site", "main">;
@@ -170,6 +170,8 @@ interface Main {
     country: string;
     /** The visibility of the organization or project in the Green Globe */
     visibility: 'Public' | 'Hidden';
+    /** The date and time of the creation of the record */
+    createdAt: string;
     [k: string]: unknown;
 }
 declare function isMain<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.info", "main">;
@@ -182,4 +184,4 @@ declare namespace AppGainforestOrganizationInfo {
   export { type AppGainforestOrganizationInfo_Main as Main, type Main as Record, AppGainforestOrganizationInfo_isMain as isMain, isMain as isRecord, AppGainforestOrganizationInfo_validateMain as validateMain, validateMain as validateRecord };
 }
 
-export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type SmallBlob as a, type LargeBlob as b, type Main$1 as c, type Main$2 as d, type Main$3 as e, type Main$4 as f, defs as g, AppGainforestOrganizationDefaultSite as h, AppGainforestOrganizationInfo as i, AppGainforestOrganizationMeasuredTrees as j, AppGainforestOrganizationSite as k };
+export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type SmallBlob as a, type LargeBlob as b, type Main$1 as c, type Main$2 as d, type Main$3 as e, type Main$4 as f, defs as g, AppGainforestOrganizationDefaultSite as h, AppGainforestOrganizationInfo as i, AppGainforestOrganizationObservationsMeasuredTreesCluster as j, AppGainforestOrganizationSite as k };

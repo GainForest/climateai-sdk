@@ -99,7 +99,7 @@ declare namespace strongRef {
 }
 
 interface Main {
-    $type: 'org.hypercerts.claim.claim';
+    $type: 'org.hypercerts.claim.activity';
     /** Title of the hypercert */
     title: string;
     /** Short blurb of the impact work done. */
@@ -109,15 +109,12 @@ interface Main {
     image?: $Typed<Uri> | $Typed<SmallImage> | {
         $type: string;
     };
-    /** Scope of the work performed */
-    workScope: string;
+    workScope?: WorkScope;
     /** When the work began */
-    workTimeFrameFrom: string;
+    startDate: string;
     /** When the work ended */
-    workTimeFrameTo: string;
-    /** Supporting evidence, documentation, or external data URIs */
-    evidence?: Main$1[];
-    /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contributions */
+    endDate: string;
+    /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution */
     contributions?: Main$1[];
     rights?: Main$1;
     location?: Main$1;
@@ -125,14 +122,30 @@ interface Main {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.claim", "main">;
+declare function isMain<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.activity", "main">;
 declare function validateMain<V>(v: V): ValidationResult<Main & V>;
 
-type OrgHypercertsClaimClaim_Main = Main;
-declare const OrgHypercertsClaimClaim_isMain: typeof isMain;
-declare const OrgHypercertsClaimClaim_validateMain: typeof validateMain;
-declare namespace OrgHypercertsClaimClaim {
-  export { type OrgHypercertsClaimClaim_Main as Main, type Main as Record, OrgHypercertsClaimClaim_isMain as isMain, isMain as isRecord, OrgHypercertsClaimClaim_validateMain as validateMain, validateMain as validateRecord };
+/** Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply. */
+interface WorkScope {
+    $type?: 'org.hypercerts.claim.activity#workScope';
+    /** Labels that MUST all hold for the scope to apply. */
+    allOf?: string[];
+    /** Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition. */
+    anyOf?: string[];
+    /** Labels that MUST NOT hold for the scope to apply. */
+    noneOf?: string[];
+}
+declare function isWorkScope<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.activity", "workScope">;
+declare function validateWorkScope<V>(v: V): ValidationResult<WorkScope & V>;
+
+type OrgHypercertsClaimActivity_Main = Main;
+type OrgHypercertsClaimActivity_WorkScope = WorkScope;
+declare const OrgHypercertsClaimActivity_isMain: typeof isMain;
+declare const OrgHypercertsClaimActivity_isWorkScope: typeof isWorkScope;
+declare const OrgHypercertsClaimActivity_validateMain: typeof validateMain;
+declare const OrgHypercertsClaimActivity_validateWorkScope: typeof validateWorkScope;
+declare namespace OrgHypercertsClaimActivity {
+  export { type OrgHypercertsClaimActivity_Main as Main, type Main as Record, type OrgHypercertsClaimActivity_WorkScope as WorkScope, OrgHypercertsClaimActivity_isMain as isMain, isMain as isRecord, OrgHypercertsClaimActivity_isWorkScope as isWorkScope, OrgHypercertsClaimActivity_validateMain as validateMain, validateMain as validateRecord, OrgHypercertsClaimActivity_validateWorkScope as validateWorkScope };
 }
 
-export { type $Typed as $, type Main as M, type OmitKey as O, type SmallBlob as S, type Uri as U, type Main$1 as a, type $TypedObject as b, type Un$Typed as c, OrgHypercertsClaimClaim as d, defs as e, strongRef as s };
+export { type $Typed as $, type Main as M, type OmitKey as O, type SmallBlob as S, type Uri as U, type $TypedObject as a, type Main$1 as b, type Un$Typed as c, OrgHypercertsClaimActivity as d, defs as e, strongRef as s };

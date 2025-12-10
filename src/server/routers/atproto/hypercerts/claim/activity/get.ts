@@ -3,7 +3,7 @@ import { z } from "zod";
 import { tryCatch } from "@/lib/tryCatch";
 import { XRPCError } from "@atproto/xrpc";
 import type { GetRecordResponse } from "@/server/utils/response-types";
-import { OrgHypercertsClaimClaim } from "@/../lex-api";
+import { OrgHypercertsClaimActivity } from "@/../lex-api";
 import { getReadAgent } from "@/server/utils/agent";
 import { xrpcErrorToTRPCError } from "@/server/utils/classify-xrpc-error";
 import { TRPCError } from "@trpc/server";
@@ -16,8 +16,10 @@ export const getHypercertClaimPure = async <T extends SupportedPDSDomain>(
   pdsDomain: T
 ) => {
   const agent = getReadAgent(pdsDomain);
+  const nsid: OrgHypercertsClaimActivity.Record["$type"] =
+    "org.hypercerts.claim.activity";
   const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: "org.hypercerts.claim.claim",
+    collection: nsid,
     repo: did,
     rkey: rkey,
   });
@@ -42,9 +44,9 @@ export const getHypercertClaimPure = async <T extends SupportedPDSDomain>(
     });
   }
 
-  validateRecordOrThrow(response.data.value, OrgHypercertsClaimClaim);
+  validateRecordOrThrow(response.data.value, OrgHypercertsClaimActivity);
 
-  return response.data as GetRecordResponse<OrgHypercertsClaimClaim.Record>;
+  return response.data as GetRecordResponse<OrgHypercertsClaimActivity.Record>;
 };
 
 export const getHypercertClaimFactory = <T extends SupportedPDSDomain>(

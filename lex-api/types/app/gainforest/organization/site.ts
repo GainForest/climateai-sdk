@@ -25,14 +25,9 @@ export interface Main {
   lon: string
   /** The area of the site in hectares */
   area: string
-  shapefile:
-    | $Typed<AppGainforestCommonDefs.Uri>
-    | $Typed<AppGainforestCommonDefs.SmallBlob>
-    | { $type: string }
-  trees?:
-    | $Typed<AppGainforestCommonDefs.Uri>
-    | $Typed<AppGainforestCommonDefs.SmallBlob>
-    | { $type: string }
+  shapefile: AppGainforestCommonDefs.SmallBlob
+  /** The date and time of the creation of the record */
+  createdAt: string
   [k: string]: unknown
 }
 

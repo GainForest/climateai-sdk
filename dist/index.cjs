@@ -1383,497 +1383,6 @@ var schemaDict = {
       }
     }
   },
-  OrgHypercertsClaimClaim: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.claim",
-    defs: {
-      main: {
-        type: "record",
-        description: "A hypercert record tracking impact work.",
-        key: "any",
-        record: {
-          type: "object",
-          required: [
-            "title",
-            "shortDescription",
-            "createdAt",
-            "workScope",
-            "workTimeFrameFrom",
-            "workTimeFrameTo"
-          ],
-          properties: {
-            title: {
-              type: "string",
-              description: "Title of the hypercert",
-              maxLength: 256
-            },
-            shortDescription: {
-              type: "string",
-              description: "Short blurb of the impact work done.",
-              maxLength: 3e3,
-              maxGraphemes: 300
-            },
-            description: {
-              type: "string",
-              description: "Optional longer description of the impact work done.",
-              maxLength: 3e4,
-              maxGraphemes: 3e3
-            },
-            image: {
-              type: "union",
-              refs: [
-                "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallImage"
-              ],
-              description: "The hypercert visual representation as a URI or image blob"
-            },
-            workScope: {
-              type: "string",
-              description: "Scope of the work performed",
-              maxLength: 5e3,
-              maxGraphemes: 1e3
-            },
-            workTimeFrameFrom: {
-              type: "string",
-              format: "datetime",
-              description: "When the work began"
-            },
-            workTimeFrameTo: {
-              type: "string",
-              format: "datetime",
-              description: "When the work ended"
-            },
-            evidence: {
-              type: "array",
-              description: "Supporting evidence, documentation, or external data URIs",
-              items: {
-                type: "ref",
-                ref: "lex:com.atproto.repo.strongRef",
-                description: "A strong reference to the evidence that supports this impact claim. The record referenced must conform with the org.hypercerts.claim.evidence lexicon"
-              },
-              maxLength: 100
-            },
-            contributions: {
-              type: "array",
-              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contributions",
-              items: {
-                type: "ref",
-                ref: "lex:com.atproto.repo.strongRef"
-              }
-            },
-            rights: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights"
-            },
-            location: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the location where the work for done hypercert was located. The record referenced must conform with the lexicon org.hypercerts.claim.location"
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsClaimContribution: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.contribution",
-    defs: {
-      main: {
-        type: "record",
-        description: "A contribution made toward a hypercert's impact.",
-        key: "any",
-        record: {
-          type: "object",
-          required: ["hypercert", "contributors", "createdAt"],
-          properties: {
-            hypercert: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the hypercert this contribution is for. The record referenced must conform with the lexicon org.hypercerts.claim."
-            },
-            role: {
-              type: "string",
-              description: "Role or title of the contributor(s).",
-              maxLength: 100
-            },
-            contributors: {
-              type: "array",
-              description: "List of the contributors (names, pseudonyms, or DIDs). If multiple contributors are stored in the same hypercertContribution, then they would have the exact same role.",
-              items: {
-                type: "string"
-              }
-            },
-            description: {
-              type: "string",
-              description: "What the contribution concretely achieved",
-              maxLength: 2e3,
-              maxGraphemes: 500
-            },
-            workTimeframeFrom: {
-              type: "string",
-              format: "datetime",
-              description: "When this contribution started. This should be a subset of the hypercert timeframe."
-            },
-            workTimeframeTo: {
-              type: "string",
-              format: "datetime",
-              description: "When this contribution finished.  This should be a subset of the hypercert timeframe."
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsClaimEvaluation: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.evaluation",
-    defs: {
-      main: {
-        type: "record",
-        description: "An evaluation of a hypercert or other claim",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["subject", "evaluators", "summary", "createdAt"],
-          properties: {
-            subject: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the evaluated claim. (e.g measurement, hypercert, contribution, etc)"
-            },
-            evaluators: {
-              type: "array",
-              description: "DIDs of the evaluators",
-              items: {
-                type: "string",
-                format: "did"
-              },
-              maxLength: 100
-            },
-            evaluations: {
-              type: "array",
-              description: "Evaluation data (URIs or blobs) containing detailed reports or methodology",
-              items: {
-                type: "union",
-                refs: [
-                  "lex:org.hypercerts.defs#uri",
-                  "lex:org.hypercerts.defs#smallBlob"
-                ]
-              },
-              maxLength: 100
-            },
-            summary: {
-              type: "string",
-              description: "Brief evaluation summary",
-              maxLength: 5e3,
-              maxGraphemes: 1e3
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsClaimEvidence: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.evidence",
-    defs: {
-      main: {
-        type: "record",
-        description: "A piece of evidence supporting a hypercert claim",
-        key: "any",
-        record: {
-          type: "object",
-          required: ["content", "shortDescription", "createdAt"],
-          properties: {
-            content: {
-              type: "union",
-              refs: [
-                "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallBlob"
-              ],
-              description: "A piece of evidence (URI or blobs) supporting a hypercert claim"
-            },
-            title: {
-              type: "string",
-              maxLength: 256,
-              description: "Optional title to describe the nature of the evidence"
-            },
-            shortDescription: {
-              type: "string",
-              maxLength: 3e3,
-              maxGraphemes: 300,
-              description: "Short description explaining what this evidence demonstrates or proves"
-            },
-            description: {
-              type: "string",
-              description: "Optional longer description describing the impact claim evidence.",
-              maxLength: 3e4,
-              maxGraphemes: 3e3
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this hypercert claim was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsClaimMeasurement: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.measurement",
-    defs: {
-      main: {
-        type: "record",
-        description: "External measurement data supporting a hypercert claim",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["hypercert", "measurers", "metric", "value", "createdAt"],
-          properties: {
-            hypercert: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the hypercert that this measurement is for. The record referenced must conform with the lexicon org.hypercerts.claim."
-            },
-            measurers: {
-              type: "array",
-              description: "DIDs of the entity (or entities) that measured this data",
-              items: {
-                type: "string",
-                format: "did"
-              },
-              maxLength: 100
-            },
-            metric: {
-              type: "string",
-              description: "The metric being measured",
-              maxLength: 500
-            },
-            value: {
-              type: "string",
-              description: "The measured value",
-              maxLength: 500
-            },
-            measurementMethodURI: {
-              type: "string",
-              format: "uri",
-              description: "URI to methodology documentation, standard protocol, or measurement procedure"
-            },
-            evidenceURI: {
-              type: "array",
-              description: "URIs to supporting evidence or data",
-              items: {
-                type: "string",
-                format: "uri"
-              },
-              maxLength: 50
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsClaimRights: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.rights",
-    defs: {
-      main: {
-        type: "record",
-        description: "Describes the rights that a user has with a hypercert, such as whether it can be sold, transferred, and under what conditions.",
-        key: "any",
-        record: {
-          type: "object",
-          required: [
-            "rightsName",
-            "rightsType",
-            "rightsDescription",
-            "createdAt"
-          ],
-          properties: {
-            rightsName: {
-              type: "string",
-              description: "Full name of the rights",
-              maxLength: 100
-            },
-            rightsType: {
-              type: "string",
-              description: "Short rights identifier for easier search",
-              maxLength: 10
-            },
-            rightsDescription: {
-              type: "string",
-              description: "Description of the rights of this hypercert"
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsCollection: {
-    lexicon: 1,
-    id: "org.hypercerts.collection",
-    defs: {
-      main: {
-        type: "record",
-        description: "A collection/group of hypercerts that have a specific property.",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["title", "claims", "createdAt"],
-          properties: {
-            title: {
-              type: "string",
-              description: "The title of this collection",
-              maxLength: 800,
-              maxGraphemes: 80
-            },
-            shortDescription: {
-              type: "string",
-              maxLength: 3e3,
-              maxGraphemes: 300,
-              description: "A short description of this collection"
-            },
-            coverPhoto: {
-              type: "union",
-              refs: [
-                "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallBlob"
-              ],
-              description: "The cover photo of this collection (either in URI format or in a blob)."
-            },
-            claims: {
-              type: "array",
-              description: "Array of claims with their associated weights in this collection",
-              items: {
-                type: "ref",
-                ref: "lex:org.hypercerts.collection#claimItem"
-              }
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      },
-      claimItem: {
-        type: "object",
-        required: ["claim", "weight"],
-        properties: {
-          claim: {
-            type: "ref",
-            ref: "lex:com.atproto.repo.strongRef",
-            description: "A strong reference to a hypercert claim record. This claim must conform to the lexicon org.hypercerts.claim.record"
-          },
-          weight: {
-            type: "string",
-            description: "The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100."
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsDefs: {
-    lexicon: 1,
-    id: "org.hypercerts.defs",
-    defs: {
-      uri: {
-        type: "object",
-        required: ["uri"],
-        description: "Object containing a URI to external data",
-        properties: {
-          uri: {
-            type: "string",
-            format: "uri",
-            maxGraphemes: 1024,
-            description: "URI to external data"
-          }
-        }
-      },
-      smallBlob: {
-        type: "object",
-        required: ["blob"],
-        description: "Object containing a blob to external data",
-        properties: {
-          blob: {
-            type: "blob",
-            accept: ["*/*"],
-            maxSize: 10485760,
-            description: "Blob to external data (up to 10MB)"
-          }
-        }
-      },
-      largeBlob: {
-        type: "object",
-        required: ["blob"],
-        description: "Object containing a blob to external data",
-        properties: {
-          blob: {
-            type: "blob",
-            accept: ["*/*"],
-            maxSize: 104857600,
-            description: "Blob to external data (up to 100MB)"
-          }
-        }
-      },
-      smallImage: {
-        type: "object",
-        required: ["image"],
-        description: "Object containing a small image",
-        properties: {
-          image: {
-            type: "blob",
-            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
-            maxSize: 5242880,
-            description: "Image (up to 5MB)"
-          }
-        }
-      },
-      largeImage: {
-        type: "object",
-        required: ["image"],
-        description: "Object containing a large image",
-        properties: {
-          image: {
-            type: "blob",
-            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
-            maxSize: 10485760,
-            description: "Image (up to 10MB)"
-          }
-        }
-      }
-    }
-  },
   AppGainforestCommonDefs: {
     lexicon: 1,
     id: "app.gainforest.common.defs",
@@ -1970,12 +1479,99 @@ var schemaDict = {
         key: "literal:self",
         record: {
           type: "object",
-          required: ["site"],
+          required: ["site", "createdAt"],
           properties: {
             site: {
               type: "string",
               format: "at-uri",
               description: "The reference to the default site record in the PDS"
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationDraftEcocert: {
+    lexicon: 1,
+    id: "app.gainforest.organization.draft.ecocert",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of an unpublished ecocert for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: [
+            "title",
+            "coverImage",
+            "workScopes",
+            "workStartDate",
+            "workEndDate",
+            "description",
+            "shortDescription",
+            "contributors",
+            "site",
+            "createdAt"
+          ],
+          nullable: ["coverImage"],
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of the ecocert"
+            },
+            coverImage: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#smallImage",
+              description: "The cover image of the ecocert"
+            },
+            workScopes: {
+              type: "array",
+              description: "The work scopes of the ecocert",
+              items: {
+                type: "string",
+                description: "The work scope of the ecocert"
+              }
+            },
+            workStartDate: {
+              type: "string",
+              description: "The start date of the work",
+              format: "datetime"
+            },
+            workEndDate: {
+              type: "string",
+              description: "The end date of the work",
+              format: "datetime"
+            },
+            description: {
+              type: "string",
+              description: "The description of the ecocert in markdown"
+            },
+            shortDescription: {
+              type: "string",
+              description: "The short description of the ecocert in markdown"
+            },
+            contributors: {
+              type: "array",
+              description: "The contributors of the ecocert in markdown",
+              items: {
+                type: "string",
+                description: "The contributor of the ecocert"
+              }
+            },
+            site: {
+              type: "string",
+              format: "at-uri",
+              description: "The reference to the site record in the PDS"
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
             }
           }
         }
@@ -2028,7 +1624,8 @@ var schemaDict = {
             "longDescription",
             "objectives",
             "country",
-            "visibility"
+            "visibility",
+            "createdAt"
           ],
           properties: {
             displayName: {
@@ -2091,28 +1688,311 @@ var schemaDict = {
               type: "string",
               description: "The visibility of the organization or project in the Green Globe",
               enum: ["Public", "Hidden"]
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
             }
           }
         }
       }
     }
   },
-  AppGainforestOrganizationMeasuredTrees: {
+  AppGainforestOrganizationLayer: {
     lexicon: 1,
-    id: "app.gainforest.organization.measuredTrees",
+    id: "app.gainforest.organization.layer",
     defs: {
       main: {
         type: "record",
-        description: "A declaration of measured trees for an organization",
+        description: "A declaration of a layer for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["name", "type", "uri", "createdAt"],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the site"
+            },
+            type: {
+              type: "string",
+              description: "The type of the layer",
+              enum: [
+                "geojson_points",
+                "geojson_points_trees",
+                "geojson_line",
+                "choropleth",
+                "choropleth_shannon",
+                "raster_tif",
+                "tms_tile"
+              ]
+            },
+            uri: {
+              type: "string",
+              format: "uri",
+              description: "The URI of the layer"
+            },
+            description: {
+              type: "string",
+              description: "The description of the layer"
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationObservationsDendogram: {
+    lexicon: 1,
+    id: "app.gainforest.organization.observations.dendogram",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a dendogram observation for an organization",
         key: "literal:self",
         record: {
           type: "object",
-          required: ["shapefile"],
+          required: ["dendogram", "createdAt"],
+          properties: {
+            dendogram: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#smallBlob",
+              description: "An SVG of the dendogram uploaded as blob"
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationObservationsFauna: {
+    lexicon: 1,
+    id: "app.gainforest.organization.observations.fauna",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a fauna observation for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["gbifTaxonKeys", "createdAt"],
+          properties: {
+            gbifTaxonKeys: {
+              type: "array",
+              description: "An array of GBIF taxon keys for each fauna observation",
+              items: {
+                type: "string",
+                description: "The GBIF taxon key of the fauna observation"
+              }
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationObservationsFlora: {
+    lexicon: 1,
+    id: "app.gainforest.organization.observations.flora",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a flora observation for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["gbifTaxonKeys", "createdAt"],
+          properties: {
+            gbifTaxonKeys: {
+              type: "array",
+              description: "An array of GBIF taxon keys for each flora observation",
+              items: {
+                type: "string",
+                description: "The GBIF taxon key of the flora observation"
+              }
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationObservationsMeasuredTreesCluster: {
+    lexicon: 1,
+    id: "app.gainforest.organization.observations.measuredTreesCluster",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a measured trees cluster for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["shapefile", "createdAt"],
           properties: {
             shapefile: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#smallBlob",
+              description: "A blob pointing to a shapefile of the measured trees cluster"
+            },
+            createdAt: {
               type: "string",
-              format: "uri",
-              description: "The uri pointing to the shapefile of the measured trees"
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationPredictionsFauna: {
+    lexicon: 1,
+    id: "app.gainforest.organization.predictions.fauna",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a fauna prediction for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["gbifTaxonKeys", "createdAt"],
+          properties: {
+            gbifTaxonKeys: {
+              type: "array",
+              description: "An array of GBIF taxon keys for each fauna prediction",
+              items: {
+                type: "string",
+                description: "The GBIF taxon key of the fauna prediction"
+              }
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationPredictionsFlora: {
+    lexicon: 1,
+    id: "app.gainforest.organization.predictions.flora",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a flora prediction for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["gbifTaxonKeys", "createdAt"],
+          properties: {
+            gbifTaxonKeys: {
+              type: "array",
+              description: "An array of GBIF taxon keys for each flora prediction",
+              items: {
+                type: "string",
+                description: "The GBIF taxon key of the flora prediction"
+              }
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestOrganizationProject: {
+    lexicon: 1,
+    id: "app.gainforest.organization.project",
+    defs: {
+      main: {
+        type: "record",
+        description: "A declaration of a project for an organization",
+        key: "tid",
+        record: {
+          type: "object",
+          required: [
+            "name",
+            "shortDescription",
+            "ecocerts",
+            "sites",
+            "measuredTreesClusters",
+            "layers",
+            "createdAt"
+          ],
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the site"
+            },
+            description: {
+              type: "string",
+              description: "The description of the project in markdown"
+            },
+            shortDescription: {
+              type: "string",
+              description: "The short description of the project"
+            },
+            ecocerts: {
+              type: "array",
+              description: "An array of at-uris pointing to the records of the ecocerts related to the project",
+              items: {
+                type: "string",
+                format: "at-uri",
+                description: "The reference to the ecocert record in the PDS"
+              }
+            },
+            layers: {
+              type: "array",
+              description: "An array of at-uris pointing to the records of the layers related to the project",
+              items: {
+                type: "string",
+                format: "at-uri",
+                description: "The reference to the layer record in the PDS"
+              }
+            },
+            sites: {
+              type: "array",
+              description: "An array of at-uris pointing to the records of the sites related to the project",
+              items: {
+                type: "string",
+                format: "at-uri",
+                description: "The reference to the site record in the PDS"
+              }
+            },
+            measuredTreesClusters: {
+              type: "array",
+              description: "An array of at-uris pointing to the records of the measured trees clusters related to the project",
+              items: {
+                type: "string",
+                format: "at-uri",
+                description: "The reference to the measured trees cluster record in the PDS"
+              }
+            },
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
             }
           }
         }
@@ -2129,7 +2009,7 @@ var schemaDict = {
         key: "tid",
         record: {
           type: "object",
-          required: ["name", "lat", "lon", "area", "shapefile"],
+          required: ["name", "lat", "lon", "area", "shapefile", "createdAt"],
           properties: {
             name: {
               type: "string",
@@ -2148,20 +2028,14 @@ var schemaDict = {
               description: "The area of the site in hectares"
             },
             shapefile: {
-              type: "union",
-              refs: [
-                "lex:app.gainforest.common.defs#uri",
-                "lex:app.gainforest.common.defs#smallBlob"
-              ],
-              description: "URI or blob pointing to a geoJSON file containing the site boundaries"
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#smallBlob",
+              description: "A blob pointing to a geoJSON file containing the site boundaries"
             },
-            trees: {
-              type: "union",
-              refs: [
-                "lex:app.gainforest.common.defs#uri",
-                "lex:app.gainforest.common.defs#smallBlob"
-              ],
-              description: "URI or blob pointing to GeoJSON data containing tree planting data for this site"
+            createdAt: {
+              type: "string",
+              description: "The date and time of the creation of the record",
+              format: "datetime"
             }
           }
         }
@@ -2184,6 +2058,562 @@ var schemaDict = {
           cid: {
             type: "string",
             format: "cid"
+          }
+        }
+      }
+    }
+  },
+  ComAtprotoRepoUploadBlob: {
+    lexicon: 1,
+    id: "com.atproto.repo.uploadBlob",
+    defs: {
+      main: {
+        type: "procedure",
+        description: "Upload a new blob, to be referenced from a repository record. The blob will be deleted if it is not referenced within a time window (eg, minutes). Blob restrictions (mimetype, size, etc) are enforced when the reference is created. Requires auth, implemented by PDS.",
+        input: {
+          encoding: "*/*"
+        },
+        output: {
+          encoding: "application/json",
+          schema: {
+            type: "object",
+            required: ["blob"],
+            properties: {
+              blob: {
+                type: "blob"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimActivity: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.activity",
+    defs: {
+      main: {
+        type: "record",
+        description: "A hypercert record tracking impact work.",
+        key: "any",
+        record: {
+          type: "object",
+          required: [
+            "title",
+            "shortDescription",
+            "createdAt",
+            "startDate",
+            "endDate"
+          ],
+          properties: {
+            title: {
+              type: "string",
+              description: "Title of the hypercert",
+              maxLength: 256
+            },
+            shortDescription: {
+              type: "string",
+              description: "Short blurb of the impact work done.",
+              maxLength: 3e3,
+              maxGraphemes: 300
+            },
+            description: {
+              type: "string",
+              description: "Optional longer description of the impact work done.",
+              maxLength: 3e4,
+              maxGraphemes: 3e3
+            },
+            image: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallImage"
+              ],
+              description: "The hypercert visual representation as a URI or image blob"
+            },
+            workScope: {
+              type: "ref",
+              ref: "lex:org.hypercerts.claim.activity#workScope"
+            },
+            startDate: {
+              type: "string",
+              format: "datetime",
+              description: "When the work began"
+            },
+            endDate: {
+              type: "string",
+              format: "datetime",
+              description: "When the work ended"
+            },
+            contributions: {
+              type: "array",
+              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              }
+            },
+            rights: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights"
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the location where the work for done hypercert was located. The record referenced must conform with the lexicon app.certified.location"
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      },
+      workScope: {
+        type: "object",
+        description: "Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply.",
+        properties: {
+          allOf: {
+            type: "array",
+            description: "Labels that MUST all hold for the scope to apply.",
+            items: {
+              type: "string"
+            },
+            maxLength: 100
+          },
+          anyOf: {
+            type: "array",
+            description: "Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition.",
+            items: {
+              type: "string"
+            },
+            maxLength: 100
+          },
+          noneOf: {
+            type: "array",
+            description: "Labels that MUST NOT hold for the scope to apply.",
+            items: {
+              type: "string"
+            },
+            maxLength: 100
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimCollection: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.collection",
+    defs: {
+      main: {
+        type: "record",
+        description: "A collection/group of hypercerts that have a specific property.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["title", "claims", "createdAt"],
+          properties: {
+            title: {
+              type: "string",
+              description: "The title of this collection",
+              maxLength: 800,
+              maxGraphemes: 80
+            },
+            shortDescription: {
+              type: "string",
+              maxLength: 3e3,
+              maxGraphemes: 300,
+              description: "A short description of this collection"
+            },
+            coverPhoto: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallBlob"
+              ],
+              description: "The cover photo of this collection (either in URI format or in a blob)."
+            },
+            claims: {
+              type: "array",
+              description: "Array of claims with their associated weights in this collection",
+              items: {
+                type: "ref",
+                ref: "lex:org.hypercerts.claim.collection#claimItem"
+              }
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      },
+      claimItem: {
+        type: "object",
+        required: ["claim", "weight"],
+        properties: {
+          claim: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef",
+            description: "A strong reference to a hypercert claim record. This claim must conform to the lexicon org.hypercerts.claim.activity"
+          },
+          weight: {
+            type: "string",
+            description: "The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100."
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimContribution: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.contribution",
+    defs: {
+      main: {
+        type: "record",
+        description: "A contribution made toward a hypercert's impact.",
+        key: "any",
+        record: {
+          type: "object",
+          required: ["contributors", "createdAt"],
+          properties: {
+            role: {
+              type: "string",
+              description: "Role or title of the contributor(s).",
+              maxLength: 100
+            },
+            contributors: {
+              type: "array",
+              description: "List of the contributors (names, pseudonyms, or DIDs). If multiple contributors are stored in the same hypercertContribution, then they would have the exact same role.",
+              items: {
+                type: "string"
+              }
+            },
+            description: {
+              type: "string",
+              description: "What the contribution concretely achieved",
+              maxLength: 2e3,
+              maxGraphemes: 500
+            },
+            startDate: {
+              type: "string",
+              format: "datetime",
+              description: "When this contribution started. This should be a subset of the hypercert timeframe."
+            },
+            endDate: {
+              type: "string",
+              format: "datetime",
+              description: "When this contribution finished.  This should be a subset of the hypercert timeframe."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimEvaluation: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.evaluation",
+    defs: {
+      main: {
+        type: "record",
+        description: "An evaluation of a hypercert or other claim",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["subject", "evaluators", "summary", "createdAt"],
+          properties: {
+            subject: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the evaluated claim. (e.g measurement, hypercert, contribution, etc)"
+            },
+            evaluators: {
+              type: "array",
+              description: "DIDs of the evaluators",
+              items: {
+                type: "string",
+                format: "did"
+              },
+              maxLength: 100
+            },
+            evaluations: {
+              type: "array",
+              description: "Evaluation data (URIs or blobs) containing detailed reports or methodology",
+              items: {
+                type: "union",
+                refs: [
+                  "lex:org.hypercerts.defs#uri",
+                  "lex:org.hypercerts.defs#smallBlob"
+                ]
+              },
+              maxLength: 100
+            },
+            summary: {
+              type: "string",
+              description: "Brief evaluation summary",
+              maxLength: 5e3,
+              maxGraphemes: 1e3
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "An optional reference for georeferenced evaluations. The record referenced must conform with the lexicon app.certified.location."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimEvidence: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.evidence",
+    defs: {
+      main: {
+        type: "record",
+        description: "A piece of evidence supporting a hypercert claim",
+        key: "any",
+        record: {
+          type: "object",
+          required: ["content", "title", "createdAt"],
+          properties: {
+            activity: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the activity this evidence is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+            },
+            content: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallBlob"
+              ],
+              description: "A piece of evidence (URI or blobs) supporting a hypercert claim"
+            },
+            title: {
+              type: "string",
+              maxLength: 256,
+              description: "Title to describe the nature of the evidence"
+            },
+            shortDescription: {
+              type: "string",
+              maxLength: 3e3,
+              maxGraphemes: 300,
+              description: "Short description explaining what this evidence demonstrates or proves"
+            },
+            description: {
+              type: "string",
+              description: "Longer description describing the impact claim evidence.",
+              maxLength: 3e4,
+              maxGraphemes: 3e3
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this hypercert claim was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimMeasurement: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.measurement",
+    defs: {
+      main: {
+        type: "record",
+        description: "External measurement data supporting a hypercert claim",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["activity", "measurers", "metric", "value", "createdAt"],
+          properties: {
+            activity: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the activity that this measurement is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+            },
+            measurers: {
+              type: "array",
+              description: "DIDs of the entity (or entities) that measured this data",
+              items: {
+                type: "string",
+                format: "did"
+              },
+              maxLength: 100
+            },
+            metric: {
+              type: "string",
+              description: "The metric being measured",
+              maxLength: 500
+            },
+            value: {
+              type: "string",
+              description: "The measured value",
+              maxLength: 500
+            },
+            measurementMethodType: {
+              type: "string",
+              description: "Short identifier for the measurement methodology",
+              maxLength: 30
+            },
+            measurementMethodURI: {
+              type: "string",
+              format: "uri",
+              description: "URI to methodology documentation, standard protocol, or measurement procedure"
+            },
+            evidenceURI: {
+              type: "array",
+              description: "URIs to supporting evidence or data",
+              items: {
+                type: "string",
+                format: "uri"
+              },
+              maxLength: 50
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the location where the measurement was taken. The record referenced must conform with the lexicon app.certified.location"
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimRights: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.rights",
+    defs: {
+      main: {
+        type: "record",
+        description: "Describes the rights that a contributor and/or an owner has, such as whether the hypercert can be sold, transferred, and under what conditions.",
+        key: "any",
+        record: {
+          type: "object",
+          required: [
+            "rightsName",
+            "rightsType",
+            "rightsDescription",
+            "createdAt"
+          ],
+          properties: {
+            rightsName: {
+              type: "string",
+              description: "Full name of the rights",
+              maxLength: 100
+            },
+            rightsType: {
+              type: "string",
+              description: "Short rights identifier for easier search",
+              maxLength: 10
+            },
+            rightsDescription: {
+              type: "string",
+              description: "Description of the rights of this hypercert"
+            },
+            attachment: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallBlob"
+              ],
+              description: "An attachment to define the rights further, e.g. a legal document."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsDefs: {
+    lexicon: 1,
+    id: "org.hypercerts.defs",
+    defs: {
+      uri: {
+        type: "object",
+        required: ["uri"],
+        description: "Object containing a URI to external data",
+        properties: {
+          uri: {
+            type: "string",
+            format: "uri",
+            maxGraphemes: 1024,
+            description: "URI to external data"
+          }
+        }
+      },
+      smallBlob: {
+        type: "object",
+        required: ["blob"],
+        description: "Object containing a blob to external data",
+        properties: {
+          blob: {
+            type: "blob",
+            accept: ["*/*"],
+            maxSize: 10485760,
+            description: "Blob to external data (up to 10MB)"
+          }
+        }
+      },
+      largeBlob: {
+        type: "object",
+        required: ["blob"],
+        description: "Object containing a blob to external data",
+        properties: {
+          blob: {
+            type: "blob",
+            accept: ["*/*"],
+            maxSize: 104857600,
+            description: "Blob to external data (up to 100MB)"
+          }
+        }
+      },
+      smallImage: {
+        type: "object",
+        required: ["image"],
+        description: "Object containing a small image",
+        properties: {
+          image: {
+            type: "blob",
+            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+            maxSize: 5242880,
+            description: "Image (up to 5MB)"
+          }
+        }
+      },
+      largeImage: {
+        type: "object",
+        required: ["image"],
+        description: "Object containing a large image",
+        properties: {
+          image: {
+            type: "blob",
+            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+            maxSize: 10485760,
+            description: "Image (up to 10MB)"
           }
         }
       }
@@ -2220,9 +2650,9 @@ function validateMain(v) {
   return validate2(v, id, hashMain, true);
 }
 
-// lex-api/types/org/hypercerts/claim/claim.ts
-var claim_exports = {};
-__export(claim_exports, {
+// lex-api/types/app/gainforest/organization/defaultSite.ts
+var defaultSite_exports = {};
+__export(defaultSite_exports, {
   isMain: () => isMain2,
   isRecord: () => isMain2,
   validateMain: () => validateMain2,
@@ -2230,7 +2660,7 @@ __export(claim_exports, {
 });
 var is$typed3 = is$typed;
 var validate3 = validate;
-var id2 = "org.hypercerts.claim.claim";
+var id2 = "app.gainforest.organization.defaultSite";
 var hashMain2 = "main";
 function isMain2(v) {
   return is$typed3(v, id2, hashMain2);
@@ -2239,9 +2669,9 @@ function validateMain2(v) {
   return validate3(v, id2, hashMain2, true);
 }
 
-// lex-api/types/org/hypercerts/claim/contribution.ts
-var contribution_exports = {};
-__export(contribution_exports, {
+// lex-api/types/app/gainforest/organization/info.ts
+var info_exports = {};
+__export(info_exports, {
   isMain: () => isMain3,
   isRecord: () => isMain3,
   validateMain: () => validateMain3,
@@ -2249,7 +2679,7 @@ __export(contribution_exports, {
 });
 var is$typed4 = is$typed;
 var validate4 = validate;
-var id3 = "org.hypercerts.claim.contribution";
+var id3 = "app.gainforest.organization.info";
 var hashMain3 = "main";
 function isMain3(v) {
   return is$typed4(v, id3, hashMain3);
@@ -2258,9 +2688,9 @@ function validateMain3(v) {
   return validate4(v, id3, hashMain3, true);
 }
 
-// lex-api/types/app/gainforest/organization/defaultSite.ts
-var defaultSite_exports = {};
-__export(defaultSite_exports, {
+// lex-api/types/app/gainforest/organization/observations/measuredTreesCluster.ts
+var measuredTreesCluster_exports = {};
+__export(measuredTreesCluster_exports, {
   isMain: () => isMain4,
   isRecord: () => isMain4,
   validateMain: () => validateMain4,
@@ -2268,7 +2698,7 @@ __export(defaultSite_exports, {
 });
 var is$typed5 = is$typed;
 var validate5 = validate;
-var id4 = "app.gainforest.organization.defaultSite";
+var id4 = "app.gainforest.organization.observations.measuredTreesCluster";
 var hashMain4 = "main";
 function isMain4(v) {
   return is$typed5(v, id4, hashMain4);
@@ -2277,9 +2707,9 @@ function validateMain4(v) {
   return validate5(v, id4, hashMain4, true);
 }
 
-// lex-api/types/app/gainforest/organization/info.ts
-var info_exports = {};
-__export(info_exports, {
+// lex-api/types/app/gainforest/organization/site.ts
+var site_exports = {};
+__export(site_exports, {
   isMain: () => isMain5,
   isRecord: () => isMain5,
   validateMain: () => validateMain5,
@@ -2287,7 +2717,7 @@ __export(info_exports, {
 });
 var is$typed6 = is$typed;
 var validate6 = validate;
-var id5 = "app.gainforest.organization.info";
+var id5 = "app.gainforest.organization.site";
 var hashMain5 = "main";
 function isMain5(v) {
   return is$typed6(v, id5, hashMain5);
@@ -2296,17 +2726,19 @@ function validateMain5(v) {
   return validate6(v, id5, hashMain5, true);
 }
 
-// lex-api/types/app/gainforest/organization/measuredTrees.ts
-var measuredTrees_exports = {};
-__export(measuredTrees_exports, {
+// lex-api/types/org/hypercerts/claim/activity.ts
+var activity_exports = {};
+__export(activity_exports, {
   isMain: () => isMain6,
   isRecord: () => isMain6,
+  isWorkScope: () => isWorkScope,
   validateMain: () => validateMain6,
-  validateRecord: () => validateMain6
+  validateRecord: () => validateMain6,
+  validateWorkScope: () => validateWorkScope
 });
 var is$typed7 = is$typed;
 var validate7 = validate;
-var id6 = "app.gainforest.organization.measuredTrees";
+var id6 = "org.hypercerts.claim.activity";
 var hashMain6 = "main";
 function isMain6(v) {
   return is$typed7(v, id6, hashMain6);
@@ -2314,10 +2746,17 @@ function isMain6(v) {
 function validateMain6(v) {
   return validate7(v, id6, hashMain6, true);
 }
+var hashWorkScope = "workScope";
+function isWorkScope(v) {
+  return is$typed7(v, id6, hashWorkScope);
+}
+function validateWorkScope(v) {
+  return validate7(v, id6, hashWorkScope);
+}
 
-// lex-api/types/app/gainforest/organization/site.ts
-var site_exports = {};
-__export(site_exports, {
+// lex-api/types/org/hypercerts/claim/contribution.ts
+var contribution_exports = {};
+__export(contribution_exports, {
   isMain: () => isMain7,
   isRecord: () => isMain7,
   validateMain: () => validateMain7,
@@ -2325,7 +2764,7 @@ __export(site_exports, {
 });
 var is$typed8 = is$typed;
 var validate8 = validate;
-var id7 = "app.gainforest.organization.site";
+var id7 = "org.hypercerts.claim.contribution";
 var hashMain7 = "main";
 function isMain7(v) {
   return is$typed8(v, id7, hashMain7);
@@ -2471,23 +2910,21 @@ var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
     })
   ).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
+    const nsid = "app.gainforest.organization.observations.measuredTreesCluster";
     const response = await agent.com.atproto.repo.getRecord({
-      collection: "app.gainforest.organization.measuredTrees",
+      collection: nsid,
       repo: input.did,
       rkey: "self"
     });
     if (response.success !== true) {
       throw new Error("Failed to get measured trees");
     }
-    validateRecordOrThrow(
-      response.data.value,
-      measuredTrees_exports
-    );
+    validateRecordOrThrow(response.data.value, measuredTreesCluster_exports);
     return response.data;
   });
 };
 
-// src/server/routers/atproto/hypercerts/claim/create.ts
+// src/server/routers/atproto/hypercerts/claim/activity/create.ts
 var import_zod11 = __toESM(require("zod"), 1);
 var import_server9 = require("@trpc/server");
 var uploadFile = async (fileGenerator, agent) => {
@@ -2506,9 +2943,9 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
         title: import_zod11.default.string(),
         shortDescription: import_zod11.default.string(),
         description: import_zod11.default.string().optional(),
-        workScope: import_zod11.default.array(import_zod11.default.string()),
-        workTimeFrameFrom: import_zod11.default.string(),
-        workTimeFrameTo: import_zod11.default.string()
+        workScopes: import_zod11.default.array(import_zod11.default.string()),
+        startDate: import_zod11.default.string(),
+        endDate: import_zod11.default.string()
       }),
       uploads: import_zod11.default.object({
         image: FileGeneratorSchema,
@@ -2544,7 +2981,7 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
       location,
       location_exports
     );
-    const claimNSID = "org.hypercerts.claim.claim";
+    const claimNSID = "org.hypercerts.claim.activity";
     const claim = {
       $type: claimNSID,
       title: input.claim.title,
@@ -2555,14 +2992,17 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
       location: void 0,
       contributions: void 0,
       // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      workScope: input.claim.workScope.join(", "),
-      workTimeFrameFrom: input.claim.workTimeFrameFrom,
-      workTimeFrameTo: input.claim.workTimeFrameTo,
+      workScope: {
+        $type: "org.hypercerts.claim.activity#workScope",
+        anyOf: input.claim.workScopes
+      },
+      startDate: input.claim.startDate,
+      endDate: input.claim.endDate,
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     const validatedClaim = validateRecordOrThrow(
       claim,
-      claim_exports
+      activity_exports
     );
     const contributionNSID = "org.hypercerts.claim.contribution";
     const contribution = {
@@ -2642,77 +3082,76 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
 var import_zod12 = __toESM(require("zod"), 1);
 var import_server10 = require("@trpc/server");
 var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(import_zod12.default.object({ did: import_zod12.default.string(), pdsDomain: allowedPDSDomainSchema })).mutation(async ({ input }) => {
-    return await protectedProcedure.input(
-      import_zod12.default.object({
-        did: import_zod12.default.string(),
-        info: import_zod12.default.object({
-          displayName: import_zod12.default.string(),
-          shortDescription: import_zod12.default.string(),
-          longDescription: import_zod12.default.string(),
-          website: import_zod12.default.string().optional(),
-          logo: BlobRefGeneratorSchema.optional(),
-          coverImage: BlobRefGeneratorSchema.optional(),
-          objectives: import_zod12.default.array(
-            import_zod12.default.enum([
-              "Conservation",
-              "Research",
-              "Education",
-              "Community",
-              "Other"
-            ])
-          ),
-          startDate: import_zod12.default.string().optional(),
-          country: import_zod12.default.string(),
-          visibility: import_zod12.default.enum(["Public", "Hidden"])
-        }),
-        uploads: import_zod12.default.object({
-          logo: FileGeneratorSchema.optional(),
-          coverImage: FileGeneratorSchema.optional()
-        }).optional(),
-        pdsDomain: allowedPDSDomainSchema
-      })
-    ).mutation(async ({ input: input2 }) => {
-      const agent = await getWriteAgent(input2.pdsDomain);
-      const logoBlob = input2.uploads?.logo ? (await uploadFileAsBlobPure(input2.uploads.logo, agent)).blob : input2.info.logo ? toBlobRef(input2.info.logo) : void 0;
-      const coverImageBlob = input2.uploads?.coverImage ? (await uploadFileAsBlobPure(input2.uploads.coverImage, agent)).blob : input2.info.coverImage ? toBlobRef(input2.info.coverImage) : void 0;
-      const info = {
-        $type: "app.gainforest.organization.info",
-        displayName: input2.info.displayName,
-        shortDescription: input2.info.shortDescription,
-        longDescription: input2.info.longDescription,
-        website: input2.info.website ? input2.info.website : void 0,
-        logo: logoBlob ? {
-          $type: "app.gainforest.common.defs#smallImage",
-          image: logoBlob
-        } : void 0,
-        coverImage: coverImageBlob ? {
-          $type: "app.gainforest.common.defs#smallImage",
-          image: coverImageBlob
-        } : void 0,
-        objectives: input2.info.objectives,
-        startDate: input2.info.startDate ? input2.info.startDate : void 0,
-        country: input2.info.country,
-        visibility: input2.info.visibility
-      };
-      validateRecordOrThrow(info, info_exports);
-      const response = await agent.com.atproto.repo.putRecord({
-        repo: input2.did,
-        collection: "app.gainforest.organization.info",
-        record: info,
-        rkey: "self"
-      });
-      if (response.success !== true) {
-        throw new import_server10.TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update organization info"
-        });
-      }
-      return {
-        ...response.data,
-        value: info
-      };
+  return protectedProcedure.input(
+    import_zod12.default.object({
+      did: import_zod12.default.string(),
+      info: import_zod12.default.object({
+        displayName: import_zod12.default.string(),
+        shortDescription: import_zod12.default.string(),
+        longDescription: import_zod12.default.string(),
+        website: import_zod12.default.string().optional(),
+        logo: BlobRefGeneratorSchema.optional(),
+        coverImage: BlobRefGeneratorSchema.optional(),
+        objectives: import_zod12.default.array(
+          import_zod12.default.enum([
+            "Conservation",
+            "Research",
+            "Education",
+            "Community",
+            "Other"
+          ])
+        ),
+        startDate: import_zod12.default.string().optional(),
+        country: import_zod12.default.string(),
+        visibility: import_zod12.default.enum(["Public", "Hidden"])
+      }),
+      uploads: import_zod12.default.object({
+        logo: FileGeneratorSchema.optional(),
+        coverImage: FileGeneratorSchema.optional()
+      }).optional(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const agent = await getWriteAgent(input.pdsDomain);
+    const logoBlob = input.uploads?.logo ? (await uploadFileAsBlobPure(input.uploads.logo, agent)).blob : input.info.logo ? toBlobRef(input.info.logo) : void 0;
+    const coverImageBlob = input.uploads?.coverImage ? (await uploadFileAsBlobPure(input.uploads.coverImage, agent)).blob : input.info.coverImage ? toBlobRef(input.info.coverImage) : void 0;
+    const info = {
+      $type: "app.gainforest.organization.info",
+      displayName: input.info.displayName,
+      shortDescription: input.info.shortDescription,
+      longDescription: input.info.longDescription,
+      website: input.info.website ? input.info.website : void 0,
+      logo: logoBlob ? {
+        $type: "app.gainforest.common.defs#smallImage",
+        image: logoBlob
+      } : void 0,
+      coverImage: coverImageBlob ? {
+        $type: "app.gainforest.common.defs#smallImage",
+        image: coverImageBlob
+      } : void 0,
+      objectives: input.info.objectives,
+      startDate: input.info.startDate ? input.info.startDate : void 0,
+      country: input.info.country,
+      visibility: input.info.visibility,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    validateRecordOrThrow(info, info_exports);
+    const response = await agent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.info",
+      record: info,
+      rkey: "self"
     });
+    if (response.success !== true) {
+      throw new import_server10.TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to update organization info"
+      });
+    }
+    return {
+      ...response.data,
+      value: info
+    };
   });
 };
 
@@ -2969,7 +3408,8 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       shapefile: {
         $type: "app.gainforest.common.defs#smallBlob",
         blob: geojsonBlobRef
-      }
+      },
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     const validationResult = site_exports.validateRecord(site);
     if (!validationResult.success) {
@@ -3003,22 +3443,16 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
       rkey: import_zod15.z.string(),
       site: import_zod15.z.object({
         name: import_zod15.z.string().min(1),
-        shapefile: import_zod15.z.union([
-          import_zod15.z.object({
-            $type: import_zod15.z.literal("app.gainforest.common.defs#smallBlob"),
-            blob: BlobRefGeneratorSchema
-          }),
-          import_zod15.z.object({
-            $type: import_zod15.z.literal("app.gainforest.common.defs#uri"),
-            uri: import_zod15.z.string()
-          })
-        ]).optional(),
+        shapefile: import_zod15.z.object({
+          $type: import_zod15.z.literal("app.gainforest.common.defs#smallBlob"),
+          blob: BlobRefGeneratorSchema
+        }).optional(),
         lat: import_zod15.z.string(),
         lon: import_zod15.z.string(),
         area: import_zod15.z.string()
       }),
       uploads: import_zod15.z.object({
-        shapefile: import_zod15.z.union([import_zod15.z.url(), FileGeneratorSchema]).optional()
+        shapefile: FileGeneratorSchema.optional()
       }).optional(),
       pdsDomain: allowedPDSDomainSchema
     })
@@ -3034,8 +3468,6 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
     if (input.uploads) {
       if (input.uploads.shapefile === void 0) {
         file2 = null;
-      } else if (typeof input.uploads.shapefile === "string") {
-        file2 = await fetchGeojsonFromUrl(input.uploads.shapefile);
       } else {
         file2 = await toFile(input.uploads.shapefile);
       }
@@ -3055,10 +3487,10 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
       lon = computed.lon;
       area = computed.area;
     } else if (input.site.shapefile) {
-      shapefile = input.site.shapefile.$type === "app.gainforest.common.defs#smallBlob" ? {
+      shapefile = {
         $type: "app.gainforest.common.defs#smallBlob",
         blob: toBlobRef(input.site.shapefile.blob)
-      } : input.site.shapefile;
+      };
       lat = input.site.lat;
       lon = input.site.lon;
       area = input.site.area;
@@ -3075,7 +3507,8 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
       lat,
       lon,
       area,
-      shapefile
+      shapefile,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     const validationResult = site_exports.validateRecord(site);
     if (!validationResult.success) {
@@ -3139,7 +3572,8 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
     const defaultSiteNSID = "app.gainforest.organization.defaultSite";
     const defaultSite = {
       $type: defaultSiteNSID,
-      site: siteUri
+      site: siteUri,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     validateRecordOrThrow(defaultSite, defaultSite_exports);
     const updateDefaultSiteResponse = await agent.com.atproto.repo.putRecord({
@@ -3209,16 +3643,16 @@ var deleteSiteFactory = (allowedPDSDomainSchema) => {
   });
 };
 
-// src/server/routers/atproto/hypercerts/claim/getAllAcrossOrgs.ts
+// src/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
 var import_zod19 = require("zod");
 var import_server18 = require("@trpc/server");
 
-// src/server/routers/atproto/hypercerts/claim/getAll.ts
+// src/server/routers/atproto/hypercerts/claim/activity/getAll.ts
 var import_zod18 = require("zod");
 var import_server17 = require("@trpc/server");
 var import_xrpc4 = __toESM(require_dist(), 1);
 var getAllClaimsPure = async (did, pdsDomain) => {
-  const claimNSID = "org.hypercerts.claim.claim";
+  const claimNSID = "org.hypercerts.claim.activity";
   const agent = getReadAgent(pdsDomain);
   const [listClaimsResponse, errorListClaims] = await tryCatch(
     agent.com.atproto.repo.listRecords({
@@ -3243,7 +3677,7 @@ var getAllClaimsPure = async (did, pdsDomain) => {
   }
   const validRecords = listClaimsResponse.data.records.map((record) => {
     try {
-      validateRecordOrThrow(record.value, claim_exports);
+      validateRecordOrThrow(record.value, activity_exports);
       return record;
     } catch {
       return null;
@@ -3256,7 +3690,7 @@ var getAllClaimsPure = async (did, pdsDomain) => {
   };
 };
 
-// src/server/routers/atproto/hypercerts/claim/getAllAcrossOrgs.ts
+// src/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
 var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(import_zod19.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
@@ -3327,14 +3761,15 @@ var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
   });
 };
 
-// src/server/routers/atproto/hypercerts/claim/get.ts
+// src/server/routers/atproto/hypercerts/claim/activity/get.ts
 var import_zod20 = require("zod");
 var import_xrpc5 = __toESM(require_dist(), 1);
 var import_server19 = require("@trpc/server");
 var getHypercertClaimPure = async (did, rkey, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
+  const nsid = "org.hypercerts.claim.activity";
   const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: "org.hypercerts.claim.claim",
+    collection: nsid,
     repo: did,
     rkey
   });
@@ -3356,7 +3791,7 @@ var getHypercertClaimPure = async (did, rkey, pdsDomain) => {
       message: "Failed to get organization info."
     });
   }
-  validateRecordOrThrow(response.data.value, claim_exports);
+  validateRecordOrThrow(response.data.value, activity_exports);
   return response.data;
 };
 var getHypercertClaimFactory = (allowedPDSDomainSchema) => {
@@ -3468,11 +3903,13 @@ var AppRouterFactory = class {
       },
       hypercerts: {
         claim: {
-          create: createHypercertClaimFactory(this.allowedPDSDomainSchema),
-          getAllAcrossOrgs: getAllClaimsAcrossOrganizationsFactory(
-            this.allowedPDSDomainSchema
-          ),
-          get: getHypercertClaimFactory(this.allowedPDSDomainSchema)
+          activity: {
+            create: createHypercertClaimFactory(this.allowedPDSDomainSchema),
+            getAllAcrossOrgs: getAllClaimsAcrossOrganizationsFactory(
+              this.allowedPDSDomainSchema
+            ),
+            get: getHypercertClaimFactory(this.allowedPDSDomainSchema)
+          }
         },
         location: {
           get: getCertifiedLocationFactory(this.allowedPDSDomainSchema)
