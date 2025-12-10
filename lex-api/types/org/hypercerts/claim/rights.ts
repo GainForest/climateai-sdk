@@ -9,6 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as OrgHypercertsDefs from '../defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -22,6 +23,10 @@ export interface Main {
   rightsType: string
   /** Description of the rights of this hypercert */
   rightsDescription: string
+  attachment?:
+    | $Typed<OrgHypercertsDefs.Uri>
+    | $Typed<OrgHypercertsDefs.SmallBlob>
+    | { $type: string }
   /** Client-declared timestamp when this record was originally created */
   createdAt: string
   [k: string]: unknown

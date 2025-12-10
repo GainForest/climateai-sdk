@@ -3,12 +3,12 @@ import { publicProcedure } from "@/server/trpc";
 import { getReadAgent } from "@/server/utils/agent";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { getOrganizationInfoPure } from "../../gainforest/organizationInfo/get";
+import { getOrganizationInfoPure } from "../../../gainforest/organizationInfo/get";
 import { getAllClaimsPure } from "./getAll";
 import { type Repo } from "@atproto/api/dist/client/types/com/atproto/sync/listRepos";
 import {
   AppGainforestOrganizationInfo,
-  OrgHypercertsClaimClaim,
+  OrgHypercertsClaimActivity,
 } from "@/../lex-api";
 import type { GetRecordResponse } from "@/server/utils/response-types";
 import type { SupportedPDSDomain } from "@/index";
@@ -16,7 +16,7 @@ import type { SupportedPDSDomain } from "@/index";
 export type OrganizationWithClaims = {
   repo: Repo;
   organizationInfo: AppGainforestOrganizationInfo.Record;
-  claims: GetRecordResponse<OrgHypercertsClaimClaim.Record>[];
+  claims: GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
 };
 
 export const getAllClaimsAcrossOrganizationsFactory = <

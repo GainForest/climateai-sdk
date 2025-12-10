@@ -23,16 +23,10 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
         site: z.object({
           name: z.string().min(1),
           shapefile: z
-            .union([
-              z.object({
-                $type: z.literal("app.gainforest.common.defs#smallBlob"),
-                blob: BlobRefGeneratorSchema,
-              }),
-              z.object({
-                $type: z.literal("app.gainforest.common.defs#uri"),
-                uri: z.string(),
-              }),
-            ])
+            .object({
+              $type: z.literal("app.gainforest.common.defs#smallBlob"),
+              blob: BlobRefGeneratorSchema,
+            })
             .optional(),
           lat: z.string(),
           lon: z.string(),
@@ -40,7 +34,7 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
         }),
         uploads: z
           .object({
-            shapefile: z.union([z.url(), FileGeneratorSchema]).optional(),
+            shapefile: FileGeneratorSchema.optional(),
           })
           .optional(),
         pdsDomain: allowedPDSDomainSchema,
@@ -60,8 +54,6 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
       if (input.uploads) {
         if (input.uploads.shapefile === undefined) {
           file = null;
-        } else if (typeof input.uploads.shapefile === "string") {
-          file = await fetchGeojsonFromUrl(input.uploads.shapefile);
         } else {
           file = await toFile(input.uploads.shapefile);
         }
@@ -71,7 +63,7 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
       let lat: string;
       let lon: string;
       let area: string;
-      let shapefile: $Typed<Uri> | $Typed<SmallBlob> | undefined;
+      let shapefile: SmallBlob;
       if (file !== null) {
         const computed = await computeGeojsonFile(file);
         const geojsonUploadResponse = await agent.uploadBlob(file);
@@ -83,16 +75,10 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
         lon = computed.lon;
         area = computed.area;
       } else if (input.site.shapefile) {
-        shapefile =
-          (
-            input.site.shapefile.$type ===
-            "app.gainforest.common.defs#smallBlob"
-          ) ?
-            {
-              $type: "app.gainforest.common.defs#smallBlob",
-              blob: toBlobRef(input.site.shapefile.blob),
-            }
-          : input.site.shapefile;
+        shapefile = {
+          $type: "app.gainforest.common.defs#smallBlob",
+          blob: toBlobRef(input.site.shapefile.blob),
+        };
         lat = input.site.lat;
         lon = input.site.lon;
         area = input.site.area;
@@ -112,6 +98,7 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
         lon: lon,
         area: area,
         shapefile,
+        createdAt: new Date().toISOString(),
       };
 
       const validationResult =

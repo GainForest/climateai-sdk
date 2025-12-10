@@ -1,4 +1,4 @@
-import { M as Main } from '../claim-CsQa9nQY.js';
+import { M as Main } from '../activity-C2XJbhf5.js';
 import { G as GetRecordResponse } from '../response-types-a9c2mEQD.js';
 import '@atproto/lexicon';
 

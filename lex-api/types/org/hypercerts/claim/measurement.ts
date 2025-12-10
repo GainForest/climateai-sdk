@@ -17,17 +17,20 @@ const id = 'org.hypercerts.claim.measurement'
 
 export interface Main {
   $type: 'org.hypercerts.claim.measurement'
-  hypercert: ComAtprotoRepoStrongRef.Main
+  activity: ComAtprotoRepoStrongRef.Main
   /** DIDs of the entity (or entities) that measured this data */
   measurers: string[]
   /** The metric being measured */
   metric: string
   /** The measured value */
   value: string
+  /** Short identifier for the measurement methodology */
+  measurementMethodType?: string
   /** URI to methodology documentation, standard protocol, or measurement procedure */
   measurementMethodURI?: string
   /** URIs to supporting evidence or data */
   evidenceURI?: string[]
+  location?: ComAtprotoRepoStrongRef.Main
   /** Client-declared timestamp when this record was originally created */
   createdAt: string
   [k: string]: unknown

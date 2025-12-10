@@ -1,13 +1,13 @@
-import { M as Main$4, $ as $Typed } from './claim-CsQa9nQY.cjs';
-import { M as Main, c as Main$1, d as Main$2, e as Main$3, f as Main$5, U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './info-DNNfv494.cjs';
-import { B as BlobRefGenerator } from './blobref-CzIHHOw4.cjs';
+import { M as Main$4, $ as $Typed } from './activity-C2XJbhf5.js';
+import { M as Main, c as Main$1, d as Main$2, e as Main$3, f as Main$5, U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './info-CBCS_to1.js';
+import { B as BlobRefGenerator } from './blobref-CzIHHOw4.js';
 import * as _atproto_lexicon from '@atproto/lexicon';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.cjs';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 import { JwtPayload } from '@atproto/oauth-client-node';
@@ -102,54 +102,47 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
-                            pdsDomain: Record<T, T>[T];
-                        };
-                        output: _trpc_server.TRPCMutationProcedure<{
-                            input: {
-                                did: string;
-                                info: {
-                                    displayName: string;
-                                    shortDescription: string;
-                                    longDescription: string;
-                                    objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
-                                    country: string;
-                                    visibility: "Public" | "Hidden";
-                                    website?: string | undefined;
-                                    logo?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    coverImage?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    startDate?: string | undefined;
-                                };
-                                pdsDomain: Record<T, T>[T];
-                                uploads?: {
-                                    logo?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
-                                    coverImage?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
+                            info: {
+                                displayName: string;
+                                shortDescription: string;
+                                longDescription: string;
+                                objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
+                                country: string;
+                                visibility: "Public" | "Hidden";
+                                website?: string | undefined;
+                                logo?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
                                 } | undefined;
+                                coverImage?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                startDate?: string | undefined;
                             };
-                            output: PutRecordResponse<Main>;
-                            meta: object;
-                        }>;
+                            pdsDomain: Record<T, T>[T];
+                            uploads?: {
+                                logo?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                                coverImage?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                            } | undefined;
+                        };
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -210,14 +203,11 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                         mimeType: string;
                                         size: number;
                                     };
-                                } | {
-                                    $type: "app.gainforest.common.defs#uri";
-                                    uri: string;
                                 } | undefined;
                             };
                             pdsDomain: Record<T, T>[T];
                             uploads?: {
-                                shapefile?: string | {
+                                shapefile?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
@@ -266,50 +256,52 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
         };
         hypercerts: {
             claim: {
-                create: _trpc_server.TRPCMutationProcedure<{
-                    input: {
-                        claim: {
-                            title: string;
-                            shortDescription: string;
-                            workScope: string[];
-                            workTimeFrameFrom: string;
-                            workTimeFrameTo: string;
-                            description?: string | undefined;
-                        };
-                        uploads: {
-                            image: {
-                                name: string;
-                                type: string;
-                                dataBase64: string;
+                activity: {
+                    create: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            claim: {
+                                title: string;
+                                shortDescription: string;
+                                workScopes: string[];
+                                startDate: string;
+                                endDate: string;
+                                description?: string | undefined;
                             };
-                            contributors: string[];
-                            siteAtUri: string;
+                            uploads: {
+                                image: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                };
+                                contributors: string[];
+                                siteAtUri: string;
+                            };
+                            pdsDomain: Record<T, T>[T];
                         };
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
-                    meta: object;
-                }>;
-                getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: {
-                        repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$4>[];
-                        organizationInfo: Main;
-                    }[];
-                    meta: object;
-                }>;
-                get: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        did: string;
-                        rkey: string;
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: GetRecordResponse<Main$4>;
-                    meta: object;
-                }>;
+                        output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
+                        meta: object;
+                    }>;
+                    getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
+                            claims: GetRecordResponse<Main$4>[];
+                            organizationInfo: Main;
+                        }[];
+                        meta: object;
+                    }>;
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$4>;
+                        meta: object;
+                    }>;
+                };
             };
             location: {
                 get: _trpc_server.TRPCQueryProcedure<{
@@ -394,54 +386,47 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
-                            pdsDomain: Record<T, T>[T];
-                        };
-                        output: _trpc_server.TRPCMutationProcedure<{
-                            input: {
-                                did: string;
-                                info: {
-                                    displayName: string;
-                                    shortDescription: string;
-                                    longDescription: string;
-                                    objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
-                                    country: string;
-                                    visibility: "Public" | "Hidden";
-                                    website?: string | undefined;
-                                    logo?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    coverImage?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    startDate?: string | undefined;
-                                };
-                                pdsDomain: Record<T, T>[T];
-                                uploads?: {
-                                    logo?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
-                                    coverImage?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
+                            info: {
+                                displayName: string;
+                                shortDescription: string;
+                                longDescription: string;
+                                objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
+                                country: string;
+                                visibility: "Public" | "Hidden";
+                                website?: string | undefined;
+                                logo?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
                                 } | undefined;
+                                coverImage?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                startDate?: string | undefined;
                             };
-                            output: PutRecordResponse<Main>;
-                            meta: object;
-                        }>;
+                            pdsDomain: Record<T, T>[T];
+                            uploads?: {
+                                logo?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                                coverImage?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                            } | undefined;
+                        };
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -502,14 +487,11 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                         mimeType: string;
                                         size: number;
                                     };
-                                } | {
-                                    $type: "app.gainforest.common.defs#uri";
-                                    uri: string;
                                 } | undefined;
                             };
                             pdsDomain: Record<T, T>[T];
                             uploads?: {
-                                shapefile?: string | {
+                                shapefile?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
@@ -558,50 +540,52 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
         };
         hypercerts: {
             claim: {
-                create: _trpc_server.TRPCMutationProcedure<{
-                    input: {
-                        claim: {
-                            title: string;
-                            shortDescription: string;
-                            workScope: string[];
-                            workTimeFrameFrom: string;
-                            workTimeFrameTo: string;
-                            description?: string | undefined;
-                        };
-                        uploads: {
-                            image: {
-                                name: string;
-                                type: string;
-                                dataBase64: string;
+                activity: {
+                    create: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            claim: {
+                                title: string;
+                                shortDescription: string;
+                                workScopes: string[];
+                                startDate: string;
+                                endDate: string;
+                                description?: string | undefined;
                             };
-                            contributors: string[];
-                            siteAtUri: string;
+                            uploads: {
+                                image: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                };
+                                contributors: string[];
+                                siteAtUri: string;
+                            };
+                            pdsDomain: Record<T, T>[T];
                         };
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
-                    meta: object;
-                }>;
-                getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: {
-                        repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$4>[];
-                        organizationInfo: Main;
-                    }[];
-                    meta: object;
-                }>;
-                get: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        did: string;
-                        rkey: string;
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: GetRecordResponse<Main$4>;
-                    meta: object;
-                }>;
+                        output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
+                        meta: object;
+                    }>;
+                    getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
+                            claims: GetRecordResponse<Main$4>[];
+                            organizationInfo: Main;
+                        }[];
+                        meta: object;
+                    }>;
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$4>;
+                        meta: object;
+                    }>;
+                };
             };
             location: {
                 get: _trpc_server.TRPCQueryProcedure<{
@@ -710,54 +694,47 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
-                            pdsDomain: Record<T, T>[T];
-                        };
-                        output: _trpc_server.TRPCMutationProcedure<{
-                            input: {
-                                did: string;
-                                info: {
-                                    displayName: string;
-                                    shortDescription: string;
-                                    longDescription: string;
-                                    objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
-                                    country: string;
-                                    visibility: "Public" | "Hidden";
-                                    website?: string | undefined;
-                                    logo?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    coverImage?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    startDate?: string | undefined;
-                                };
-                                pdsDomain: Record<T, T>[T];
-                                uploads?: {
-                                    logo?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
-                                    coverImage?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
+                            info: {
+                                displayName: string;
+                                shortDescription: string;
+                                longDescription: string;
+                                objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
+                                country: string;
+                                visibility: "Public" | "Hidden";
+                                website?: string | undefined;
+                                logo?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
                                 } | undefined;
+                                coverImage?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                startDate?: string | undefined;
                             };
-                            output: PutRecordResponse<Main>;
-                            meta: object;
-                        }>;
+                            pdsDomain: Record<T, T>[T];
+                            uploads?: {
+                                logo?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                                coverImage?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                            } | undefined;
+                        };
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -818,14 +795,11 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                                         mimeType: string;
                                         size: number;
                                     };
-                                } | {
-                                    $type: "app.gainforest.common.defs#uri";
-                                    uri: string;
                                 } | undefined;
                             };
                             pdsDomain: Record<T, T>[T];
                             uploads?: {
-                                shapefile?: string | {
+                                shapefile?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
@@ -874,50 +848,52 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
         };
         hypercerts: {
             claim: {
-                create: _trpc_server.TRPCMutationProcedure<{
-                    input: {
-                        claim: {
-                            title: string;
-                            shortDescription: string;
-                            workScope: string[];
-                            workTimeFrameFrom: string;
-                            workTimeFrameTo: string;
-                            description?: string | undefined;
-                        };
-                        uploads: {
-                            image: {
-                                name: string;
-                                type: string;
-                                dataBase64: string;
+                activity: {
+                    create: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            claim: {
+                                title: string;
+                                shortDescription: string;
+                                workScopes: string[];
+                                startDate: string;
+                                endDate: string;
+                                description?: string | undefined;
                             };
-                            contributors: string[];
-                            siteAtUri: string;
+                            uploads: {
+                                image: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                };
+                                contributors: string[];
+                                siteAtUri: string;
+                            };
+                            pdsDomain: Record<T, T>[T];
                         };
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
-                    meta: object;
-                }>;
-                getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: {
-                        repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$4>[];
-                        organizationInfo: Main;
-                    }[];
-                    meta: object;
-                }>;
-                get: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        did: string;
-                        rkey: string;
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: GetRecordResponse<Main$4>;
-                    meta: object;
-                }>;
+                        output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
+                        meta: object;
+                    }>;
+                    getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
+                            claims: GetRecordResponse<Main$4>[];
+                            organizationInfo: Main;
+                        }[];
+                        meta: object;
+                    }>;
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$4>;
+                        meta: object;
+                    }>;
+                };
             };
             location: {
                 get: _trpc_server.TRPCQueryProcedure<{
@@ -1001,54 +977,47 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
-                            pdsDomain: Record<T, T>[T];
-                        };
-                        output: _trpc_server.TRPCMutationProcedure<{
-                            input: {
-                                did: string;
-                                info: {
-                                    displayName: string;
-                                    shortDescription: string;
-                                    longDescription: string;
-                                    objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
-                                    country: string;
-                                    visibility: "Public" | "Hidden";
-                                    website?: string | undefined;
-                                    logo?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    coverImage?: {
-                                        $type: "blob-ref-generator";
-                                        ref: {
-                                            $link: string;
-                                        };
-                                        mimeType: string;
-                                        size: number;
-                                    } | undefined;
-                                    startDate?: string | undefined;
-                                };
-                                pdsDomain: Record<T, T>[T];
-                                uploads?: {
-                                    logo?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
-                                    coverImage?: {
-                                        name: string;
-                                        type: string;
-                                        dataBase64: string;
-                                    } | undefined;
+                            info: {
+                                displayName: string;
+                                shortDescription: string;
+                                longDescription: string;
+                                objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
+                                country: string;
+                                visibility: "Public" | "Hidden";
+                                website?: string | undefined;
+                                logo?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
                                 } | undefined;
+                                coverImage?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                startDate?: string | undefined;
                             };
-                            output: PutRecordResponse<Main>;
-                            meta: object;
-                        }>;
+                            pdsDomain: Record<T, T>[T];
+                            uploads?: {
+                                logo?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                                coverImage?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                            } | undefined;
+                        };
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -1109,14 +1078,11 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                                         mimeType: string;
                                         size: number;
                                     };
-                                } | {
-                                    $type: "app.gainforest.common.defs#uri";
-                                    uri: string;
                                 } | undefined;
                             };
                             pdsDomain: Record<T, T>[T];
                             uploads?: {
-                                shapefile?: string | {
+                                shapefile?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
@@ -1165,50 +1131,52 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
         };
         hypercerts: {
             claim: {
-                create: _trpc_server.TRPCMutationProcedure<{
-                    input: {
-                        claim: {
-                            title: string;
-                            shortDescription: string;
-                            workScope: string[];
-                            workTimeFrameFrom: string;
-                            workTimeFrameTo: string;
-                            description?: string | undefined;
-                        };
-                        uploads: {
-                            image: {
-                                name: string;
-                                type: string;
-                                dataBase64: string;
+                activity: {
+                    create: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            claim: {
+                                title: string;
+                                shortDescription: string;
+                                workScopes: string[];
+                                startDate: string;
+                                endDate: string;
+                                description?: string | undefined;
                             };
-                            contributors: string[];
-                            siteAtUri: string;
+                            uploads: {
+                                image: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                };
+                                contributors: string[];
+                                siteAtUri: string;
+                            };
+                            pdsDomain: Record<T, T>[T];
                         };
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
-                    meta: object;
-                }>;
-                getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: {
-                        repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                        claims: GetRecordResponse<Main$4>[];
-                        organizationInfo: Main;
-                    }[];
-                    meta: object;
-                }>;
-                get: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        did: string;
-                        rkey: string;
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: GetRecordResponse<Main$4>;
-                    meta: object;
-                }>;
+                        output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
+                        meta: object;
+                    }>;
+                    getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
+                            claims: GetRecordResponse<Main$4>[];
+                            organizationInfo: Main;
+                        }[];
+                        meta: object;
+                    }>;
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$4>;
+                        meta: object;
+                    }>;
+                };
             };
             location: {
                 get: _trpc_server.TRPCQueryProcedure<{

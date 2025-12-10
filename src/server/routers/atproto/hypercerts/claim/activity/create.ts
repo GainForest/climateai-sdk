@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { Agent } from "@atproto/api";
 import {
   AppCertifiedLocation,
-  OrgHypercertsClaimClaim,
+  OrgHypercertsClaimActivity,
   OrgHypercertsClaimContribution,
 } from "@/../lex-api";
 import { toBlobRef, toBlobRefGenerator } from "@/zod-schemas/blobref";
@@ -33,9 +33,9 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
           title: z.string(),
           shortDescription: z.string(),
           description: z.string().optional(),
-          workScope: z.array(z.string()),
-          workTimeFrameFrom: z.string(),
-          workTimeFrameTo: z.string(),
+          workScopes: z.array(z.string()),
+          startDate: z.string(),
+          endDate: z.string(),
         }),
         uploads: z.object({
           image: FileGeneratorSchema,
@@ -77,8 +77,8 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
       );
 
       // Claim record
-      const claimNSID = "org.hypercerts.claim.claim";
-      const claim: OrgHypercertsClaimClaim.Record = {
+      const claimNSID = "org.hypercerts.claim.activity";
+      const claim: OrgHypercertsClaimActivity.Record = {
         $type: claimNSID,
         title: input.claim.title,
         shortDescription: input.claim.shortDescription,
@@ -88,14 +88,17 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
         location: undefined,
         contributions: undefined,
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        workScope: input.claim.workScope.join(", "),
-        workTimeFrameFrom: input.claim.workTimeFrameFrom,
-        workTimeFrameTo: input.claim.workTimeFrameTo,
+        workScope: {
+          $type: "org.hypercerts.claim.activity#workScope",
+          anyOf: input.claim.workScopes,
+        },
+        startDate: input.claim.startDate,
+        endDate: input.claim.endDate,
         createdAt: new Date().toISOString(),
       };
       const validatedClaim = validateRecordOrThrow(
         claim,
-        OrgHypercertsClaimClaim
+        OrgHypercertsClaimActivity
       );
 
       // Contribution record
@@ -148,7 +151,7 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
             uri: locationWriteResponse.data.uri,
             cid: locationWriteResponse.data.cid,
           },
-        } satisfies OrgHypercertsClaimClaim.Record,
+        } satisfies OrgHypercertsClaimActivity.Record,
       });
       if (claimResponse.success !== true) {
         throw new TRPCError({

@@ -9,7 +9,6 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -17,7 +16,6 @@ const id = 'org.hypercerts.claim.contribution'
 
 export interface Main {
   $type: 'org.hypercerts.claim.contribution'
-  hypercert: ComAtprotoRepoStrongRef.Main
   /** Role or title of the contributor(s). */
   role?: string
   /** List of the contributors (names, pseudonyms, or DIDs). If multiple contributors are stored in the same hypercertContribution, then they would have the exact same role. */
@@ -25,9 +23,9 @@ export interface Main {
   /** What the contribution concretely achieved */
   description?: string
   /** When this contribution started. This should be a subset of the hypercert timeframe. */
-  workTimeframeFrom?: string
+  startDate?: string
   /** When this contribution finished.  This should be a subset of the hypercert timeframe. */
-  workTimeframeTo?: string
+  endDate?: string
   /** Client-declared timestamp when this record was originally created */
   createdAt: string
   [k: string]: unknown

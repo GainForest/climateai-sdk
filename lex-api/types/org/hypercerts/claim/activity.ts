@@ -14,10 +14,10 @@ import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongR
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'org.hypercerts.claim.claim'
+const id = 'org.hypercerts.claim.activity'
 
 export interface Main {
-  $type: 'org.hypercerts.claim.claim'
+  $type: 'org.hypercerts.claim.activity'
   /** Title of the hypercert */
   title: string
   /** Short blurb of the impact work done. */
@@ -28,15 +28,12 @@ export interface Main {
     | $Typed<OrgHypercertsDefs.Uri>
     | $Typed<OrgHypercertsDefs.SmallImage>
     | { $type: string }
-  /** Scope of the work performed */
-  workScope: string
+  workScope?: WorkScope
   /** When the work began */
-  workTimeFrameFrom: string
+  startDate: string
   /** When the work ended */
-  workTimeFrameTo: string
-  /** Supporting evidence, documentation, or external data URIs */
-  evidence?: ComAtprotoRepoStrongRef.Main[]
-  /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contributions */
+  endDate: string
+  /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution */
   contributions?: ComAtprotoRepoStrongRef.Main[]
   rights?: ComAtprotoRepoStrongRef.Main
   location?: ComAtprotoRepoStrongRef.Main
@@ -59,4 +56,25 @@ export {
   type Main as Record,
   isMain as isRecord,
   validateMain as validateRecord,
+}
+
+/** Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply. */
+export interface WorkScope {
+  $type?: 'org.hypercerts.claim.activity#workScope'
+  /** Labels that MUST all hold for the scope to apply. */
+  allOf?: string[]
+  /** Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition. */
+  anyOf?: string[]
+  /** Labels that MUST NOT hold for the scope to apply. */
+  noneOf?: string[]
+}
+
+const hashWorkScope = 'workScope'
+
+export function isWorkScope<V>(v: V) {
+  return is$typed(v, id, hashWorkScope)
+}
+
+export function validateWorkScope<V>(v: V) {
+  return validate<WorkScope & V>(v, id, hashWorkScope)
 }

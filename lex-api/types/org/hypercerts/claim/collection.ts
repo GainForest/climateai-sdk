@@ -3,17 +3,21 @@
  */
 import { type ValidationResult, BlobRef } from '@atproto/lexicon'
 import { CID } from 'multiformats/cid'
-import { validate as _validate } from '../../../lexicons'
-import { type $Typed, is$typed as _is$typed, type OmitKey } from '../../../util'
-import type * as OrgHypercertsDefs from './defs.js'
-import type * as ComAtprotoRepoStrongRef from '../../com/atproto/repo/strongRef.js'
+import { validate as _validate } from '../../../../lexicons'
+import {
+  type $Typed,
+  is$typed as _is$typed,
+  type OmitKey,
+} from '../../../../util'
+import type * as OrgHypercertsDefs from '../defs.js'
+import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'org.hypercerts.collection'
+const id = 'org.hypercerts.claim.collection'
 
 export interface Main {
-  $type: 'org.hypercerts.collection'
+  $type: 'org.hypercerts.claim.collection'
   /** The title of this collection */
   title: string
   /** A short description of this collection */
@@ -46,7 +50,7 @@ export {
 }
 
 export interface ClaimItem {
-  $type?: 'org.hypercerts.collection#claimItem'
+  $type?: 'org.hypercerts.claim.collection#claimItem'
   claim: ComAtprotoRepoStrongRef.Main
   /** The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100. */
   weight: string

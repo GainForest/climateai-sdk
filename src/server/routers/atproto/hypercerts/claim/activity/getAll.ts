@@ -2,7 +2,7 @@ import { publicProcedure } from "@/server/trpc";
 import { z } from "zod";
 import type { GetRecordResponse } from "@/server/utils/response-types";
 import { TRPCError } from "@trpc/server";
-import { OrgHypercertsClaimClaim } from "@/../lex-api";
+import { OrgHypercertsClaimActivity } from "@/../lex-api";
 import { tryCatch } from "@/lib/tryCatch";
 import { XRPCError } from "@atproto/xrpc";
 import { getReadAgent } from "@/server/utils/agent";
@@ -14,8 +14,8 @@ export const getAllClaimsPure = async <T extends SupportedPDSDomain>(
   did: string,
   pdsDomain: T
 ) => {
-  const claimNSID: OrgHypercertsClaimClaim.Record["$type"] =
-    "org.hypercerts.claim.claim";
+  const claimNSID: OrgHypercertsClaimActivity.Record["$type"] =
+    "org.hypercerts.claim.activity";
   const agent = getReadAgent(pdsDomain);
   const [listClaimsResponse, errorListClaims] = await tryCatch(
     agent.com.atproto.repo.listRecords({
@@ -43,7 +43,7 @@ export const getAllClaimsPure = async <T extends SupportedPDSDomain>(
   const validRecords = listClaimsResponse.data.records
     .map((record) => {
       try {
-        validateRecordOrThrow(record.value, OrgHypercertsClaimClaim);
+        validateRecordOrThrow(record.value, OrgHypercertsClaimActivity);
         return record;
       } catch {
         return null;
@@ -51,7 +51,7 @@ export const getAllClaimsPure = async <T extends SupportedPDSDomain>(
     })
     .filter(
       (record) => record !== null
-    ) as GetRecordResponse<OrgHypercertsClaimClaim.Record>[];
+    ) as GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
 
   return {
     claims: validRecords,
