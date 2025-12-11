@@ -10,18 +10,34 @@ bun install climateai-sdk
 
 > The repo itself still uses Bun for development chores; consumers only need the published package.
 
-## 1. Configure allowed PDS domains
+## 1. Configure allowed PDS domains and instantiate the SDK
 
-Create a single configuration module (e.g. `src/server/climateai-sdk.config.ts`) and instantiate the SDK on the server:
+We would need two configuration files to start.
+
+- `climateai-sdk.ts`: defines the domains you want to allow in your app, and other artifacts related to the sdk configuration.
+- `climateai-sdk.server.ts`: instantiate the sdk using the configuration options.
+
+**Warning:** NEVER IMPORT ANYTHING FROM `climateai-sdk.server.ts` INTO A CLIENT COMPONENT OR A FILE THAT EXECUTES ON CLIENT SIDE.
+
+**Configuring allowed domains**
 
 ```ts
-// src/server/climateai-sdk.config.ts
-import { ClimateAiSDK, SupportedPDSDomain } from "climateai-sdk";
+// config/climateai-sdk.ts
+import { SupportedPDSDomain } from "climateai-sdk";
 
-// keep this list in one place so both the SDK and your app agree on it
-export const allowedPDSDomains: SupportedPDSDomain[] = ["climateai.org"];
-
+export const allowedPDSDomains = [
+  "climateai.org",
+  // add domains here to allow them
+] satisfies SupportedPDSDomain[];
 export type AllowedPDSDomain = (typeof allowedPDSDomains)[number];
+```
+
+**Instantiating sdk**
+
+```ts
+// config/climateai-sdk.server.ts
+import { ClimateAiSDK } from "climateai-sdk";
+import { allowedPDSDomains } from "./climateai-sdk";
 
 export const climateAiSdk = new ClimateAiSDK(allowedPDSDomains);
 ```
@@ -35,7 +51,8 @@ Create `app/api/trpc/[trpc]/route.ts` (Next.js App Router) so the frontend can t
 ```ts
 // app/api/trpc/[trpc]/route.ts
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { allowedPDSDomains, climateAiSdk } from "@/server/climateai-sdk.config";
+import { allowedPDSDomains } from "@/config/climateai-sdk";
+import { climateAiSdk } from "@/config/climateai-sdk.server";
 import { createContext } from "climateai-sdk";
 
 export const runtime = "nodejs";
@@ -68,6 +85,7 @@ To set up trpc provider and hooks for querying and mutating data, we need to set
 #### Configure the Provider
 
 ```tsx
+// components/providers/trpc-provider.tsx
 "use client";
 
 import { ReactNode, useMemo } from "react";
@@ -76,7 +94,7 @@ import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { AppRouter } from "climateai-sdk";
 import { customTransformer } from "climateai-sdk/utilities/transformer";
-import { AllowedPDSDomain } from "@/server/climateai-sdk.config";
+import { AllowedPDSDomain } from "@/config/climateai-sdk";
 
 export const trpcApi = createTRPCReact<AppRouter<AllowedPDSDomain>>();
 
@@ -145,7 +163,7 @@ you can use the `trpcClient`.
 
 ```ts
 import { createTRPCClient } from "climateai-sdk/client";
-import type { AllowedPDSDomain } from "@/server/climateai-sdk.config";
+import type { AllowedPDSDomain } from "@/config/climateai-sdk";
 
 const trpcClient = createTRPCClient<AllowedPDSDomain>("/api/trpc");
 
@@ -159,7 +177,7 @@ const result = await trpcClient.hypercerts.claim.get.query({
 If you need to use trpc on the server, you can use `getServerCaller` to get a server side caller.
 
 ```ts
-import { climateAiSdk } from "@/server/climateai-sdk.config";
+import { climateAiSdk } from "@/config/climateai-sdk.server";
 
 const ServerSidePage = async () => {
   const serverCaller = climateAiSdk.getServerCaller();
