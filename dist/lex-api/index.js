@@ -1434,31 +1434,6 @@ var schemaDict = {
       }
     }
   },
-  ComAtprotoRepoUploadBlob: {
-    lexicon: 1,
-    id: "com.atproto.repo.uploadBlob",
-    defs: {
-      main: {
-        type: "procedure",
-        description: "Upload a new blob, to be referenced from a repository record. The blob will be deleted if it is not referenced within a time window (eg, minutes). Blob restrictions (mimetype, size, etc) are enforced when the reference is created. Requires auth, implemented by PDS.",
-        input: {
-          encoding: "*/*"
-        },
-        output: {
-          encoding: "application/json",
-          schema: {
-            type: "object",
-            required: ["blob"],
-            properties: {
-              blob: {
-                type: "blob"
-              }
-            }
-          }
-        }
-      }
-    }
-  },
   OrgHypercertsClaimActivity: {
     lexicon: 1,
     id: "org.hypercerts.claim.activity",
@@ -2335,15 +2310,6 @@ function isMain14(v) {
 }
 function validateMain14(v) {
   return validate16(v, id15, hashMain14);
-}
-
-// lex-api/types/com/atproto/repo/uploadBlob.ts
-var uploadBlob_exports = {};
-__export(uploadBlob_exports, {
-  toKnownErr: () => toKnownErr2
-});
-function toKnownErr2(e) {
-  return e;
 }
 
 // lex-api/types/org/hypercerts/claim/activity.ts
@@ -3336,14 +3302,6 @@ var ComAtprotoRepoNS = class {
   constructor(client) {
     this._client = client;
   }
-  uploadBlob(data, opts) {
-    return this._client.call(
-      "com.atproto.repo.uploadBlob",
-      opts?.qp,
-      data,
-      opts
-    );
-  }
 };
 var OrgNS = class {
   _client;
@@ -3757,7 +3715,6 @@ export {
   ComAtprotoNS,
   ComAtprotoRepoNS,
   strongRef_exports as ComAtprotoRepoStrongRef,
-  uploadBlob_exports as ComAtprotoRepoUploadBlob,
   ComNS,
   activity_exports as OrgHypercertsClaimActivity,
   OrgHypercertsClaimActivityRecord,

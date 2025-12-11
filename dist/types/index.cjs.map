@@ -1,1 +1,1 @@
-{"version":3,"sources":["../../src/types/index.ts"],"sourcesContent":["export type * from \"./Ecocert\";\n\nexport type { GetRecordResponse } from \"@/server/utils/response-types\";\n"],"mappings":";;;;;;;;;;;;;;;;AAAA;AAAA;","names":[]}
+{"version":3,"sources":["../../src/types/index.ts"],"sourcesContent":["export type * from \"./Ecocert\";\n\nexport type {\n  GetRecordResponse,\n  PutRecordResponse,\n} from \"@/server/utils/response-types\";\n"],"mappings":";;;;;;;;;;;;;;;;AAAA;AAAA;","names":[]}

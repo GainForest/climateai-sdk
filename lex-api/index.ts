@@ -39,7 +39,6 @@ import * as AppGainforestOrganizationPredictionsFlora from './types/app/gainfore
 import * as AppGainforestOrganizationProject from './types/app/gainforest/organization/project.js'
 import * as AppGainforestOrganizationSite from './types/app/gainforest/organization/site.js'
 import * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef.js'
-import * as ComAtprotoRepoUploadBlob from './types/com/atproto/repo/uploadBlob.js'
 import * as OrgHypercertsClaimActivity from './types/org/hypercerts/claim/activity.js'
 import * as OrgHypercertsClaimCollection from './types/org/hypercerts/claim/collection.js'
 import * as OrgHypercertsClaimContribution from './types/org/hypercerts/claim/contribution.js'
@@ -65,7 +64,6 @@ export * as AppGainforestOrganizationPredictionsFlora from './types/app/gainfore
 export * as AppGainforestOrganizationProject from './types/app/gainforest/organization/project.js'
 export * as AppGainforestOrganizationSite from './types/app/gainforest/organization/site.js'
 export * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef.js'
-export * as ComAtprotoRepoUploadBlob from './types/com/atproto/repo/uploadBlob.js'
 export * as OrgHypercertsClaimActivity from './types/org/hypercerts/claim/activity.js'
 export * as OrgHypercertsClaimCollection from './types/org/hypercerts/claim/collection.js'
 export * as OrgHypercertsClaimContribution from './types/org/hypercerts/claim/contribution.js'
@@ -1366,18 +1364,6 @@ export class ComAtprotoRepoNS {
 
   constructor(client: XrpcClient) {
     this._client = client
-  }
-
-  uploadBlob(
-    data?: ComAtprotoRepoUploadBlob.InputSchema,
-    opts?: ComAtprotoRepoUploadBlob.CallOptions,
-  ): Promise<ComAtprotoRepoUploadBlob.Response> {
-    return this._client.call(
-      'com.atproto.repo.uploadBlob',
-      opts?.qp,
-      data,
-      opts,
-    )
   }
 }
 

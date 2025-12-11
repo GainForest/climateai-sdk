@@ -777,32 +777,6 @@ export const schemaDict = {
       },
     },
   },
-  ComAtprotoRepoUploadBlob: {
-    lexicon: 1,
-    id: 'com.atproto.repo.uploadBlob',
-    defs: {
-      main: {
-        type: 'procedure',
-        description:
-          'Upload a new blob, to be referenced from a repository record. The blob will be deleted if it is not referenced within a time window (eg, minutes). Blob restrictions (mimetype, size, etc) are enforced when the reference is created. Requires auth, implemented by PDS.',
-        input: {
-          encoding: '*/*',
-        },
-        output: {
-          encoding: 'application/json',
-          schema: {
-            type: 'object',
-            required: ['blob'],
-            properties: {
-              blob: {
-                type: 'blob',
-              },
-            },
-          },
-        },
-      },
-    },
-  },
   OrgHypercertsClaimActivity: {
     lexicon: 1,
     id: 'org.hypercerts.claim.activity',
@@ -1427,7 +1401,6 @@ export const ids = {
   AppGainforestOrganizationProject: 'app.gainforest.organization.project',
   AppGainforestOrganizationSite: 'app.gainforest.organization.site',
   ComAtprotoRepoStrongRef: 'com.atproto.repo.strongRef',
-  ComAtprotoRepoUploadBlob: 'com.atproto.repo.uploadBlob',
   OrgHypercertsClaimActivity: 'org.hypercerts.claim.activity',
   OrgHypercertsClaimCollection: 'org.hypercerts.claim.collection',
   OrgHypercertsClaimContribution: 'org.hypercerts.claim.contribution',

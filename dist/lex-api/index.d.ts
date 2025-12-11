@@ -4,7 +4,7 @@ import { a as $TypedObject, $ as $Typed, U as Uri, S as SmallBlob$1, b as Main$e
 export { s as ComAtprotoRepoStrongRef, d as OrgHypercertsClaimActivity, e as OrgHypercertsDefs } from '../activity-C2XJbhf5.js';
 import { S as SmallImage, I as IndexedOrganization, a as SmallBlob, f as Main$f, d as Main$g, M as Main$h, c as Main$i, e as Main$j } from '../info-CBCS_to1.js';
 export { A as AppCertifiedLocation, g as AppGainforestCommonDefs, h as AppGainforestOrganizationDefaultSite, i as AppGainforestOrganizationInfo, j as AppGainforestOrganizationObservationsMeasuredTreesCluster, k as AppGainforestOrganizationSite } from '../info-CBCS_to1.js';
-import { ValidationResult, BlobRef } from '@atproto/lexicon';
+import { ValidationResult } from '@atproto/lexicon';
 
 interface Main$d {
     $type: 'app.gainforest.organization.draft.ecocert';
@@ -40,24 +40,30 @@ declare namespace AppGainforestOrganizationDraftEcocert {
  * GENERATED CODE - DO NOT MODIFY
  */
 
-type QueryParams$1 = {};
-type InputSchema$1 = undefined;
-interface OutputSchema$1 {
+type QueryParams = {};
+type InputSchema = undefined;
+interface OutputSchema {
     organizations: IndexedOrganization[];
 }
-interface CallOptions$1 {
+interface CallOptions {
     signal?: AbortSignal;
     headers?: HeadersMap;
 }
-interface Response$1 {
+interface Response {
     success: boolean;
     headers: HeadersMap;
-    data: OutputSchema$1;
+    data: OutputSchema;
 }
-declare function toKnownErr$1(e: any): any;
+declare function toKnownErr(e: any): any;
 
+type AppGainforestOrganizationGetIndexedOrganizations_CallOptions = CallOptions;
+type AppGainforestOrganizationGetIndexedOrganizations_InputSchema = InputSchema;
+type AppGainforestOrganizationGetIndexedOrganizations_OutputSchema = OutputSchema;
+type AppGainforestOrganizationGetIndexedOrganizations_QueryParams = QueryParams;
+type AppGainforestOrganizationGetIndexedOrganizations_Response = Response;
+declare const AppGainforestOrganizationGetIndexedOrganizations_toKnownErr: typeof toKnownErr;
 declare namespace AppGainforestOrganizationGetIndexedOrganizations {
-  export { type CallOptions$1 as CallOptions, type InputSchema$1 as InputSchema, type OutputSchema$1 as OutputSchema, type QueryParams$1 as QueryParams, type Response$1 as Response, toKnownErr$1 as toKnownErr };
+  export { type AppGainforestOrganizationGetIndexedOrganizations_CallOptions as CallOptions, type AppGainforestOrganizationGetIndexedOrganizations_InputSchema as InputSchema, type AppGainforestOrganizationGetIndexedOrganizations_OutputSchema as OutputSchema, type AppGainforestOrganizationGetIndexedOrganizations_QueryParams as QueryParams, type AppGainforestOrganizationGetIndexedOrganizations_Response as Response, AppGainforestOrganizationGetIndexedOrganizations_toKnownErr as toKnownErr };
 }
 
 interface Main$c {
@@ -180,38 +186,6 @@ declare function validateMain$6<V>(v: V): ValidationResult<Main$6 & V>;
 
 declare namespace AppGainforestOrganizationProject {
   export { type Main$6 as Main, type Main$6 as Record, isMain$6 as isMain, isMain$6 as isRecord, validateMain$6 as validateMain, validateMain$6 as validateRecord };
-}
-
-/**
- * GENERATED CODE - DO NOT MODIFY
- */
-
-type QueryParams = {};
-type InputSchema = string | Uint8Array | Blob;
-interface OutputSchema {
-    blob: BlobRef;
-}
-interface CallOptions {
-    signal?: AbortSignal;
-    headers?: HeadersMap;
-    qp?: QueryParams;
-    encoding?: string;
-}
-interface Response {
-    success: boolean;
-    headers: HeadersMap;
-    data: OutputSchema;
-}
-declare function toKnownErr(e: any): any;
-
-type ComAtprotoRepoUploadBlob_CallOptions = CallOptions;
-type ComAtprotoRepoUploadBlob_InputSchema = InputSchema;
-type ComAtprotoRepoUploadBlob_OutputSchema = OutputSchema;
-type ComAtprotoRepoUploadBlob_QueryParams = QueryParams;
-type ComAtprotoRepoUploadBlob_Response = Response;
-declare const ComAtprotoRepoUploadBlob_toKnownErr: typeof toKnownErr;
-declare namespace ComAtprotoRepoUploadBlob {
-  export { type ComAtprotoRepoUploadBlob_CallOptions as CallOptions, type ComAtprotoRepoUploadBlob_InputSchema as InputSchema, type ComAtprotoRepoUploadBlob_OutputSchema as OutputSchema, type ComAtprotoRepoUploadBlob_QueryParams as QueryParams, type ComAtprotoRepoUploadBlob_Response as Response, ComAtprotoRepoUploadBlob_toKnownErr as toKnownErr };
 }
 
 interface Main$5 {
@@ -433,7 +407,7 @@ declare class AppGainforestOrganizationNS {
     observations: AppGainforestOrganizationObservationsNS;
     predictions: AppGainforestOrganizationPredictionsNS;
     constructor(client: XrpcClient);
-    getIndexedOrganizations(params?: QueryParams$1, opts?: CallOptions$1): Promise<Response$1>;
+    getIndexedOrganizations(params?: QueryParams, opts?: CallOptions): Promise<Response>;
 }
 declare class AppGainforestOrganizationDraftNS {
     _client: XrpcClient;
@@ -767,7 +741,6 @@ declare class ComAtprotoNS {
 declare class ComAtprotoRepoNS {
     _client: XrpcClient;
     constructor(client: XrpcClient);
-    uploadBlob(data?: InputSchema, opts?: CallOptions): Promise<Response>;
 }
 declare class OrgNS {
     _client: XrpcClient;
@@ -966,4 +939,4 @@ declare class OrgHypercertsClaimRightsRecord {
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
 
-export { AppCertifiedLocationRecord, AppCertifiedNS, AppGainforestNS, AppGainforestOrganizationDefaultSiteRecord, AppGainforestOrganizationDraftEcocert, AppGainforestOrganizationDraftEcocertRecord, AppGainforestOrganizationDraftNS, AppGainforestOrganizationGetIndexedOrganizations, AppGainforestOrganizationInfoRecord, AppGainforestOrganizationLayer, AppGainforestOrganizationLayerRecord, AppGainforestOrganizationNS, AppGainforestOrganizationObservationsDendogram, AppGainforestOrganizationObservationsDendogramRecord, AppGainforestOrganizationObservationsFauna, AppGainforestOrganizationObservationsFaunaRecord, AppGainforestOrganizationObservationsFlora, AppGainforestOrganizationObservationsFloraRecord, AppGainforestOrganizationObservationsMeasuredTreesClusterRecord, AppGainforestOrganizationObservationsNS, AppGainforestOrganizationPredictionsFauna, AppGainforestOrganizationPredictionsFaunaRecord, AppGainforestOrganizationPredictionsFlora, AppGainforestOrganizationPredictionsFloraRecord, AppGainforestOrganizationPredictionsNS, AppGainforestOrganizationProject, AppGainforestOrganizationProjectRecord, AppGainforestOrganizationSiteRecord, AppNS, AtpBaseClient, ComAtprotoNS, ComAtprotoRepoNS, ComAtprotoRepoUploadBlob, ComNS, OrgHypercertsClaimActivityRecord, OrgHypercertsClaimCollection, OrgHypercertsClaimCollectionRecord, OrgHypercertsClaimContribution, OrgHypercertsClaimContributionRecord, OrgHypercertsClaimEvaluation, OrgHypercertsClaimEvaluationRecord, OrgHypercertsClaimEvidence, OrgHypercertsClaimEvidenceRecord, OrgHypercertsClaimMeasurement, OrgHypercertsClaimMeasurementRecord, OrgHypercertsClaimNS, OrgHypercertsClaimRights, OrgHypercertsClaimRightsRecord, OrgHypercertsNS, OrgNS };
+export { AppCertifiedLocationRecord, AppCertifiedNS, AppGainforestNS, AppGainforestOrganizationDefaultSiteRecord, AppGainforestOrganizationDraftEcocert, AppGainforestOrganizationDraftEcocertRecord, AppGainforestOrganizationDraftNS, AppGainforestOrganizationGetIndexedOrganizations, AppGainforestOrganizationInfoRecord, AppGainforestOrganizationLayer, AppGainforestOrganizationLayerRecord, AppGainforestOrganizationNS, AppGainforestOrganizationObservationsDendogram, AppGainforestOrganizationObservationsDendogramRecord, AppGainforestOrganizationObservationsFauna, AppGainforestOrganizationObservationsFaunaRecord, AppGainforestOrganizationObservationsFlora, AppGainforestOrganizationObservationsFloraRecord, AppGainforestOrganizationObservationsMeasuredTreesClusterRecord, AppGainforestOrganizationObservationsNS, AppGainforestOrganizationPredictionsFauna, AppGainforestOrganizationPredictionsFaunaRecord, AppGainforestOrganizationPredictionsFlora, AppGainforestOrganizationPredictionsFloraRecord, AppGainforestOrganizationPredictionsNS, AppGainforestOrganizationProject, AppGainforestOrganizationProjectRecord, AppGainforestOrganizationSiteRecord, AppNS, AtpBaseClient, ComAtprotoNS, ComAtprotoRepoNS, ComNS, OrgHypercertsClaimActivityRecord, OrgHypercertsClaimCollection, OrgHypercertsClaimCollectionRecord, OrgHypercertsClaimContribution, OrgHypercertsClaimContributionRecord, OrgHypercertsClaimEvaluation, OrgHypercertsClaimEvaluationRecord, OrgHypercertsClaimEvidence, OrgHypercertsClaimEvidenceRecord, OrgHypercertsClaimMeasurement, OrgHypercertsClaimMeasurementRecord, OrgHypercertsClaimNS, OrgHypercertsClaimRights, OrgHypercertsClaimRightsRecord, OrgHypercertsNS, OrgNS };

@@ -1,5 +1,6 @@
 import { M as Main } from '../activity-C2XJbhf5.js';
 import { G as GetRecordResponse } from '../response-types-a9c2mEQD.js';
+export { P as PutRecordResponse } from '../response-types-a9c2mEQD.js';
 import '@atproto/lexicon';
 
 type Ecocert = {
