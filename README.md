@@ -102,7 +102,7 @@ function getBaseUrl() {
   if (typeof window !== "undefined") return "";
   return process.env.VERCEL_PROJECT_PRODUCTION_URL ?
       `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:8910";
+    : "http://localhost:3000";
 }
 
 export function TrpcProvider({ children }: { children: ReactNode }) {
