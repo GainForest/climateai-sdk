@@ -35,6 +35,11 @@
       "import": "./dist/utilities/hypercerts.js",
       "require": "./dist/utilities/hypercerts.cjs"
     },
+    "./utilities/*": {
+      "types": "./dist/utilities/*.d.ts",
+      "import": "./dist/utilities/*.js",
+      "require": "./dist/utilities/*.cjs"
+    },
     "./zod-schemas": {
       "types": "./dist/zod-schemas/index.d.ts",
       "import": "./dist/zod-schemas/index.js",
@@ -54,6 +59,27 @@
       "types": "./dist/lex-api/index.d.ts",
       "import": "./dist/lex-api/index.js",
       "require": "./dist/lex-api/index.cjs"
+    },
+    "./lex-api/util": {
+      "types": "./dist/lex-api/util.d.ts",
+      "import": "./dist/lex-api/util.js",
+      "require": "./dist/lex-api/util.cjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "utilities": [
+        "dist/utilities/index.d.ts"
+      ],
+      "utilities/*": [
+        "dist/utilities/*.d.ts"
+      ],
+      "lex-api": [
+        "dist/lex-api/index.d.ts"
+      ],
+      "lex-api/*": [
+        "dist/lex-api/*.d.ts"
+      ]
     }
   },
   "private": true,

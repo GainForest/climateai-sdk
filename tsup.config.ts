@@ -11,6 +11,7 @@ export default defineConfig({
     "types/index": "src/types/index.ts",
     "server/session": "src/server/session.ts",
     "lex-api/index": "lex-api/index.ts",
+    "lex-api/util": "lex-api/util.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

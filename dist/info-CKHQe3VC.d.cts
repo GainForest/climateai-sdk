@@ -1,5 +1,6 @@
-import { a as $TypedObject, $ as $Typed, U as Uri$1, S as SmallBlob$1 } from './activity-C2XJbhf5.js';
+import { $TypedObject, $Typed } from './lex-api/util.cjs';
 import { BlobRef, ValidationResult } from '@atproto/lexicon';
+import { U as Uri$1, S as SmallBlob$1 } from './activity-86GSii7W.cjs';
 
 /** Object containing a URI to external data */
 interface Uri {
