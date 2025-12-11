@@ -2,7 +2,7 @@ import { U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeB
 import { $ as $Typed } from '../activity-C2XJbhf5.js';
 import { B as BlobRefGenerator } from '../blobref-CzIHHOw4.js';
 import { BlobRef } from '@atproto/api';
-import { S as SupportedPDSDomain } from '../index-Bi7ne3CL.js';
+import { S as SupportedPDSDomain } from '../index-eqw1Vpb5.js';
 import { GeoJsonObject } from 'geojson';
 import '@atproto/lexicon';
 import 'zod';

@@ -2911,10 +2911,10 @@ var uploadFile = async (fileGenerator, agent) => {
   const response = await agent.uploadBlob(file2);
   return toBlobRefGenerator(response.data.blob);
 };
-var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
+var createClaimActivityFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     import_zod11.default.object({
-      claim: import_zod11.default.object({
+      activity: import_zod11.default.object({
         title: import_zod11.default.string(),
         shortDescription: import_zod11.default.string(),
         description: import_zod11.default.string().optional(),
@@ -2956,12 +2956,12 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
       location,
       location_exports
     );
-    const claimNSID = "org.hypercerts.claim.activity";
-    const claim = {
-      $type: claimNSID,
-      title: input.claim.title,
-      shortDescription: input.claim.shortDescription,
-      description: input.claim.description,
+    const activityNSID = "org.hypercerts.claim.activity";
+    const activity = {
+      $type: activityNSID,
+      title: input.activity.title,
+      shortDescription: input.activity.shortDescription,
+      description: input.activity.description,
       // These will be set after the records are created:
       image: void 0,
       location: void 0,
@@ -2969,23 +2969,23 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
       // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       workScope: {
         $type: "org.hypercerts.claim.activity#workScope",
-        anyOf: input.claim.workScopes
+        anyOf: input.activity.workScopes
       },
-      startDate: input.claim.startDate,
-      endDate: input.claim.endDate,
+      startDate: input.activity.startDate,
+      endDate: input.activity.endDate,
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    const validatedClaim = validateRecordOrThrow(
-      claim,
+    const validatedActivity = validateRecordOrThrow(
+      activity,
       activity_exports
     );
     const contributionNSID = "org.hypercerts.claim.contribution";
     const contribution = {
       $type: "org.hypercerts.claim.contribution",
-      // Use dummy hypercert reference for now because the claim record is not yet created:
+      // Use dummy hypercert reference for now because the activity record is not yet created:
       hypercert: {
         $type: "com.atproto.repo.strongRef",
-        uri: `at://${did}/org.hypercerts.claim/0`,
+        uri: `at://${did}/org.hypercerts.claim.activity/0`,
         cid: "bafkreifj2t4px2uizj25ml53axem47yfhpgsx72ekjrm2qyymcn5ifz744"
       },
       // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3009,11 +3009,11 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
       });
     }
     const imageBlobRef = await uploadFile(input.uploads.image, agent);
-    const claimResponse = await agent.com.atproto.repo.createRecord({
+    const activityResponse = await agent.com.atproto.repo.createRecord({
       repo: did,
-      collection: claimNSID,
+      collection: activityNSID,
       record: {
-        ...validatedClaim,
+        ...validatedActivity,
         image: {
           $type: "org.hypercerts.defs#smallImage",
           image: toBlobRef(imageBlobRef)
@@ -3025,10 +3025,10 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
         }
       }
     });
-    if (claimResponse.success !== true) {
+    if (activityResponse.success !== true) {
       throw new import_server9.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to write claim record"
+        message: "Failed to write activity record"
       });
     }
     const contributionWriteResponse = await agent.com.atproto.repo.createRecord({
@@ -3038,8 +3038,8 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
         ...validatedContribution,
         hypercert: {
           $type: "com.atproto.repo.strongRef",
-          uri: claimResponse.data.uri,
-          cid: claimResponse.data.cid
+          uri: activityResponse.data.uri,
+          cid: activityResponse.data.cid
         }
       }
     });
@@ -3049,7 +3049,7 @@ var createHypercertClaimFactory = (allowedPDSDomainSchema) => {
         message: "Failed to write contribution record"
       });
     }
-    return claimResponse;
+    return activityResponse;
   });
 };
 
@@ -3626,31 +3626,31 @@ var import_server18 = require("@trpc/server");
 var import_zod18 = require("zod");
 var import_server17 = require("@trpc/server");
 var import_xrpc4 = __toESM(require_dist(), 1);
-var getAllClaimsPure = async (did, pdsDomain) => {
-  const claimNSID = "org.hypercerts.claim.activity";
+var getAllClaimActivitiesPure = async (did, pdsDomain) => {
+  const activityNSID = "org.hypercerts.claim.activity";
   const agent = getReadAgent(pdsDomain);
-  const [listClaimsResponse, errorListClaims] = await tryCatch(
+  const [listClaimActivitiesResponse, errorListClaimActivities] = await tryCatch(
     agent.com.atproto.repo.listRecords({
-      collection: claimNSID,
+      collection: activityNSID,
       repo: did
     })
   );
-  if (errorListClaims) {
-    if (errorListClaims instanceof import_xrpc4.XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(errorListClaims);
+  if (errorListClaimActivities) {
+    if (errorListClaimActivities instanceof import_xrpc4.XRPCError) {
+      const trpcError = xrpcErrorToTRPCError(errorListClaimActivities);
       throw trpcError;
     }
     throw new import_server17.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred."
     });
-  } else if (listClaimsResponse.success !== true) {
+  } else if (listClaimActivitiesResponse.success !== true) {
     throw new import_server17.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred."
     });
   }
-  const validRecords = listClaimsResponse.data.records.map((record) => {
+  const validRecords = listClaimActivitiesResponse.data.records.map((record) => {
     try {
       validateRecordOrThrow(record.value, activity_exports);
       return record;
@@ -3661,12 +3661,12 @@ var getAllClaimsPure = async (did, pdsDomain) => {
     (record) => record !== null
   );
   return {
-    claims: validRecords
+    activities: validRecords
   };
 };
 
 // src/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
-var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
+var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(import_zod19.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
@@ -3706,33 +3706,33 @@ var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
     const validOrganizationRepositories = organizationRepositories.filter(
       (org) => org !== null
     );
-    const [claims, claimsFetchError] = await tryCatch(
+    const [activities, activitiesFetchError] = await tryCatch(
       Promise.all(
         validOrganizationRepositories.map(async (organization) => {
-          const [claimsResponse, claimsFetchError2] = await tryCatch(
-            getAllClaimsPure(organization.repo.did, input.pdsDomain)
+          const [activitiesResponse, activitiesFetchError2] = await tryCatch(
+            getAllClaimActivitiesPure(organization.repo.did, input.pdsDomain)
           );
-          if (claimsFetchError2) {
+          if (activitiesFetchError2) {
             return null;
           }
           return {
             repo: organization.repo,
-            claims: claimsResponse.claims,
+            activities: activitiesResponse.activities,
             organizationInfo: organization.organizationInfo
           };
         })
       )
     );
-    if (claimsFetchError) {
+    if (activitiesFetchError) {
       throw new import_server18.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to fetch claims list"
+        message: "Failed to fetch activities list"
       });
     }
-    const validClaims = claims.filter(
-      (claim) => claim !== null
+    const validActivities = activities.filter(
+      (activity) => activity !== null
     );
-    return validClaims;
+    return validActivities;
   });
 };
 
@@ -3740,7 +3740,7 @@ var getAllClaimsAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
 var import_zod20 = require("zod");
 var import_xrpc5 = __toESM(require_dist(), 1);
 var import_server19 = require("@trpc/server");
-var getHypercertClaimPure = async (did, rkey, pdsDomain) => {
+var getClaimActivityPure = async (did, rkey, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   const nsid = "org.hypercerts.claim.activity";
   const getRecordPromise = agent.com.atproto.repo.getRecord({
@@ -3769,7 +3769,7 @@ var getHypercertClaimPure = async (did, rkey, pdsDomain) => {
   validateRecordOrThrow(response.data.value, activity_exports);
   return response.data;
 };
-var getHypercertClaimFactory = (allowedPDSDomainSchema) => {
+var getCliamActivityFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
     import_zod20.z.object({
       did: import_zod20.z.string(),
@@ -3777,11 +3777,7 @@ var getHypercertClaimFactory = (allowedPDSDomainSchema) => {
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
-    return await getHypercertClaimPure(
-      input.did,
-      input.rkey,
-      input.pdsDomain
-    );
+    return await getClaimActivityPure(input.did, input.rkey, input.pdsDomain);
   });
 };
 
@@ -3879,11 +3875,11 @@ var AppRouterFactory = class {
       hypercerts: {
         claim: {
           activity: {
-            create: createHypercertClaimFactory(this.allowedPDSDomainSchema),
-            getAllAcrossOrgs: getAllClaimsAcrossOrganizationsFactory(
+            create: createClaimActivityFactory(this.allowedPDSDomainSchema),
+            getAllAcrossOrgs: getAllClaimActivitiesAcrossOrganizationsFactory(
               this.allowedPDSDomainSchema
             ),
-            get: getHypercertClaimFactory(this.allowedPDSDomainSchema)
+            get: getCliamActivityFactory(this.allowedPDSDomainSchema)
           }
         },
         location: {

@@ -30,6 +30,11 @@
       "import": "./dist/utilities/transformer.js",
       "require": "./dist/utilities/transformer.cjs"
     },
+    "./utilities/hypercerts": {
+      "types": "./dist/utilities/hypercerts.d.ts",
+      "import": "./dist/utilities/hypercerts.js",
+      "require": "./dist/utilities/hypercerts.cjs"
+    },
     "./zod-schemas": {
       "types": "./dist/zod-schemas/index.d.ts",
       "import": "./dist/zod-schemas/index.js",

@@ -10,37 +10,38 @@ import { xrpcErrorToTRPCError } from "@/server/utils/classify-xrpc-error";
 import { validateRecordOrThrow } from "@/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/index";
 
-export const getAllClaimsPure = async <T extends SupportedPDSDomain>(
+export const getAllClaimActivitiesPure = async <T extends SupportedPDSDomain>(
   did: string,
   pdsDomain: T
 ) => {
-  const claimNSID: OrgHypercertsClaimActivity.Record["$type"] =
+  const activityNSID: OrgHypercertsClaimActivity.Record["$type"] =
     "org.hypercerts.claim.activity";
   const agent = getReadAgent(pdsDomain);
-  const [listClaimsResponse, errorListClaims] = await tryCatch(
-    agent.com.atproto.repo.listRecords({
-      collection: claimNSID,
-      repo: did,
-    })
-  );
+  const [listClaimActivitiesResponse, errorListClaimActivities] =
+    await tryCatch(
+      agent.com.atproto.repo.listRecords({
+        collection: activityNSID,
+        repo: did,
+      })
+    );
 
-  if (errorListClaims) {
-    if (errorListClaims instanceof XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(errorListClaims);
+  if (errorListClaimActivities) {
+    if (errorListClaimActivities instanceof XRPCError) {
+      const trpcError = xrpcErrorToTRPCError(errorListClaimActivities);
       throw trpcError;
     }
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred.",
     });
-  } else if (listClaimsResponse.success !== true) {
+  } else if (listClaimActivitiesResponse.success !== true) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred.",
     });
   }
 
-  const validRecords = listClaimsResponse.data.records
+  const validRecords = listClaimActivitiesResponse.data.records
     .map((record) => {
       try {
         validateRecordOrThrow(record.value, OrgHypercertsClaimActivity);
@@ -54,11 +55,11 @@ export const getAllClaimsPure = async <T extends SupportedPDSDomain>(
     ) as GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
 
   return {
-    claims: validRecords,
+    activities: validRecords,
   };
 };
 
-export const getAllClaimsFactory = <T extends SupportedPDSDomain>(
+export const getAllClaimActivitiesFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return publicProcedure
@@ -69,6 +70,6 @@ export const getAllClaimsFactory = <T extends SupportedPDSDomain>(
       })
     )
     .query(async ({ input }) => {
-      return await getAllClaimsPure(input.did, input.pdsDomain);
+      return await getAllClaimActivitiesPure(input.did, input.pdsDomain);
     });
 };

@@ -7,15 +7,15 @@ import { getOrganizationInfoFactory } from "./atproto/gainforest/organizationInf
 import { getSiteFactory } from "./atproto/gainforest/site/get";
 import { getDefaultProjectSiteFactory } from "./atproto/gainforest/site/getDefault";
 import { getMeasuredTreesFactory } from "./atproto/gainforest/measuredTrees/get";
-import { createHypercertClaimFactory } from "./atproto/hypercerts/claim/activity/create";
+import { createClaimActivityFactory } from "./atproto/hypercerts/claim/activity/create";
 import { createOrUpdateOrganizationInfoFactory } from "./atproto/gainforest/organizationInfo/createOrUpdate";
 import { getAllSitesFactory } from "./atproto/gainforest/site/getAll";
 import { createSiteFactory } from "./atproto/gainforest/site/create";
 import { updateSiteFactory } from "./atproto/gainforest/site/update";
 import { setDefaultSiteFactory } from "./atproto/gainforest/site/setDefault";
 import { deleteSiteFactory } from "./atproto/gainforest/site/delete";
-import { getAllClaimsAcrossOrganizationsFactory } from "./atproto/hypercerts/claim/activity/getAllAcrossOrgs";
-import { getHypercertClaimFactory } from "./atproto/hypercerts/claim/activity/get";
+import { getAllClaimActivitiesAcrossOrganizationsFactory } from "./atproto/hypercerts/claim/activity/getAllAcrossOrgs";
+import { getCliamActivityFactory } from "./atproto/hypercerts/claim/activity/get";
 import { getCertifiedLocationFactory } from "./atproto/hypercerts/location/get";
 import type { SupportedPDSDomain } from "@/index";
 import z from "zod";
@@ -66,11 +66,11 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
       hypercerts: {
         claim: {
           activity: {
-            create: createHypercertClaimFactory(this.allowedPDSDomainSchema),
-            getAllAcrossOrgs: getAllClaimsAcrossOrganizationsFactory(
+            create: createClaimActivityFactory(this.allowedPDSDomainSchema),
+            getAllAcrossOrgs: getAllClaimActivitiesAcrossOrganizationsFactory(
               this.allowedPDSDomainSchema
             ),
-            get: getHypercertClaimFactory(this.allowedPDSDomainSchema),
+            get: getCliamActivityFactory(this.allowedPDSDomainSchema),
           },
         },
         location: {

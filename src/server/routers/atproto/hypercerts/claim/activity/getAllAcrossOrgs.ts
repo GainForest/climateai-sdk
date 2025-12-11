@@ -4,7 +4,7 @@ import { getReadAgent } from "@/server/utils/agent";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getOrganizationInfoPure } from "../../../gainforest/organizationInfo/get";
-import { getAllClaimsPure } from "./getAll";
+import { getAllClaimActivitiesPure } from "./getAll";
 import { type Repo } from "@atproto/api/dist/client/types/com/atproto/sync/listRepos";
 import {
   AppGainforestOrganizationInfo,
@@ -13,13 +13,13 @@ import {
 import type { GetRecordResponse } from "@/server/utils/response-types";
 import type { SupportedPDSDomain } from "@/index";
 
-export type OrganizationWithClaims = {
+export type OrganizationWithActivities = {
   repo: Repo;
   organizationInfo: AppGainforestOrganizationInfo.Record;
-  claims: GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
+  activities: GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
 };
 
-export const getAllClaimsAcrossOrganizationsFactory = <
+export const getAllClaimActivitiesAcrossOrganizationsFactory = <
   T extends SupportedPDSDomain,
 >(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
@@ -76,34 +76,35 @@ export const getAllClaimsAcrossOrganizationsFactory = <
         (org): org is NonNullable<typeof org> => org !== null
       );
 
-      // Get all the claims for the organizations
-      const [claims, claimsFetchError] = await tryCatch(
+      // Get all the claim activities for the organizations
+      const [activities, activitiesFetchError] = await tryCatch(
         Promise.all(
           validOrganizationRepositories.map(async (organization) => {
-            const [claimsResponse, claimsFetchError] = await tryCatch(
-              getAllClaimsPure(organization.repo.did, input.pdsDomain)
+            const [activitiesResponse, activitiesFetchError] = await tryCatch(
+              getAllClaimActivitiesPure(organization.repo.did, input.pdsDomain)
             );
-            if (claimsFetchError) {
+            if (activitiesFetchError) {
               return null;
             }
             return {
               repo: organization.repo,
-              claims: claimsResponse.claims,
+              activities: activitiesResponse.activities,
               organizationInfo: organization.organizationInfo,
             };
           })
         )
       );
-      if (claimsFetchError) {
+      if (activitiesFetchError) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch claims list",
+          message: "Failed to fetch activities list",
         });
       }
 
-      const validClaims = claims.filter(
-        (claim): claim is NonNullable<typeof claim> => claim !== null
+      const validActivities = activities.filter(
+        (activity): activity is NonNullable<typeof activity> =>
+          activity !== null
       );
-      return validClaims satisfies OrganizationWithClaims[];
+      return validActivities satisfies OrganizationWithActivities[];
     });
 };

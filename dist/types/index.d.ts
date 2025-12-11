@@ -11,7 +11,7 @@ type Ecocert = {
         name: string;
         logoUrl: string | null;
     };
-    claim: GetRecordResponse<Main>;
+    claimActivity: GetRecordResponse<Main>;
 };
 
 export { type Ecocert, GetRecordResponse };

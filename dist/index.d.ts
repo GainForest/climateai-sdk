@@ -10,6 +10,6 @@ import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import './response-types-a9c2mEQD.js';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
-export { A as AppRouter, C as ClimateAiSDK, S as SupportedPDSDomain, d as createContext, b as supportedPDSDomainSchema } from './index-Bi7ne3CL.js';
+export { A as AppRouter, C as ClimateAiSDK, S as SupportedPDSDomain, d as createContext, b as supportedPDSDomainSchema } from './index-eqw1Vpb5.js';
 import 'zod';
 import '@atproto/oauth-client-node';

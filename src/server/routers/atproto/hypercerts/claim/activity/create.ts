@@ -23,13 +23,13 @@ const uploadFile = async (fileGenerator: FileGenerator, agent: Agent) => {
   return toBlobRefGenerator(response.data.blob);
 };
 
-export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
+export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return protectedProcedure
     .input(
       z.object({
-        claim: z.object({
+        activity: z.object({
           title: z.string(),
           shortDescription: z.string(),
           description: z.string().optional(),
@@ -76,13 +76,13 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
         AppCertifiedLocation
       );
 
-      // Claim record
-      const claimNSID = "org.hypercerts.claim.activity";
-      const claim: OrgHypercertsClaimActivity.Record = {
-        $type: claimNSID,
-        title: input.claim.title,
-        shortDescription: input.claim.shortDescription,
-        description: input.claim.description,
+      // Activity record
+      const activityNSID = "org.hypercerts.claim.activity";
+      const activity: OrgHypercertsClaimActivity.Record = {
+        $type: activityNSID,
+        title: input.activity.title,
+        shortDescription: input.activity.shortDescription,
+        description: input.activity.description,
         // These will be set after the records are created:
         image: undefined,
         location: undefined,
@@ -90,14 +90,14 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         workScope: {
           $type: "org.hypercerts.claim.activity#workScope",
-          anyOf: input.claim.workScopes,
+          anyOf: input.activity.workScopes,
         },
-        startDate: input.claim.startDate,
-        endDate: input.claim.endDate,
+        startDate: input.activity.startDate,
+        endDate: input.activity.endDate,
         createdAt: new Date().toISOString(),
       };
-      const validatedClaim = validateRecordOrThrow(
-        claim,
+      const validatedActivity = validateRecordOrThrow(
+        activity,
         OrgHypercertsClaimActivity
       );
 
@@ -105,10 +105,10 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
       const contributionNSID = "org.hypercerts.claim.contribution";
       const contribution: OrgHypercertsClaimContribution.Record = {
         $type: "org.hypercerts.claim.contribution",
-        // Use dummy hypercert reference for now because the claim record is not yet created:
+        // Use dummy hypercert reference for now because the activity record is not yet created:
         hypercert: {
           $type: "com.atproto.repo.strongRef",
-          uri: `at://${did}/org.hypercerts.claim/0`,
+          uri: `at://${did}/org.hypercerts.claim.activity/0`,
           cid: "bafkreifj2t4px2uizj25ml53axem47yfhpgsx72ekjrm2qyymcn5ifz744",
         },
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,12 +136,12 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
       }
       // 2. Upload image to the PDS
       const imageBlobRef = await uploadFile(input.uploads.image, agent);
-      // 3. Write claim to the PDS
-      const claimResponse = await agent.com.atproto.repo.createRecord({
+      // 3. Write activity to the PDS
+      const activityResponse = await agent.com.atproto.repo.createRecord({
         repo: did,
-        collection: claimNSID,
+        collection: activityNSID,
         record: {
-          ...validatedClaim,
+          ...validatedActivity,
           image: {
             $type: "org.hypercerts.defs#smallImage",
             image: toBlobRef(imageBlobRef),
@@ -153,10 +153,10 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
           },
         } satisfies OrgHypercertsClaimActivity.Record,
       });
-      if (claimResponse.success !== true) {
+      if (activityResponse.success !== true) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to write claim record",
+          message: "Failed to write activity record",
         });
       }
       // 4. Write contribution to the PDS
@@ -168,8 +168,8 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
             ...validatedContribution,
             hypercert: {
               $type: "com.atproto.repo.strongRef",
-              uri: claimResponse.data.uri,
-              cid: claimResponse.data.cid,
+              uri: activityResponse.data.uri,
+              cid: activityResponse.data.cid,
             },
           } satisfies OrgHypercertsClaimContribution.Record,
         });
@@ -180,6 +180,6 @@ export const createHypercertClaimFactory = <T extends SupportedPDSDomain>(
         });
       }
 
-      return claimResponse;
+      return activityResponse;
     });
 };

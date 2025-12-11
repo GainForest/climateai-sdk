@@ -9,5 +9,5 @@ export type Ecocert = {
     name: string;
     logoUrl: string | null;
   };
-  claim: GetRecordResponse<OrgHypercertsClaimActivity.Record>;
+  claimActivity: GetRecordResponse<OrgHypercertsClaimActivity.Record>;
 };

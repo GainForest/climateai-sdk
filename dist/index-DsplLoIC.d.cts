@@ -259,7 +259,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 activity: {
                     create: _trpc_server.TRPCMutationProcedure<{
                         input: {
-                            claim: {
+                            activity: {
                                 title: string;
                                 shortDescription: string;
                                 workScopes: string[];
@@ -287,7 +287,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         };
                         output: {
                             repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            claims: GetRecordResponse<Main$4>[];
+                            activities: GetRecordResponse<Main$4>[];
                             organizationInfo: Main;
                         }[];
                         meta: object;
@@ -543,7 +543,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 activity: {
                     create: _trpc_server.TRPCMutationProcedure<{
                         input: {
-                            claim: {
+                            activity: {
                                 title: string;
                                 shortDescription: string;
                                 workScopes: string[];
@@ -571,7 +571,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         };
                         output: {
                             repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            claims: GetRecordResponse<Main$4>[];
+                            activities: GetRecordResponse<Main$4>[];
                             organizationInfo: Main;
                         }[];
                         meta: object;
@@ -851,7 +851,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                 activity: {
                     create: _trpc_server.TRPCMutationProcedure<{
                         input: {
-                            claim: {
+                            activity: {
                                 title: string;
                                 shortDescription: string;
                                 workScopes: string[];
@@ -879,7 +879,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         };
                         output: {
                             repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            claims: GetRecordResponse<Main$4>[];
+                            activities: GetRecordResponse<Main$4>[];
                             organizationInfo: Main;
                         }[];
                         meta: object;
@@ -1134,7 +1134,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                 activity: {
                     create: _trpc_server.TRPCMutationProcedure<{
                         input: {
-                            claim: {
+                            activity: {
                                 title: string;
                                 shortDescription: string;
                                 workScopes: string[];
@@ -1162,7 +1162,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         };
                         output: {
                             repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            claims: GetRecordResponse<Main$4>[];
+                            activities: GetRecordResponse<Main$4>[];
                             organizationInfo: Main;
                         }[];
                         meta: object;

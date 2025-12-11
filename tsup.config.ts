@@ -2,10 +2,11 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: {
-    "index": "src/index.ts",
+    index: "src/index.ts",
     "client/index": "src/client/index.ts",
     "utilities/index": "src/utilities/index.ts",
     "utilities/transformer": "src/utilities/transformer.ts",
+    "utilities/hypercerts": "src/utilities/hypercerts.ts",
     "zod-schemas/index": "src/zod-schemas/index.ts",
     "types/index": "src/types/index.ts",
     "server/session": "src/server/session.ts",
@@ -30,4 +31,3 @@ export default defineConfig({
     options.platform = "neutral";
   },
 });
-

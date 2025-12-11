@@ -10,7 +10,7 @@ import { TRPCError } from "@trpc/server";
 import { validateRecordOrThrow } from "@/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/index";
 
-export const getHypercertClaimPure = async <T extends SupportedPDSDomain>(
+export const getClaimActivityPure = async <T extends SupportedPDSDomain>(
   did: string,
   rkey: string,
   pdsDomain: T
@@ -49,7 +49,7 @@ export const getHypercertClaimPure = async <T extends SupportedPDSDomain>(
   return response.data as GetRecordResponse<OrgHypercertsClaimActivity.Record>;
 };
 
-export const getHypercertClaimFactory = <T extends SupportedPDSDomain>(
+export const getCliamActivityFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return publicProcedure
@@ -61,10 +61,6 @@ export const getHypercertClaimFactory = <T extends SupportedPDSDomain>(
       })
     )
     .query(async ({ input }) => {
-      return await getHypercertClaimPure(
-        input.did,
-        input.rkey,
-        input.pdsDomain
-      );
+      return await getClaimActivityPure(input.did, input.rkey, input.pdsDomain);
     });
 };

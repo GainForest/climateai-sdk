@@ -1,5 +1,5 @@
 import * as _trpc_client from '@trpc/client';
-import { S as SupportedPDSDomain, A as AppRouter } from '../index-Bi7ne3CL.js';
+import { S as SupportedPDSDomain, A as AppRouter } from '../index-eqw1Vpb5.js';
 import '../activity-C2XJbhf5.js';
 import '@atproto/lexicon';
 import '../info-CBCS_to1.js';
