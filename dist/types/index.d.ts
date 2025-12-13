@@ -1,8 +1,6 @@
-import { M as Main } from '../activity-CcsC6-ni.js';
-import { G as GetRecordResponse } from '../response-types-a9c2mEQD.js';
-export { P as PutRecordResponse } from '../response-types-a9c2mEQD.js';
-import '../lex-api/util.js';
-import '@atproto/lexicon';
+import { OrgHypercertsClaimActivity } from '@/../lex-api';
+import { GetRecordResponse } from '@/server/utils/response-types';
+export { GetRecordResponse, PutRecordResponse } from '@/server/utils/response-types';
 
 type Ecocert = {
     repo: {
@@ -12,7 +10,7 @@ type Ecocert = {
         name: string;
         logoUrl: string | null;
     };
-    claimActivity: GetRecordResponse<Main>;
+    claimActivity: GetRecordResponse<OrgHypercertsClaimActivity.Record>;
 };
 
-export { type Ecocert, GetRecordResponse };
+export type { Ecocert };
