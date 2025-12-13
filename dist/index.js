@@ -2738,6 +2738,13 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       },
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
+    console.log(
+      `SITE SHAPEFILE
+type:${typeof site.shapefile.blob}
+value:
+`,
+      JSON.stringify(site.shapefile.blob)
+    );
     validateRecordOrThrow(site, site_exports);
     const creationResponse = await agent.com.atproto.repo.createRecord({
       collection: nsid,
