@@ -39,4 +39,9 @@ const site = {
   createdAt: "2021-01-01T00:00:00.000Z",
 };
 
+console.log(
+  `SITE SHAPEFILE\ntype:${typeof blobRef.data.blob}\nvalue:\n`,
+  JSON.stringify(blobRef.data.blob)
+);
+
 validateRecordOrThrow(site, AppGainforestOrganizationSite);
