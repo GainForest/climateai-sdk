@@ -69,9 +69,9 @@ export default defineConfig({
     // Dynamically get all dependencies from package.json
     ...getExternalDependencies(),
     // Also externalize any import that doesn't start with . or / (i.e., all node_modules)
-    // This regex matches: package names, @scoped/packages, and any non-relative imports
-    // This is a catch-all for nested dependencies we might have missed
-    /^(?!\.|\/).+/,
+    // BUT exclude @/ path aliases which should be resolved to relative paths
+    // This regex matches: package names, @scoped/packages, but NOT @/ (path aliases)
+    /^(?!@\/|\.|\/).+/,
   ],
   cjsInterop: true,
   shims: false,

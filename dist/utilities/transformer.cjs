@@ -36,13 +36,42 @@ __export(transformer_exports, {
 });
 module.exports = __toCommonJS(transformer_exports);
 var import_superjson = __toESM(require("superjson"), 1);
-var import_blobref = require("@/zod-schemas/blobref");
-var import_isObject = require("@/lib/isObject");
+
+// src/zod-schemas/blobref.ts
+var import_zod = __toESM(require("zod"), 1);
+var import_cid = require("multiformats/cid");
+var import_lexicon = require("@atproto/lexicon");
+var BlobRefGeneratorSchema = import_zod.default.object({
+  $type: import_zod.default.literal("blob-ref-generator"),
+  ref: import_zod.default.object({
+    $link: import_zod.default.string()
+  }),
+  mimeType: import_zod.default.string(),
+  size: import_zod.default.number()
+});
+var toBlobRef = (input) => {
+  const validCID = import_cid.CID.parse(
+    input.ref.$link
+  );
+  return import_lexicon.BlobRef.fromJsonRef({
+    $type: "blob",
+    ref: validCID,
+    mimeType: input.mimeType,
+    size: input.size
+  });
+};
+
+// src/lib/isObject.ts
+var isObject = (value) => {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof RegExp) && !(value instanceof Date) && !(value instanceof Set) && !(value instanceof Map);
+};
+
+// src/utilities/transformer.ts
 var _serialize = (data) => {
   return JSON.parse(JSON.stringify(data));
 };
 var _deserialize = (data) => {
-  const isObj = (0, import_isObject.isObject)(data);
+  const isObj = isObject(data);
   if (!isObj) {
     if (Array.isArray(data)) {
       return data.map(_deserialize);
@@ -51,7 +80,7 @@ var _deserialize = (data) => {
   }
   if ("$type" in data && data.$type === "blob" && "ref" in data) {
     try {
-      return (0, import_blobref.toBlobRef)(data);
+      return toBlobRef(data);
     } catch {
       return data;
     }

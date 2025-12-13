@@ -1,14 +1,16 @@
-import { JwtPayload } from '@atproto/oauth-client-node';
-import { SupportedPDSDomain } from '@/index';
-
-interface StoredSession extends JwtPayload {
-    accessJwt: string;
-    refreshJwt: string;
-    did: string;
-    handle: string;
-}
-declare function getSessionFromRequest(service?: SupportedPDSDomain): Promise<StoredSession | null>;
-declare function saveSession(session: StoredSession, service?: SupportedPDSDomain): Promise<string>;
-declare function clearSession(service?: SupportedPDSDomain): Promise<void>;
-
-export { type StoredSession, clearSession, getSessionFromRequest, saveSession };
+import '@atproto/oauth-client-node';
+export { a as StoredSession, c as clearSession, g as getSessionFromRequest, s as saveSession } from '../index-C3AsPOS-.cjs';
+import '../lex-api/util.cjs';
+import '@atproto/lexicon';
+import '../info-CKHQe3VC.cjs';
+import '../activity-86GSii7W.cjs';
+import '../blobref-CzIHHOw4.cjs';
+import 'zod';
+import '@trpc/server/unstable-core-do-not-import';
+import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
+import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
+import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
+import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
+import '../response-types-a9c2mEQD.cjs';
+import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
+import '@trpc/server';

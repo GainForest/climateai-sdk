@@ -1,7 +1,9 @@
 import { DataTransformer } from '@trpc/server';
 import { SuperJSONResult } from 'superjson';
-import { BlobRefGenerator } from '@/zod-schemas/blobref';
+import { B as BlobRefGenerator } from '../blobref-CzIHHOw4.js';
 import { BlobRef } from '@atproto/api';
+import 'zod';
+import '@atproto/lexicon';
 
 type ReplaceType<T, U, V> = T extends U ? V : T extends (infer Item)[] ? ReplaceType<Item, U, V>[] : T extends object ? {
     [K in keyof T]: ReplaceType<T[K], U, V>;

@@ -1,7 +1,36 @@
 // src/utilities/transformer.ts
 import superjson from "superjson";
-import { toBlobRef } from "@/zod-schemas/blobref";
-import { isObject } from "@/lib/isObject";
+
+// src/zod-schemas/blobref.ts
+import z from "zod";
+import { CID } from "multiformats/cid";
+import { BlobRef } from "@atproto/lexicon";
+var BlobRefGeneratorSchema = z.object({
+  $type: z.literal("blob-ref-generator"),
+  ref: z.object({
+    $link: z.string()
+  }),
+  mimeType: z.string(),
+  size: z.number()
+});
+var toBlobRef = (input) => {
+  const validCID = CID.parse(
+    input.ref.$link
+  );
+  return BlobRef.fromJsonRef({
+    $type: "blob",
+    ref: validCID,
+    mimeType: input.mimeType,
+    size: input.size
+  });
+};
+
+// src/lib/isObject.ts
+var isObject = (value) => {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof RegExp) && !(value instanceof Date) && !(value instanceof Set) && !(value instanceof Map);
+};
+
+// src/utilities/transformer.ts
 var _serialize = (data) => {
   return JSON.parse(JSON.stringify(data));
 };
