@@ -2720,10 +2720,12 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
         message: "You are not authenticated"
       });
     }
+    console.log("RECEIVED UPLOADS", JSON.stringify(input.uploads));
     const file2 = typeof input.uploads.shapefile === "string" ? await fetchGeojsonFromUrl(input.uploads.shapefile) : await toFile(input.uploads.shapefile);
     const { lat, lon, area } = await computeGeojsonFile(file2);
     const geojsonUploadResponse = await agent.uploadBlob(file2);
     const geojsonBlobRef = geojsonUploadResponse.data.blob;
+    console.log("DATA BEING SENT TO PDS", JSON.stringify(geojsonBlobRef));
     const nsid = "app.gainforest.organization.site";
     const site = {
       $type: nsid,
