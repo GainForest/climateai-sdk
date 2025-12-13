@@ -362,7 +362,7 @@ import superjson from "superjson";
 // src/zod-schemas/blobref.ts
 import z from "zod";
 import { CID } from "multiformats/cid";
-import { BlobRef as BlobRef2 } from "@atproto/lexicon";
+import { BlobRef as BlobRef2 } from "@atproto/api";
 var BlobRefGeneratorSchema = z.object({
   $type: z.literal("blob-ref-generator"),
   ref: z.object({
@@ -2738,7 +2738,6 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       },
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    console.log(typeof site.shapefile.blob, site.shapefile.blob);
     validateRecordOrThrow(site, site_exports);
     const creationResponse = await agent.com.atproto.repo.createRecord({
       collection: nsid,

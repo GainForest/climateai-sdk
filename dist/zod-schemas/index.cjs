@@ -42,7 +42,7 @@ module.exports = __toCommonJS(zod_schemas_exports);
 // src/zod-schemas/blobref.ts
 var import_zod = __toESM(require("zod"), 1);
 var import_cid = require("multiformats/cid");
-var import_lexicon = require("@atproto/lexicon");
+var import_api = require("@atproto/api");
 var BlobRefGeneratorSchema = import_zod.default.object({
   $type: import_zod.default.literal("blob-ref-generator"),
   ref: import_zod.default.object({
@@ -55,7 +55,7 @@ var toBlobRef = (input) => {
   const validCID = import_cid.CID.parse(
     input.ref.$link
   );
-  return import_lexicon.BlobRef.fromJsonRef({
+  return import_api.BlobRef.fromJsonRef({
     $type: "blob",
     ref: validCID,
     mimeType: input.mimeType,

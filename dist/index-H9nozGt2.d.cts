@@ -1,8 +1,8 @@
 import { $Typed } from './lex-api/util.cjs';
 import { M as Main, c as Main$1, d as Main$2, e as Main$3, f as Main$5, U as Uri, S as SmallImage, L as LargeImage, a as SmallBlob, b as LargeBlob } from './info-CKHQe3VC.cjs';
-import { B as BlobRefGenerator } from './blobref-CzIHHOw4.cjs';
+import { B as BlobRefGenerator } from './blobref-dnAPTT_v.cjs';
 import * as _atproto_lexicon from '@atproto/lexicon';
-import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
+import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import { M as Main$4 } from './activity-86GSii7W.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
@@ -318,7 +318,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
         };
     }>>;
     constructor(_allowedPDSDomains: T[]);
-    getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: () => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
@@ -909,7 +909,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
             };
         };
     }>>;
-    getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: () => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {

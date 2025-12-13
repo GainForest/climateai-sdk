@@ -1,6 +1,6 @@
-export { B as BlobRefGenerator, a as BlobRefGeneratorSchema, t as toBlobRef, b as toBlobRefGenerator } from '../blobref-CzIHHOw4.cjs';
+export { B as BlobRefGenerator, a as BlobRefGeneratorSchema, t as toBlobRef, b as toBlobRefGenerator } from '../blobref-dnAPTT_v.cjs';
 import z from 'zod';
-import '@atproto/lexicon';
+import '@atproto/api';
 
 declare const FileGeneratorSchema: z.ZodObject<{
     name: z.ZodString;

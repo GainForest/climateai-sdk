@@ -392,7 +392,7 @@ var import_superjson = __toESM(require("superjson"), 1);
 // src/zod-schemas/blobref.ts
 var import_zod = __toESM(require("zod"), 1);
 var import_cid = require("multiformats/cid");
-var import_lexicon = require("@atproto/lexicon");
+var import_api2 = require("@atproto/api");
 var BlobRefGeneratorSchema = import_zod.default.object({
   $type: import_zod.default.literal("blob-ref-generator"),
   ref: import_zod.default.object({
@@ -405,7 +405,7 @@ var toBlobRef = (input) => {
   const validCID = import_cid.CID.parse(
     input.ref.$link
   );
-  return import_lexicon.BlobRef.fromJsonRef({
+  return import_api2.BlobRef.fromJsonRef({
     $type: "blob",
     ref: validCID,
     mimeType: input.mimeType,
@@ -490,10 +490,10 @@ var protectedProcedure = t.procedure.use(({ ctx, next }) => {
 var import_zod3 = __toESM(require("zod"), 1);
 
 // src/server/utils/agent.ts
-var import_api2 = require("@atproto/api");
+var import_api3 = require("@atproto/api");
 var import_server2 = require("@trpc/server");
 var getReadAgent = (pdsDomain) => {
-  return new import_api2.Agent({
+  return new import_api3.Agent({
     service: new URL(`https://${pdsDomain}`)
   });
 };
@@ -504,7 +504,7 @@ var getWriteAgent = async (pdsDomain) => {
       code: "UNAUTHORIZED",
       message: "You are not authorized."
     });
-  const credentialSession = new import_api2.CredentialSession(
+  const credentialSession = new import_api3.CredentialSession(
     new URL(`https://${pdsDomain}`)
   );
   const result = await credentialSession.resumeSession({
@@ -519,7 +519,7 @@ var getWriteAgent = async (pdsDomain) => {
       code: "UNAUTHORIZED",
       message: "Failed to resume session."
     });
-  return new import_api2.Agent(credentialSession);
+  return new import_api3.Agent(credentialSession);
 };
 
 // src/zod-schemas/file.ts
@@ -570,7 +570,7 @@ var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
 };
 
 // src/server/routers/atproto/auth/login.ts
-var import_api3 = require("@atproto/api");
+var import_api4 = require("@atproto/api");
 var import_server4 = require("@trpc/server");
 var import_zod4 = __toESM(require("zod"), 1);
 var loginFactory = (allowedPDSDomainSchema) => {
@@ -582,7 +582,7 @@ var loginFactory = (allowedPDSDomainSchema) => {
       password: import_zod4.default.string()
     })
   ).mutation(async ({ input }) => {
-    const session = new import_api3.CredentialSession(
+    const session = new import_api4.CredentialSession(
       new URL(`https://${input.service}`)
     );
     const result = await session.login({
@@ -667,7 +667,7 @@ var import_xrpc2 = require("@atproto/xrpc");
 var import_xrpc = require("@atproto/xrpc");
 
 // lex-api/lexicons.ts
-var import_lexicon2 = require("@atproto/lexicon");
+var import_lexicon = require("@atproto/lexicon");
 
 // lex-api/util.ts
 function isObject2(v) {
@@ -1966,11 +1966,11 @@ var schemaDict = {
   }
 };
 var schemas = Object.values(schemaDict);
-var lexicons = new import_lexicon2.Lexicons(schemas);
+var lexicons = new import_lexicon.Lexicons(schemas);
 function validate(v, id8, hash, requiredType) {
   return (requiredType ? is$typed : maybe$typed)(v, id8, hash) ? lexicons.validate(`${id8}#${hash}`, v) : {
     success: false,
-    error: new import_lexicon2.ValidationError(
+    error: new import_lexicon.ValidationError(
       `Must be an object with "${hash === "main" ? id8 : `${id8}#${hash}`}" $type property`
     )
   };
@@ -2757,7 +2757,6 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       },
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    console.log(typeof site.shapefile.blob, site.shapefile.blob);
     validateRecordOrThrow(site, site_exports);
     const creationResponse = await agent.com.atproto.repo.createRecord({
       collection: nsid,

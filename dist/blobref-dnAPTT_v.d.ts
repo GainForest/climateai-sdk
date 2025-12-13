@@ -1,5 +1,5 @@
 import z from 'zod';
-import { BlobRef } from '@atproto/lexicon';
+import { BlobRef } from '@atproto/api';
 
 declare const BlobRefGeneratorSchema: z.ZodObject<{
     $type: z.ZodLiteral<"blob-ref-generator">;

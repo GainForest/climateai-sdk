@@ -1,7 +1,7 @@
 import z from "zod";
 import { CID } from "multiformats/cid";
 import type { Version } from "multiformats/cid";
-import { BlobRef } from "@atproto/lexicon";
+import { BlobRef } from "@atproto/api";
 
 export const BlobRefGeneratorSchema = z.object({
   $type: z.literal("blob-ref-generator"),
@@ -27,7 +27,9 @@ export const toBlobRef = (input: BlobRefGenerator) => {
 };
 
 export const toBlobRefGenerator = (blobRef: BlobRef): BlobRefGenerator => {
-  const json = blobRef.toJSON();
+  const json = blobRef.toJSON() as Omit<BlobRefGenerator, "$type"> & {
+    $type: "blob";
+  };
   return {
     $type: "blob-ref-generator",
     ref: json.ref,

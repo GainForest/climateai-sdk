@@ -59,8 +59,6 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
         createdAt: new Date().toISOString(),
       };
 
-      console.log(typeof site.shapefile.blob, site.shapefile.blob);
-
       validateRecordOrThrow(site, AppGainforestOrganizationSite);
 
       const creationResponse = await agent.com.atproto.repo.createRecord({

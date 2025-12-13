@@ -1,14 +1,14 @@
 import { validateRecordOrThrow } from "@/server/utils/validate-record-or-throw";
 import { toBlobRef, toFile } from "@/zod-schemas";
-import { Agent, CredentialSession } from "@atproto/api";
+import { Agent, BlobRef, CredentialSession } from "@atproto/api";
 import { AppGainforestOrganizationSite } from "lex-api";
 
 const session = new CredentialSession(new URL("https://climateai.org"));
 session.resumeSession({
   accessJwt:
-    "eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImNvbS5hdHByb3RvLmFjY2VzcyIsImF1ZCI6ImRpZDp3ZWI6Y2xpbWF0ZWFpLm9yZyIsInN1YiI6ImRpZDpwbGM6Y3BvYWdvZHBxcmdzNHQ3dGhpNXozN3VmIiwiaWF0IjoxNzY1NjIyNjUyLCJleHAiOjE3NjU2Mjk4NTJ9.CofQKBKbKGH3UPhI2iOqxUplSRzjmLKXNVmqfTO-_8E",
+    "eyJ0eXAiOiJhdCtqd3QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImNvbS5hdHByb3RvLmFjY2VzcyIsImF1ZCI6ImRpZDp3ZWI6Y2xpbWF0ZWFpLm9yZyIsInN1YiI6ImRpZDpwbGM6Y3BvYWdvZHBxcmdzNHQ3dGhpNXozN3VmIiwiaWF0IjoxNzY1NjM4NTI5LCJleHAiOjE3NjU2NDU3Mjl9.jKgI4jYqYL315cedVoWuFya2RlfAfwp4xZbJI71G_ZM",
   refreshJwt:
-    "eyJ0eXAiOiJyZWZyZXNoK2p3dCIsImFsZyI6IkhTMjU2In0.eyJzY29wZSI6ImNvbS5hdHByb3RvLnJlZnJlc2giLCJhdWQiOiJkaWQ6d2ViOmNsaW1hdGVhaS5vcmciLCJzdWIiOiJkaWQ6cGxjOmNwb2Fnb2RwcXJnczR0N3RoaTV6Mzd1ZiIsImp0aSI6Iis0TlFQdGlpajZkeWV1Z2NQMFV6MWQzZ2o1dmJZUUhkblEwbVRlYnZrS2MiLCJpYXQiOjE3NjU2MjI2NTIsImV4cCI6MTc3MzM5ODY1Mn0.2lhL_jHmKT3uiDLtArBebqft_tyMeal5MRcMe5pzyqw",
+    "eyJ0eXAiOiJyZWZyZXNoK2p3dCIsImFsZyI6IkhTMjU2In0.eyJzY29wZSI6ImNvbS5hdHByb3RvLnJlZnJlc2giLCJhdWQiOiJkaWQ6d2ViOmNsaW1hdGVhaS5vcmciLCJzdWIiOiJkaWQ6cGxjOmNwb2Fnb2RwcXJnczR0N3RoaTV6Mzd1ZiIsImp0aSI6IkdCL2lyTkkvUVVuNS82bHFpeTJ5WlJOaXFITDdPZVgyVGhvZWlhNFY3emMiLCJpYXQiOjE3NjU2Mzg1MjksImV4cCI6MTc3MzQxNDUyOX0.d4lEyu1rC6-lIFeUQjdZzd9eW4THV7R_CNTxGcWFgFo",
   did: "did:plc:cpoagodpqrgs4t7thi5z37uf",
   handle: "satyam2.climateai.org",
   active: true,
@@ -24,7 +24,11 @@ const file = await toFile(fileGenerator);
 
 const agent = new Agent(session);
 const blobRef = await agent.uploadBlob(file);
-console.log(typeof blobRef.data.blob, blobRef.data.blob);
+console.log(
+  typeof blobRef.data.blob,
+  blobRef.data.blob,
+  blobRef.data.blob instanceof BlobRef
+);
 
 const site = {
   $type: "app.gainforest.organization.site",

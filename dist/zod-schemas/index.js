@@ -1,7 +1,7 @@
 // src/zod-schemas/blobref.ts
 import z from "zod";
 import { CID } from "multiformats/cid";
-import { BlobRef } from "@atproto/lexicon";
+import { BlobRef } from "@atproto/api";
 var BlobRefGeneratorSchema = z.object({
   $type: z.literal("blob-ref-generator"),
   ref: z.object({
