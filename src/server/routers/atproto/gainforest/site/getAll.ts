@@ -60,11 +60,12 @@ export const getAllSitesFactory = <T extends SupportedPDSDomain>(
 
       const validRecords = listSitesResponse.data.records
         .map((record) => {
-          const result = AppGainforestOrganizationSite.validateRecord(
-            record.value
-          );
-          if (result.success) return record;
-          return null;
+          try {
+            validateRecordOrThrow(record.value, AppGainforestOrganizationSite);
+            return record;
+          } catch {
+            return null;
+          }
         })
         .filter(
           (record) => record !== null

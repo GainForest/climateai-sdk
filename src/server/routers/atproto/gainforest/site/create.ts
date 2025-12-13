@@ -6,6 +6,7 @@ import { FileGeneratorSchema, toFile } from "@/zod-schemas/file";
 import { TRPCError } from "@trpc/server";
 import { computeGeojsonFile, fetchGeojsonFromUrl } from "./utils";
 import type { SupportedPDSDomain } from "@/index";
+import { validateRecordOrThrow } from "@/server/utils/validate-record-or-throw";
 
 export const createSiteFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
@@ -33,7 +34,6 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
       }
 
       // If the site is a string, it is a URI, so fetch the file from the URI
-      console.log("RECEIVED UPLOADS", JSON.stringify(input.uploads));
       const file =
         typeof input.uploads.shapefile === "string" ?
           await fetchGeojsonFromUrl(input.uploads.shapefile)
@@ -44,7 +44,6 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
       const geojsonUploadResponse = await agent.uploadBlob(file);
       const geojsonBlobRef = geojsonUploadResponse.data.blob;
 
-      console.log("DATA BEING SENT TO PDS", JSON.stringify(geojsonBlobRef));
       const nsid: AppGainforestOrganizationSite.Record["$type"] =
         "app.gainforest.organization.site";
       const site: AppGainforestOrganizationSite.Record = {
@@ -60,14 +59,7 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
         createdAt: new Date().toISOString(),
       };
 
-      const validationResult =
-        AppGainforestOrganizationSite.validateRecord(site);
-      if (!validationResult.success) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: validationResult.error.message,
-        });
-      }
+      validateRecordOrThrow(site, AppGainforestOrganizationSite);
 
       const creationResponse = await agent.com.atproto.repo.createRecord({
         collection: nsid,

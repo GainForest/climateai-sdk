@@ -2518,11 +2518,12 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
       });
     }
     const validRecords = listSitesResponse.data.records.map((record) => {
-      const result = site_exports.validateRecord(
-        record.value
-      );
-      if (result.success) return record;
-      return null;
+      try {
+        validateRecordOrThrow(record.value, site_exports);
+        return record;
+      } catch {
+        return null;
+      }
     }).filter(
       (record) => record !== null
     );
@@ -2720,12 +2721,10 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
         message: "You are not authenticated"
       });
     }
-    console.log("RECEIVED UPLOADS", JSON.stringify(input.uploads));
     const file2 = typeof input.uploads.shapefile === "string" ? await fetchGeojsonFromUrl(input.uploads.shapefile) : await toFile(input.uploads.shapefile);
     const { lat, lon, area } = await computeGeojsonFile(file2);
     const geojsonUploadResponse = await agent.uploadBlob(file2);
     const geojsonBlobRef = geojsonUploadResponse.data.blob;
-    console.log("DATA BEING SENT TO PDS", JSON.stringify(geojsonBlobRef));
     const nsid = "app.gainforest.organization.site";
     const site = {
       $type: nsid,
@@ -2739,13 +2738,7 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       },
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    const validationResult = site_exports.validateRecord(site);
-    if (!validationResult.success) {
-      throw new TRPCError13({
-        code: "BAD_REQUEST",
-        message: validationResult.error.message
-      });
-    }
+    validateRecordOrThrow(site, site_exports);
     const creationResponse = await agent.com.atproto.repo.createRecord({
       collection: nsid,
       repo: agent.did,
@@ -2838,13 +2831,7 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
       shapefile,
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    const validationResult = site_exports.validateRecord(site);
-    if (!validationResult.success) {
-      throw new TRPCError14({
-        code: "BAD_REQUEST",
-        message: validationResult.error.message
-      });
-    }
+    validateRecordOrThrow(site, site_exports);
     const updateResponse = await agent.com.atproto.repo.putRecord({
       collection: nsid,
       repo: agent.did,

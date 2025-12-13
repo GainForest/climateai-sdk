@@ -12,6 +12,7 @@ import {
   type Uri,
 } from "@/../lex-api/types/app/gainforest/common/defs";
 import type { $Typed } from "@/../lex-api/util";
+import { validateRecordOrThrow } from "@/server/utils/validate-record-or-throw";
 
 export const updateSiteFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
@@ -101,14 +102,7 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
         createdAt: new Date().toISOString(),
       };
 
-      const validationResult =
-        AppGainforestOrganizationSite.validateRecord(site);
-      if (!validationResult.success) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: validationResult.error.message,
-        });
-      }
+      validateRecordOrThrow(site, AppGainforestOrganizationSite);
 
       const updateResponse = await agent.com.atproto.repo.putRecord({
         collection: nsid,
