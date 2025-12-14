@@ -9,7 +9,7 @@ import {
   BlobRefGeneratorSchema,
   toBlobRef,
 } from "@/_internal/zod-schemas/blobref";
-import { uploadFileAsBlobPure } from "../../common/uploadFileAsBlob";
+import { uploadFileAsBlobPure } from "../../../common/uploadFileAsBlob";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/_internal/index";
 

@@ -73,7 +73,7 @@ declare namespace defs {
   export { type defs_IndexedOrganization as IndexedOrganization, type defs_LargeBlob as LargeBlob, type defs_LargeImage as LargeImage, type defs_SmallBlob as SmallBlob, type defs_SmallImage as SmallImage, type defs_Uri as Uri, defs_isIndexedOrganization as isIndexedOrganization, defs_isLargeBlob as isLargeBlob, defs_isLargeImage as isLargeImage, defs_isSmallBlob as isSmallBlob, defs_isSmallImage as isSmallImage, defs_isUri as isUri, defs_validateIndexedOrganization as validateIndexedOrganization, defs_validateLargeBlob as validateLargeBlob, defs_validateLargeImage as validateLargeImage, defs_validateSmallBlob as validateSmallBlob, defs_validateSmallImage as validateSmallImage, defs_validateUri as validateUri };
 }
 
-interface Main$4 {
+interface Main$6 {
     $type: 'app.certified.location';
     /** The version of the Location Protocol */
     lpVersion: string;
@@ -92,28 +92,49 @@ interface Main$4 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$4<V>(v: V): v is $TypedObject<V, "app.certified.location", "main">;
-declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
+declare function isMain$6<V>(v: V): v is $TypedObject<V, "app.certified.location", "main">;
+declare function validateMain$6<V>(v: V): ValidationResult<Main$6 & V>;
 
 declare namespace AppCertifiedLocation {
-  export { type Main$4 as Main, type Main$4 as Record, isMain$4 as isMain, isMain$4 as isRecord, validateMain$4 as validateMain, validateMain$4 as validateRecord };
+  export { type Main$6 as Main, type Main$6 as Record, isMain$6 as isMain, isMain$6 as isRecord, validateMain$6 as validateMain, validateMain$6 as validateRecord };
 }
 
-interface Main$3 {
+interface Main$5 {
+    $type: 'app.gainforest.organization.layer';
+    /** The name of the site */
+    name: string;
+    /** The type of the layer */
+    type: 'geojson_points' | 'geojson_points_trees' | 'geojson_line' | 'choropleth' | 'choropleth_shannon' | 'raster_tif' | 'tms_tile';
+    /** The URI of the layer */
+    uri: string;
+    /** The description of the layer */
+    description?: string;
+    /** The date and time of the creation of the record */
+    createdAt: string;
+    [k: string]: unknown;
+}
+declare function isMain$5<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.layer", "main">;
+declare function validateMain$5<V>(v: V): ValidationResult<Main$5 & V>;
+
+declare namespace AppGainforestOrganizationLayer {
+  export { type Main$5 as Main, type Main$5 as Record, isMain$5 as isMain, isMain$5 as isRecord, validateMain$5 as validateMain, validateMain$5 as validateRecord };
+}
+
+interface Main$4 {
     $type: 'app.gainforest.organization.observations.measuredTreesCluster';
     shapefile: SmallBlob;
     /** The date and time of the creation of the record */
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$3<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.measuredTreesCluster", "main">;
-declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
+declare function isMain$4<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.measuredTreesCluster", "main">;
+declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
 
 declare namespace AppGainforestOrganizationObservationsMeasuredTreesCluster {
-  export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
+  export { type Main$4 as Main, type Main$4 as Record, isMain$4 as isMain, isMain$4 as isRecord, validateMain$4 as validateMain, validateMain$4 as validateRecord };
 }
 
-interface Main$2 {
+interface Main$3 {
     $type: 'app.gainforest.organization.defaultSite';
     /** The reference to the default site record in the PDS */
     site: string;
@@ -121,14 +142,14 @@ interface Main$2 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$2<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.defaultSite", "main">;
-declare function validateMain$2<V>(v: V): ValidationResult<Main$2 & V>;
+declare function isMain$3<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.defaultSite", "main">;
+declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
 
 declare namespace AppGainforestOrganizationDefaultSite {
-  export { type Main$2 as Main, type Main$2 as Record, isMain$2 as isMain, isMain$2 as isRecord, validateMain$2 as validateMain, validateMain$2 as validateRecord };
+  export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
 }
 
-interface Main$1 {
+interface Main$2 {
     $type: 'app.gainforest.organization.site';
     /** The name of the site */
     name: string;
@@ -143,10 +164,37 @@ interface Main$1 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$1<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.site", "main">;
-declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
+declare function isMain$2<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.site", "main">;
+declare function validateMain$2<V>(v: V): ValidationResult<Main$2 & V>;
 
 declare namespace AppGainforestOrganizationSite {
+  export { type Main$2 as Main, type Main$2 as Record, isMain$2 as isMain, isMain$2 as isRecord, validateMain$2 as validateMain, validateMain$2 as validateRecord };
+}
+
+interface Main$1 {
+    $type: 'app.gainforest.organization.project';
+    /** The name of the site */
+    name: string;
+    /** The description of the project in markdown */
+    description?: string;
+    /** The short description of the project */
+    shortDescription: string;
+    /** An array of at-uris pointing to the records of the ecocerts related to the project */
+    ecocerts: string[];
+    /** An array of at-uris pointing to the records of the layers related to the project */
+    layers: string[];
+    /** An array of at-uris pointing to the records of the sites related to the project */
+    sites: string[];
+    /** An array of at-uris pointing to the records of the measured trees clusters related to the project */
+    measuredTreesClusters: string[];
+    /** The date and time of the creation of the record */
+    createdAt: string;
+    [k: string]: unknown;
+}
+declare function isMain$1<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.project", "main">;
+declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
+
+declare namespace AppGainforestOrganizationProject {
   export { type Main$1 as Main, type Main$1 as Record, isMain$1 as isMain, isMain$1 as isRecord, validateMain$1 as validateMain, validateMain$1 as validateRecord };
 }
 
@@ -184,4 +232,4 @@ declare namespace AppGainforestOrganizationInfo {
   export { type AppGainforestOrganizationInfo_Main as Main, type Main as Record, AppGainforestOrganizationInfo_isMain as isMain, isMain as isRecord, AppGainforestOrganizationInfo_validateMain as validateMain, validateMain as validateRecord };
 }
 
-export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type Main$1 as a, type Main$2 as b, type Main$3 as c, type Main$4 as d, type SmallBlob as e, defs as f, AppGainforestOrganizationDefaultSite as g, AppGainforestOrganizationInfo as h, AppGainforestOrganizationObservationsMeasuredTreesCluster as i, AppGainforestOrganizationSite as j, type LargeBlob as k };
+export { AppCertifiedLocation as A, type IndexedOrganization as I, type LargeImage as L, type Main as M, type SmallImage as S, type Uri as U, type Main$1 as a, type Main$2 as b, type Main$3 as c, type Main$4 as d, type Main$5 as e, type Main$6 as f, type SmallBlob as g, defs as h, AppGainforestOrganizationDefaultSite as i, AppGainforestOrganizationInfo as j, AppGainforestOrganizationLayer as k, AppGainforestOrganizationObservationsMeasuredTreesCluster as l, AppGainforestOrganizationProject as m, AppGainforestOrganizationSite as n, type LargeBlob as o };

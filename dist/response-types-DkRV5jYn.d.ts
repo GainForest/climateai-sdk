@@ -1,7 +1,7 @@
 type GetRecordResponse<T> = {
     value: T;
     uri: string;
-    cid: string;
+    cid?: string;
 };
 type PutRecordResponse<T> = {
     uri: string;

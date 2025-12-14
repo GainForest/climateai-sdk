@@ -5,6 +5,7 @@ import { AppGainforestOrganizationObservationsMeasuredTreesCluster as MeasuredTr
 import { getReadAgent } from "@/_internal/server/utils/agent";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { TRPCError } from "@trpc/server";
 
 export const getMeasuredTreesFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
@@ -26,7 +27,10 @@ export const getMeasuredTreesFactory = <T extends SupportedPDSDomain>(
         rkey: "self",
       });
       if (response.success !== true) {
-        throw new Error("Failed to get measured trees");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get measured trees",
+        });
       }
       validateRecordOrThrow(response.data.value, MeasuredTreesCluster);
       return response.data as GetRecordResponse<MeasuredTreesCluster.Record>;

@@ -1,7 +1,7 @@
 import './utils-BtB-jULs.cjs';
 import { M as Main } from './activity-DclFid0x.cjs';
-import { G as GetRecordResponse } from './response-types-a9c2mEQD.cjs';
-export { P as PutRecordResponse } from './response-types-a9c2mEQD.cjs';
+import { G as GetRecordResponse } from './response-types-DkRV5jYn.cjs';
+export { P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
 import 'zod';
 import 'multiformats/cid';
 

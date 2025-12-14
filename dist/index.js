@@ -348,17 +348,17 @@ var tryCatch = async (promise) => {
 function isObject2(v) {
   return v != null && typeof v === "object";
 }
-function is$type($type, id8, hash) {
-  return hash === "main" ? $type === id8 : (
+function is$type($type, id10, hash) {
+  return hash === "main" ? $type === id10 : (
     // $type === `${id}#${hash}`
-    typeof $type === "string" && $type.length === id8.length + 1 + hash.length && $type.charCodeAt(id8.length) === 35 && $type.startsWith(id8) && $type.endsWith(hash)
+    typeof $type === "string" && $type.length === id10.length + 1 + hash.length && $type.charCodeAt(id10.length) === 35 && $type.startsWith(id10) && $type.endsWith(hash)
   );
 }
-function is$typed(v, id8, hash) {
-  return isObject2(v) && "$type" in v && is$type(v.$type, id8, hash);
+function is$typed(v, id10, hash) {
+  return isObject2(v) && "$type" in v && is$type(v.$type, id10, hash);
 }
-function maybe$typed(v, id8, hash) {
-  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id8, hash) : true);
+function maybe$typed(v, id10, hash) {
+  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id10, hash) : true);
 }
 
 // lex-api/lexicons.ts
@@ -1642,11 +1642,11 @@ var schemaDict = {
 };
 var schemas = Object.values(schemaDict);
 var lexicons = new Lexicons(schemas);
-function validate(v, id8, hash, requiredType) {
-  return (requiredType ? is$typed : maybe$typed)(v, id8, hash) ? lexicons.validate(`${id8}#${hash}`, v) : {
+function validate(v, id10, hash, requiredType) {
+  return (requiredType ? is$typed : maybe$typed)(v, id10, hash) ? lexicons.validate(`${id10}#${hash}`, v) : {
     success: false,
     error: new ValidationError(
-      `Must be an object with "${hash === "main" ? id8 : `${id8}#${hash}`}" $type property`
+      `Must be an object with "${hash === "main" ? id10 : `${id10}#${hash}`}" $type property`
     )
   };
 }
@@ -1708,9 +1708,9 @@ function validateMain3(v) {
   return validate4(v, id3, hashMain3, true);
 }
 
-// lex-api/types/app/gainforest/organization/observations/measuredTreesCluster.ts
-var measuredTreesCluster_exports = {};
-__export(measuredTreesCluster_exports, {
+// lex-api/types/app/gainforest/organization/layer.ts
+var layer_exports = {};
+__export(layer_exports, {
   isMain: () => isMain4,
   isRecord: () => isMain4,
   validateMain: () => validateMain4,
@@ -1718,7 +1718,7 @@ __export(measuredTreesCluster_exports, {
 });
 var is$typed5 = is$typed;
 var validate5 = validate;
-var id4 = "app.gainforest.organization.observations.measuredTreesCluster";
+var id4 = "app.gainforest.organization.layer";
 var hashMain4 = "main";
 function isMain4(v) {
   return is$typed5(v, id4, hashMain4);
@@ -1727,9 +1727,9 @@ function validateMain4(v) {
   return validate5(v, id4, hashMain4, true);
 }
 
-// lex-api/types/app/gainforest/organization/site.ts
-var site_exports = {};
-__export(site_exports, {
+// lex-api/types/app/gainforest/organization/observations/measuredTreesCluster.ts
+var measuredTreesCluster_exports = {};
+__export(measuredTreesCluster_exports, {
   isMain: () => isMain5,
   isRecord: () => isMain5,
   validateMain: () => validateMain5,
@@ -1737,7 +1737,7 @@ __export(site_exports, {
 });
 var is$typed6 = is$typed;
 var validate6 = validate;
-var id5 = "app.gainforest.organization.site";
+var id5 = "app.gainforest.organization.observations.measuredTreesCluster";
 var hashMain5 = "main";
 function isMain5(v) {
   return is$typed6(v, id5, hashMain5);
@@ -1746,19 +1746,17 @@ function validateMain5(v) {
   return validate6(v, id5, hashMain5, true);
 }
 
-// lex-api/types/org/hypercerts/claim/activity.ts
-var activity_exports = {};
-__export(activity_exports, {
+// lex-api/types/app/gainforest/organization/project.ts
+var project_exports = {};
+__export(project_exports, {
   isMain: () => isMain6,
   isRecord: () => isMain6,
-  isWorkScope: () => isWorkScope,
   validateMain: () => validateMain6,
-  validateRecord: () => validateMain6,
-  validateWorkScope: () => validateWorkScope
+  validateRecord: () => validateMain6
 });
 var is$typed7 = is$typed;
 var validate7 = validate;
-var id6 = "org.hypercerts.claim.activity";
+var id6 = "app.gainforest.organization.project";
 var hashMain6 = "main";
 function isMain6(v) {
   return is$typed7(v, id6, hashMain6);
@@ -1766,17 +1764,10 @@ function isMain6(v) {
 function validateMain6(v) {
   return validate7(v, id6, hashMain6, true);
 }
-var hashWorkScope = "workScope";
-function isWorkScope(v) {
-  return is$typed7(v, id6, hashWorkScope);
-}
-function validateWorkScope(v) {
-  return validate7(v, id6, hashWorkScope);
-}
 
-// lex-api/types/org/hypercerts/claim/contribution.ts
-var contribution_exports = {};
-__export(contribution_exports, {
+// lex-api/types/app/gainforest/organization/site.ts
+var site_exports = {};
+__export(site_exports, {
   isMain: () => isMain7,
   isRecord: () => isMain7,
   validateMain: () => validateMain7,
@@ -1784,13 +1775,60 @@ __export(contribution_exports, {
 });
 var is$typed8 = is$typed;
 var validate8 = validate;
-var id7 = "org.hypercerts.claim.contribution";
+var id7 = "app.gainforest.organization.site";
 var hashMain7 = "main";
 function isMain7(v) {
   return is$typed8(v, id7, hashMain7);
 }
 function validateMain7(v) {
   return validate8(v, id7, hashMain7, true);
+}
+
+// lex-api/types/org/hypercerts/claim/activity.ts
+var activity_exports = {};
+__export(activity_exports, {
+  isMain: () => isMain8,
+  isRecord: () => isMain8,
+  isWorkScope: () => isWorkScope,
+  validateMain: () => validateMain8,
+  validateRecord: () => validateMain8,
+  validateWorkScope: () => validateWorkScope
+});
+var is$typed9 = is$typed;
+var validate9 = validate;
+var id8 = "org.hypercerts.claim.activity";
+var hashMain8 = "main";
+function isMain8(v) {
+  return is$typed9(v, id8, hashMain8);
+}
+function validateMain8(v) {
+  return validate9(v, id8, hashMain8, true);
+}
+var hashWorkScope = "workScope";
+function isWorkScope(v) {
+  return is$typed9(v, id8, hashWorkScope);
+}
+function validateWorkScope(v) {
+  return validate9(v, id8, hashWorkScope);
+}
+
+// lex-api/types/org/hypercerts/claim/contribution.ts
+var contribution_exports = {};
+__export(contribution_exports, {
+  isMain: () => isMain9,
+  isRecord: () => isMain9,
+  validateMain: () => validateMain9,
+  validateRecord: () => validateMain9
+});
+var is$typed10 = is$typed;
+var validate10 = validate;
+var id9 = "org.hypercerts.claim.contribution";
+var hashMain9 = "main";
+function isMain9(v) {
+  return is$typed10(v, id9, hashMain9);
+}
+function validateMain9(v) {
+  return validate10(v, id9, hashMain9, true);
 }
 var xrpcErrorToTRPCError = (error) => {
   if (error.error === "InvalidRequest") {
@@ -1811,19 +1849,30 @@ var xrpcErrorToTRPCError = (error) => {
     });
   }
 };
-var validateRecordOrThrow = (record, { validateRecord }) => {
-  const validation = validateRecord(record);
-  if (!validation.success) {
+var validateRecordOrThrow = (record, {
+  validateRecord
+}) => {
+  let validationResponse;
+  try {
+    validationResponse = validateRecord(record);
+  } catch (error) {
     throw new TRPCError({
       code: "UNPROCESSABLE_CONTENT",
-      message: validation.error.message,
-      cause: validation.error
+      message: "Invalid record",
+      cause: error
     });
   }
-  return record;
+  if (!validationResponse.success) {
+    throw new TRPCError({
+      code: "UNPROCESSABLE_CONTENT",
+      message: validationResponse.error.message,
+      cause: validationResponse.error
+    });
+  }
+  return validationResponse.value;
 };
 
-// src/_internal/server/routers/atproto/gainforest/organizationInfo/get.ts
+// src/_internal/server/routers/atproto/gainforest/organization/info/get.ts
 var getOrganizationInfoPure = async (did, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   console.log("TEMP DEBUG LOG:", JSON.stringify({ did, pdsDomain }));
@@ -1875,7 +1924,10 @@ var getSiteFactory = (allowedPDSDomainSchema) => {
       rkey: input.rkey
     });
     if (response.success !== true) {
-      throw new Error("Failed to get the site.");
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get the site"
+      });
     }
     validateRecordOrThrow(response.data.value, site_exports);
     return response.data;
@@ -1919,7 +1971,10 @@ var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
       rkey: "self"
     });
     if (response.success !== true) {
-      throw new Error("Failed to get measured trees");
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get measured trees"
+      });
     }
     validateRecordOrThrow(response.data.value, measuredTreesCluster_exports);
     return response.data;
@@ -2547,7 +2602,7 @@ var computePolygonMetrics = (geoJson) => {
   };
 };
 
-// src/_internal/server/routers/atproto/gainforest/site/utils.ts
+// src/_internal/server/routers/atproto/gainforest/organization/site/utils.ts
 async function fetchGeojsonFromUrl(url) {
   const response = await fetch(url);
   if (!response.ok) {
@@ -2603,7 +2658,7 @@ async function computeGeojsonFile(file2) {
   };
 }
 
-// src/_internal/server/routers/atproto/gainforest/site/create.ts
+// src/_internal/server/routers/atproto/gainforest/organization/site/create.ts
 var createSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     z.object({
@@ -3040,6 +3095,654 @@ var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
     );
   });
 };
+
+// src/_internal/server/utils/ownership.ts
+var checkOwnershipByAtUri = (atUri, userDid) => {
+  const { did } = parseAtUri(atUri);
+  if (did !== userDid) {
+    return false;
+  }
+  return true;
+};
+
+// src/_internal/server/routers/atproto/gainforest/organization/project/utils.ts
+var filterProjectByOwnership = (project, userDid) => {
+  return {
+    ...project,
+    sites: project.sites.filter((site) => checkOwnershipByAtUri(site, userDid)),
+    measuredTreesClusters: project.measuredTreesClusters.filter(
+      (measuredTreesCluster) => checkOwnershipByAtUri(measuredTreesCluster, userDid)
+    ),
+    layers: project.layers.filter(
+      (layer) => checkOwnershipByAtUri(layer, userDid)
+    ),
+    ecocerts: project.ecocerts.filter(
+      (ecocert) => checkOwnershipByAtUri(ecocert, userDid)
+    )
+  };
+};
+
+// src/_internal/server/routers/atproto/gainforest/organization/site/addToProject.ts
+var addSitesToProjectFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z.object({
+      did: z.string(),
+      projectRkey: z.string(),
+      siteUris: z.array(z.string()).min(1),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const readAgent = getReadAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(input.pdsDomain);
+    if (!writeAgent.did) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authenticated"
+      });
+    }
+    const ownedSiteUris = input.siteUris.filter(
+      (uri) => checkOwnershipByAtUri(uri, input.did)
+    );
+    if (ownedSiteUris.length !== input.siteUris.length) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ownedSiteUris.length === 1 ? "The site you are trying to add is not owned by you" : "The sites you are trying to add are not owned by you"
+      });
+    }
+    const siteExistencePromise = Promise.all(
+      input.siteUris.map(async (uri) => {
+        const { did, collection, rkey } = parseAtUri(uri);
+        const response = await readAgent.com.atproto.repo.getRecord({
+          collection,
+          repo: did,
+          rkey
+        });
+        return response.success === true;
+      })
+    );
+    const [siteExistence, siteExistenceCheckError] = await tryCatch(siteExistencePromise);
+    if (siteExistenceCheckError) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to check the existence of the sites"
+      });
+    }
+    if (!siteExistence.every(Boolean)) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: siteExistence.length === 1 ? "The site you are trying to add does not exist" : "The sites you are trying to add do not exist"
+      });
+    }
+    const getResponse = await readAgent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.project",
+      repo: input.did,
+      rkey: input.projectRkey
+    });
+    if (getResponse.success !== true) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found"
+      });
+    }
+    const validatedProject = validateRecordOrThrow(
+      getResponse.data.value,
+      project_exports
+    );
+    const existingSites = new Set(validatedProject.sites);
+    const newSites = input.siteUris.filter((uri) => !existingSites.has(uri));
+    const updatedSites = [...validatedProject.sites, ...newSites];
+    const updatedProject = {
+      ...validatedProject,
+      sites: updatedSites
+    };
+    const ownershipCheckedProject = filterProjectByOwnership(
+      updatedProject,
+      input.did
+    );
+    validateRecordOrThrow(
+      ownershipCheckedProject,
+      project_exports
+    );
+    const putResponse = await writeAgent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.project",
+      record: ownershipCheckedProject,
+      rkey: input.projectRkey
+    });
+    if (putResponse.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to add sites to project"
+      });
+    }
+    return {
+      uri: putResponse.data.uri,
+      cid: putResponse.data.cid,
+      validationStatus: putResponse.data.validationStatus,
+      value: ownershipCheckedProject
+    };
+  });
+};
+var removeSitesFromProjectFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z.object({
+      did: z.string(),
+      projectRkey: z.string(),
+      siteUris: z.array(z.string()).min(1),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const readAgent = getReadAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(input.pdsDomain);
+    if (!writeAgent.did) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authenticated"
+      });
+    }
+    const getResponse = await readAgent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.project",
+      repo: input.did,
+      rkey: input.projectRkey
+    });
+    if (getResponse.success !== true) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found"
+      });
+    }
+    const validatedProject = validateRecordOrThrow(
+      getResponse.data.value,
+      project_exports
+    );
+    const sitesToRemove = new Set(input.siteUris);
+    const updatedSites = validatedProject.sites.filter(
+      (uri) => !sitesToRemove.has(uri)
+    );
+    const updatedProject = {
+      ...validatedProject,
+      sites: updatedSites
+    };
+    const ownershipCheckedProject = filterProjectByOwnership(
+      updatedProject,
+      input.did
+    );
+    validateRecordOrThrow(
+      ownershipCheckedProject,
+      project_exports
+    );
+    const putResponse = await writeAgent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.project",
+      record: ownershipCheckedProject,
+      rkey: input.projectRkey
+    });
+    if (putResponse.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to remove sites from project"
+      });
+    }
+    return {
+      uri: putResponse.data.uri,
+      cid: putResponse.data.cid,
+      validationStatus: putResponse.data.validationStatus,
+      value: ownershipCheckedProject
+    };
+  });
+};
+var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z.object({
+      did: z.string(),
+      projectRkey: z.string(),
+      measuredTreesClusterUris: z.array(z.string()).min(1),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const readAgent = getReadAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(input.pdsDomain);
+    if (!writeAgent.did) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authenticated"
+      });
+    }
+    const ownedClusterUris = input.measuredTreesClusterUris.filter(
+      (uri) => checkOwnershipByAtUri(uri, input.did)
+    );
+    if (ownedClusterUris.length !== input.measuredTreesClusterUris.length) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ownedClusterUris.length === 1 ? "The measured trees cluster you are trying to add is not owned by you" : "The measured trees clusters you are trying to add are not owned by you"
+      });
+    }
+    const clusterExistencePromise = Promise.all(
+      input.measuredTreesClusterUris.map(async (uri) => {
+        const { did, collection, rkey } = parseAtUri(uri);
+        const response = await readAgent.com.atproto.repo.getRecord({
+          collection,
+          repo: did,
+          rkey
+        });
+        return response.success === true;
+      })
+    );
+    const [clusterExistence, clusterExistenceCheckError] = await tryCatch(
+      clusterExistencePromise
+    );
+    if (clusterExistenceCheckError) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to check the existence of the measured trees clusters"
+      });
+    }
+    if (!clusterExistence.every(Boolean)) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: clusterExistence.length === 1 ? "The measured trees cluster you are trying to add does not exist" : "The measured trees clusters you are trying to add do not exist"
+      });
+    }
+    const getResponse = await readAgent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.project",
+      repo: input.did,
+      rkey: input.projectRkey
+    });
+    if (getResponse.success !== true) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found"
+      });
+    }
+    const validatedProject = validateRecordOrThrow(
+      getResponse.data.value,
+      project_exports
+    );
+    const existingClusters = new Set(validatedProject.measuredTreesClusters);
+    const newClusters = input.measuredTreesClusterUris.filter(
+      (uri) => !existingClusters.has(uri)
+    );
+    const updatedClusters = [
+      ...validatedProject.measuredTreesClusters,
+      ...newClusters
+    ];
+    const updatedProject = {
+      ...validatedProject,
+      measuredTreesClusters: updatedClusters
+    };
+    const ownershipCheckedProject = filterProjectByOwnership(
+      updatedProject,
+      input.did
+    );
+    validateRecordOrThrow(
+      ownershipCheckedProject,
+      project_exports
+    );
+    const putResponse = await writeAgent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.project",
+      record: ownershipCheckedProject,
+      rkey: input.projectRkey
+    });
+    if (putResponse.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to add measured trees clusters to project"
+      });
+    }
+    return {
+      uri: putResponse.data.uri,
+      cid: putResponse.data.cid,
+      validationStatus: putResponse.data.validationStatus,
+      value: ownershipCheckedProject
+    };
+  });
+};
+var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z.object({
+      did: z.string(),
+      projectRkey: z.string(),
+      measuredTreesClusterUris: z.array(z.string()).min(1),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const readAgent = getReadAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(input.pdsDomain);
+    if (!writeAgent.did) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authenticated"
+      });
+    }
+    const getResponse = await readAgent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.project",
+      repo: input.did,
+      rkey: input.projectRkey
+    });
+    if (getResponse.success !== true) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found"
+      });
+    }
+    const validatedProject = validateRecordOrThrow(
+      getResponse.data.value,
+      project_exports
+    );
+    const clustersToRemove = new Set(input.measuredTreesClusterUris);
+    const updatedClusters = validatedProject.measuredTreesClusters.filter(
+      (uri) => !clustersToRemove.has(uri)
+    );
+    const updatedProject = {
+      ...validatedProject,
+      measuredTreesClusters: updatedClusters
+    };
+    const ownershipCheckedProject = filterProjectByOwnership(
+      updatedProject,
+      input.did
+    );
+    validateRecordOrThrow(
+      ownershipCheckedProject,
+      project_exports
+    );
+    const putResponse = await writeAgent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.project",
+      record: ownershipCheckedProject,
+      rkey: input.projectRkey
+    });
+    if (putResponse.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to remove measured trees clusters from project"
+      });
+    }
+    return {
+      uri: putResponse.data.uri,
+      cid: putResponse.data.cid,
+      validationStatus: putResponse.data.validationStatus,
+      value: ownershipCheckedProject
+    };
+  });
+};
+var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z.object({
+      did: z.string(),
+      projectRkey: z.string(),
+      layerUris: z.array(z.string()).min(1),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const readAgent = getReadAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(input.pdsDomain);
+    if (!writeAgent.did) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authenticated"
+      });
+    }
+    const ownedLayerUris = input.layerUris.filter(
+      (uri) => checkOwnershipByAtUri(uri, input.did)
+    );
+    if (ownedLayerUris.length !== input.layerUris.length) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: ownedLayerUris.length === 1 ? "The layer you are trying to add is not owned by you" : "The layers you are trying to add are not owned by you"
+      });
+    }
+    const layerExistencePromise = Promise.all(
+      input.layerUris.map(async (uri) => {
+        const { did, collection, rkey } = parseAtUri(uri);
+        const response = await readAgent.com.atproto.repo.getRecord({
+          collection,
+          repo: did,
+          rkey
+        });
+        return response.success === true;
+      })
+    );
+    const [layerExistence, layerExistenceCheckError] = await tryCatch(
+      layerExistencePromise
+    );
+    if (layerExistenceCheckError) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to check the existence of the layers"
+      });
+    }
+    if (!layerExistence.every(Boolean)) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: layerExistence.length === 1 ? "The layer you are trying to add does not exist" : "The layers you are trying to add do not exist"
+      });
+    }
+    const getResponse = await readAgent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.project",
+      repo: input.did,
+      rkey: input.projectRkey
+    });
+    if (getResponse.success !== true) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found"
+      });
+    }
+    const validatedProject = validateRecordOrThrow(
+      getResponse.data.value,
+      project_exports
+    );
+    const existingLayers = new Set(validatedProject.layers);
+    const newLayers = input.layerUris.filter(
+      (uri) => !existingLayers.has(uri)
+    );
+    const updatedLayers = [...validatedProject.layers, ...newLayers];
+    const updatedProject = {
+      ...validatedProject,
+      layers: updatedLayers
+    };
+    const ownershipCheckedProject = filterProjectByOwnership(
+      updatedProject,
+      input.did
+    );
+    validateRecordOrThrow(
+      ownershipCheckedProject,
+      project_exports
+    );
+    const putResponse = await writeAgent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.project",
+      record: ownershipCheckedProject,
+      rkey: input.projectRkey
+    });
+    if (putResponse.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to add layers to project"
+      });
+    }
+    return {
+      uri: putResponse.data.uri,
+      cid: putResponse.data.cid,
+      validationStatus: putResponse.data.validationStatus,
+      value: ownershipCheckedProject
+    };
+  });
+};
+var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z.object({
+      did: z.string(),
+      projectRkey: z.string(),
+      layerUris: z.array(z.string()).min(1),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const readAgent = getReadAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(input.pdsDomain);
+    if (!writeAgent.did) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authenticated"
+      });
+    }
+    const getResponse = await readAgent.com.atproto.repo.getRecord({
+      collection: "app.gainforest.organization.project",
+      repo: input.did,
+      rkey: input.projectRkey
+    });
+    if (getResponse.success !== true) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Project not found"
+      });
+    }
+    const validatedProject = validateRecordOrThrow(
+      getResponse.data.value,
+      project_exports
+    );
+    const layersToRemove = new Set(input.layerUris);
+    const updatedLayers = validatedProject.layers.filter(
+      (uri) => !layersToRemove.has(uri)
+    );
+    const updatedProject = {
+      ...validatedProject,
+      layers: updatedLayers
+    };
+    const ownershipCheckedProject = filterProjectByOwnership(
+      updatedProject,
+      input.did
+    );
+    validateRecordOrThrow(
+      ownershipCheckedProject,
+      project_exports
+    );
+    const putResponse = await writeAgent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection: "app.gainforest.organization.project",
+      record: ownershipCheckedProject,
+      rkey: input.projectRkey
+    });
+    if (putResponse.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to remove layers from project"
+      });
+    }
+    return {
+      uri: putResponse.data.uri,
+      cid: putResponse.data.cid,
+      validationStatus: putResponse.data.validationStatus,
+      value: ownershipCheckedProject
+    };
+  });
+};
+var getLayerFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    z.object({
+      did: z.string(),
+      rkey: z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    const agent = getReadAgent(input.pdsDomain);
+    const nsid = "app.gainforest.organization.layer";
+    const response = await agent.com.atproto.repo.getRecord({
+      collection: nsid,
+      repo: input.did,
+      rkey: input.rkey
+    });
+    if (response.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get the layer"
+      });
+    }
+    const validatedRecord = validateRecordOrThrow(
+      response.data.value,
+      layer_exports
+    );
+    return {
+      uri: response.data.uri,
+      cid: response.data.cid,
+      value: validatedRecord
+    };
+  });
+};
+var getProjectFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    z.object({
+      did: z.string(),
+      rkey: z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    const agent = getReadAgent(input.pdsDomain);
+    const nsid = "app.gainforest.organization.project";
+    const response = await agent.com.atproto.repo.getRecord({
+      collection: nsid,
+      repo: input.did,
+      rkey: input.rkey
+    });
+    if (response.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get the project"
+      });
+    }
+    const validatedRecord = validateRecordOrThrow(
+      response.data.value,
+      project_exports
+    );
+    const ownershipCheckedRecord = filterProjectByOwnership(
+      validatedRecord,
+      input.did
+    );
+    response.data = {
+      ...response.data,
+      value: ownershipCheckedRecord
+    };
+    return response.data;
+  });
+};
+var getAllProjectsFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    z.object({
+      did: z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    const agent = getReadAgent(input.pdsDomain);
+    const nsid = "app.gainforest.organization.project";
+    const response = await agent.com.atproto.repo.listRecords({
+      collection: nsid,
+      repo: input.did
+    });
+    if (response.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get the projects"
+      });
+    }
+    const ownershipCheckedRecords = response.data.records.map((record) => {
+      let validatedRecord;
+      try {
+        validatedRecord = validateRecordOrThrow(
+          record.value,
+          project_exports
+        );
+      } catch (error) {
+        return null;
+      }
+      return {
+        ...record,
+        value: filterProjectByOwnership(validatedRecord, input.did)
+      };
+    }).filter((record) => record !== null);
+    return ownershipCheckedRecords;
+  });
+};
 var AppRouterFactory = class {
   constructor(_allowedPDSDomains) {
     __publicField(this, "allowedPDSDomains");
@@ -3070,6 +3773,13 @@ var AppRouterFactory = class {
               this.allowedPDSDomainSchema
             )
           },
+          project: {
+            get: getProjectFactory(this.allowedPDSDomainSchema),
+            getAll: getAllProjectsFactory(this.allowedPDSDomainSchema),
+            createOrUpdate: createOrUpdateOrganizationInfoFactory(
+              this.allowedPDSDomainSchema
+            )
+          },
           site: {
             get: getSiteFactory(this.allowedPDSDomainSchema),
             getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
@@ -3079,10 +3789,29 @@ var AppRouterFactory = class {
             getDefault: getDefaultProjectSiteFactory(
               this.allowedPDSDomainSchema
             ),
-            setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema)
+            setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema),
+            addToProject: addSitesToProjectFactory(this.allowedPDSDomainSchema),
+            removeFromProject: removeSitesFromProjectFactory(
+              this.allowedPDSDomainSchema
+            )
           },
-          measuredTrees: {
-            get: getMeasuredTreesFactory(this.allowedPDSDomainSchema)
+          measuredTreesCluster: {
+            get: getMeasuredTreesFactory(this.allowedPDSDomainSchema),
+            addToProject: addMeasuredTreesClusterToProjectFactory(
+              this.allowedPDSDomainSchema
+            ),
+            removeFromProject: removeMeasuredTreesClusterFromProjectFactory(
+              this.allowedPDSDomainSchema
+            )
+          },
+          layers: {
+            get: getLayerFactory(this.allowedPDSDomainSchema),
+            addToProject: addLayersToProjectFactory(
+              this.allowedPDSDomainSchema
+            ),
+            removeFromProject: removeLayersFromProjectFactory(
+              this.allowedPDSDomainSchema
+            )
           }
         }
       },

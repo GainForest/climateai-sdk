@@ -3,7 +3,7 @@ import { publicProcedure } from "@/_internal/server/trpc";
 import { getReadAgent } from "@/_internal/server/utils/agent";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { getOrganizationInfoPure } from "../../../gainforest/organizationInfo/get";
+import { getOrganizationInfoPure } from "../../../gainforest/organization/info/get";
 import { getAllClaimActivitiesPure } from "./getAll";
 import { type Repo } from "@atproto/api/dist/client/types/com/atproto/sync/listRepos";
 import {

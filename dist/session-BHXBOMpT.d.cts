@@ -1,15 +1,15 @@
 import { JwtPayload } from '@atproto/oauth-client-node';
 import { a as $Typed } from './utils-BtB-jULs.cjs';
-import { M as Main, a as Main$1, b as Main$2, c as Main$3, d as Main$5, U as Uri, S as SmallImage, L as LargeImage, e as SmallBlob, k as LargeBlob } from './info-LubXhrYx.cjs';
+import { M as Main, a as Main$1, b as Main$2, c as Main$3, d as Main$4, e as Main$5, f as Main$7, U as Uri, S as SmallImage, L as LargeImage, g as SmallBlob, o as LargeBlob } from './info-JAV9WD3r.cjs';
 import { b as BlobRefGenerator } from './blobref-e8ss-bC-.cjs';
 import { z } from 'zod';
-import { M as Main$4, B as BlobRef } from './activity-DclFid0x.cjs';
+import { M as Main$6, B as BlobRef } from './activity-DclFid0x.cjs';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-a9c2mEQD.cjs';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 
@@ -151,7 +151,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         meta: object;
                     }>;
                 };
-                site: {
+                project: {
                     get: _trpc_server.TRPCQueryProcedure<{
                         input: {
                             did: string;
@@ -167,8 +167,78 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             pdsDomain: Record<T, T>[T];
                         };
                         output: {
-                            sites: GetRecordResponse<Main$1>[];
-                            defaultSite: GetRecordResponse<Main$2> | null;
+                            value: Main$1;
+                            $type?: "com.atproto.repo.listRecords#record";
+                            uri: string;
+                            cid: string;
+                        }[];
+                        meta: object;
+                    }>;
+                    createOrUpdate: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            info: {
+                                displayName: string;
+                                shortDescription: string;
+                                longDescription: string;
+                                objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
+                                country: string;
+                                visibility: "Public" | "Hidden";
+                                website?: string | undefined;
+                                logo?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                coverImage?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                startDate?: string | undefined;
+                            };
+                            pdsDomain: Record<T, T>[T];
+                            uploads?: {
+                                logo?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                                coverImage?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                            } | undefined;
+                        };
+                        output: PutRecordResponse<Main>;
+                        meta: object;
+                    }>;
+                };
+                site: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$2>;
+                        meta: object;
+                    }>;
+                    getAll: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            sites: GetRecordResponse<Main$2>[];
+                            defaultSite: GetRecordResponse<Main$3> | null;
                         };
                         meta: object;
                     }>;
@@ -235,7 +305,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$2>;
+                        output: GetRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     setDefault: _trpc_server.TRPCMutationProcedure<{
@@ -246,14 +316,119 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
                         meta: object;
                     }>;
+                    addToProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            siteUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                    removeFromProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            siteUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
                 };
-                measuredTrees: {
+                measuredTreesCluster: {
                     get: _trpc_server.TRPCQueryProcedure<{
                         input: {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$3>;
+                        output: GetRecordResponse<Main$4>;
+                        meta: object;
+                    }>;
+                    addToProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            measuredTreesClusterUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                    removeFromProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            measuredTreesClusterUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                };
+                layers: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string | undefined;
+                            value: Main$5;
+                        };
+                        meta: object;
+                    }>;
+                    addToProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            layerUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                    removeFromProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            layerUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
                         meta: object;
                     }>;
                 };
@@ -292,7 +467,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         };
                         output: {
                             repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            activities: GetRecordResponse<Main$4>[];
+                            activities: GetRecordResponse<Main$6>[];
                             organizationInfo: Main;
                         }[];
                         meta: object;
@@ -303,7 +478,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>;
+                        output: GetRecordResponse<Main$6>;
                         meta: object;
                     }>;
                 };
@@ -315,7 +490,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$5>;
+                    output: GetRecordResponse<Main$7>;
                     meta: object;
                 }>;
             };
@@ -436,7 +611,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         meta: object;
                     }>;
                 };
-                site: {
+                project: {
                     get: _trpc_server.TRPCQueryProcedure<{
                         input: {
                             did: string;
@@ -452,8 +627,78 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             pdsDomain: Record<T, T>[T];
                         };
                         output: {
-                            sites: GetRecordResponse<Main$1>[];
-                            defaultSite: GetRecordResponse<Main$2> | null;
+                            value: Main$1;
+                            $type?: "com.atproto.repo.listRecords#record";
+                            uri: string;
+                            cid: string;
+                        }[];
+                        meta: object;
+                    }>;
+                    createOrUpdate: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            info: {
+                                displayName: string;
+                                shortDescription: string;
+                                longDescription: string;
+                                objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
+                                country: string;
+                                visibility: "Public" | "Hidden";
+                                website?: string | undefined;
+                                logo?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                coverImage?: {
+                                    $type: "blob-ref-generator";
+                                    ref: {
+                                        $link: string;
+                                    };
+                                    mimeType: string;
+                                    size: number;
+                                } | undefined;
+                                startDate?: string | undefined;
+                            };
+                            pdsDomain: Record<T, T>[T];
+                            uploads?: {
+                                logo?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                                coverImage?: {
+                                    name: string;
+                                    type: string;
+                                    dataBase64: string;
+                                } | undefined;
+                            } | undefined;
+                        };
+                        output: PutRecordResponse<Main>;
+                        meta: object;
+                    }>;
+                };
+                site: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: GetRecordResponse<Main$2>;
+                        meta: object;
+                    }>;
+                    getAll: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            sites: GetRecordResponse<Main$2>[];
+                            defaultSite: GetRecordResponse<Main$3> | null;
                         };
                         meta: object;
                     }>;
@@ -520,7 +765,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$2>;
+                        output: GetRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     setDefault: _trpc_server.TRPCMutationProcedure<{
@@ -531,14 +776,119 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
                         meta: object;
                     }>;
+                    addToProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            siteUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                    removeFromProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            siteUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
                 };
-                measuredTrees: {
+                measuredTreesCluster: {
                     get: _trpc_server.TRPCQueryProcedure<{
                         input: {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$3>;
+                        output: GetRecordResponse<Main$4>;
+                        meta: object;
+                    }>;
+                    addToProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            measuredTreesClusterUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                    removeFromProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            measuredTreesClusterUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                };
+                layers: {
+                    get: _trpc_server.TRPCQueryProcedure<{
+                        input: {
+                            did: string;
+                            rkey: string;
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string | undefined;
+                            value: Main$5;
+                        };
+                        meta: object;
+                    }>;
+                    addToProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            layerUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
+                    removeFromProject: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            projectRkey: string;
+                            layerUris: string[];
+                            pdsDomain: Record<T, T>[T];
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
                         meta: object;
                     }>;
                 };
@@ -577,7 +927,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         };
                         output: {
                             repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            activities: GetRecordResponse<Main$4>[];
+                            activities: GetRecordResponse<Main$6>[];
                             organizationInfo: Main;
                         }[];
                         meta: object;
@@ -588,7 +938,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>;
+                        output: GetRecordResponse<Main$6>;
                         meta: object;
                     }>;
                 };
@@ -600,7 +950,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$5>;
+                    output: GetRecordResponse<Main$7>;
                     meta: object;
                 }>;
             };

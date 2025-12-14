@@ -1,8 +1,8 @@
 import { ComAtprotoRepoListRecords, ComAtprotoRepoGetRecord, ComAtprotoRepoCreateRecord, ComAtprotoRepoPutRecord, ComAtprotoRepoDeleteRecord } from '@atproto/api';
 import { L as LexiconDoc, b as LexUserType, V as ValidationResult, $ as $TypedObject, a as $Typed, O as OmitKey, U as Un$Typed } from './utils-BtB-jULs.js';
-import { S as SmallImage, I as IndexedOrganization, e as SmallBlob, d as Main$f, b as Main$g, M as Main$h, a as Main$i, c as Main$j } from './info-D4RPERNr.js';
-export { A as AppCertifiedLocation, f as AppGainforestCommonDefs, g as AppGainforestOrganizationDefaultSite, h as AppGainforestOrganizationInfo, i as AppGainforestOrganizationObservationsMeasuredTreesCluster, j as AppGainforestOrganizationSite } from './info-D4RPERNr.js';
-import { U as Uri, S as SmallBlob$1, a as Main$e, M as Main$k } from './activity-DdmMw7Qf.js';
+import { S as SmallImage, I as IndexedOrganization, g as SmallBlob, f as Main$d, c as Main$e, M as Main$f, e as Main$g, a as Main$h, b as Main$i, d as Main$j } from './info-CAW9Nl57.js';
+export { A as AppCertifiedLocation, h as AppGainforestCommonDefs, i as AppGainforestOrganizationDefaultSite, j as AppGainforestOrganizationInfo, k as AppGainforestOrganizationLayer, l as AppGainforestOrganizationObservationsMeasuredTreesCluster, m as AppGainforestOrganizationProject, n as AppGainforestOrganizationSite } from './info-CAW9Nl57.js';
+import { U as Uri, S as SmallBlob$1, a as Main$c, M as Main$k } from './activity-DdmMw7Qf.js';
 export { s as ComAtprotoRepoStrongRef, O as OrgHypercertsClaimActivity, d as OrgHypercertsDefs } from './activity-DdmMw7Qf.js';
 import 'zod';
 import 'multiformats/cid';
@@ -146,7 +146,7 @@ declare class XrpcClient {
     call(methodNsid: string, params?: QueryParams$1, data?: unknown, opts?: CallOptions$1): Promise<XRPCResponse>;
 }
 
-interface Main$d {
+interface Main$b {
     $type: 'app.gainforest.organization.draft.ecocert';
     /** The title of the ecocert */
     title: string;
@@ -169,11 +169,11 @@ interface Main$d {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$d<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.draft.ecocert", "main">;
-declare function validateMain$d<V>(v: V): ValidationResult<Main$d & V>;
+declare function isMain$b<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.draft.ecocert", "main">;
+declare function validateMain$b<V>(v: V): ValidationResult<Main$b & V>;
 
 declare namespace AppGainforestOrganizationDraftEcocert {
-  export { type Main$d as Main, type Main$d as Record, isMain$d as isMain, isMain$d as isRecord, validateMain$d as validateMain, validateMain$d as validateRecord };
+  export { type Main$b as Main, type Main$b as Record, isMain$b as isMain, isMain$b as isRecord, validateMain$b as validateMain, validateMain$b as validateRecord };
 }
 
 /**
@@ -205,42 +205,21 @@ declare namespace AppGainforestOrganizationGetIndexedOrganizations {
   export { type AppGainforestOrganizationGetIndexedOrganizations_CallOptions as CallOptions, type AppGainforestOrganizationGetIndexedOrganizations_InputSchema as InputSchema, type AppGainforestOrganizationGetIndexedOrganizations_OutputSchema as OutputSchema, type AppGainforestOrganizationGetIndexedOrganizations_QueryParams as QueryParams, type Response$1 as Response, AppGainforestOrganizationGetIndexedOrganizations_toKnownErr as toKnownErr };
 }
 
-interface Main$c {
-    $type: 'app.gainforest.organization.layer';
-    /** The name of the site */
-    name: string;
-    /** The type of the layer */
-    type: 'geojson_points' | 'geojson_points_trees' | 'geojson_line' | 'choropleth' | 'choropleth_shannon' | 'raster_tif' | 'tms_tile';
-    /** The URI of the layer */
-    uri: string;
-    /** The description of the layer */
-    description?: string;
-    /** The date and time of the creation of the record */
-    createdAt: string;
-    [k: string]: unknown;
-}
-declare function isMain$c<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.layer", "main">;
-declare function validateMain$c<V>(v: V): ValidationResult<Main$c & V>;
-
-declare namespace AppGainforestOrganizationLayer {
-  export { type Main$c as Main, type Main$c as Record, isMain$c as isMain, isMain$c as isRecord, validateMain$c as validateMain, validateMain$c as validateRecord };
-}
-
-interface Main$b {
+interface Main$a {
     $type: 'app.gainforest.organization.observations.dendogram';
     dendogram: SmallBlob;
     /** The date and time of the creation of the record */
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$b<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.dendogram", "main">;
-declare function validateMain$b<V>(v: V): ValidationResult<Main$b & V>;
+declare function isMain$a<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.dendogram", "main">;
+declare function validateMain$a<V>(v: V): ValidationResult<Main$a & V>;
 
 declare namespace AppGainforestOrganizationObservationsDendogram {
-  export { type Main$b as Main, type Main$b as Record, isMain$b as isMain, isMain$b as isRecord, validateMain$b as validateMain, validateMain$b as validateRecord };
+  export { type Main$a as Main, type Main$a as Record, isMain$a as isMain, isMain$a as isRecord, validateMain$a as validateMain, validateMain$a as validateRecord };
 }
 
-interface Main$a {
+interface Main$9 {
     $type: 'app.gainforest.organization.observations.fauna';
     /** An array of GBIF taxon keys for each fauna observation */
     gbifTaxonKeys: string[];
@@ -248,14 +227,14 @@ interface Main$a {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$a<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.fauna", "main">;
-declare function validateMain$a<V>(v: V): ValidationResult<Main$a & V>;
+declare function isMain$9<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.fauna", "main">;
+declare function validateMain$9<V>(v: V): ValidationResult<Main$9 & V>;
 
 declare namespace AppGainforestOrganizationObservationsFauna {
-  export { type Main$a as Main, type Main$a as Record, isMain$a as isMain, isMain$a as isRecord, validateMain$a as validateMain, validateMain$a as validateRecord };
+  export { type Main$9 as Main, type Main$9 as Record, isMain$9 as isMain, isMain$9 as isRecord, validateMain$9 as validateMain, validateMain$9 as validateRecord };
 }
 
-interface Main$9 {
+interface Main$8 {
     $type: 'app.gainforest.organization.observations.flora';
     /** An array of GBIF taxon keys for each flora observation */
     gbifTaxonKeys: string[];
@@ -263,14 +242,14 @@ interface Main$9 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$9<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.flora", "main">;
-declare function validateMain$9<V>(v: V): ValidationResult<Main$9 & V>;
+declare function isMain$8<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.flora", "main">;
+declare function validateMain$8<V>(v: V): ValidationResult<Main$8 & V>;
 
 declare namespace AppGainforestOrganizationObservationsFlora {
-  export { type Main$9 as Main, type Main$9 as Record, isMain$9 as isMain, isMain$9 as isRecord, validateMain$9 as validateMain, validateMain$9 as validateRecord };
+  export { type Main$8 as Main, type Main$8 as Record, isMain$8 as isMain, isMain$8 as isRecord, validateMain$8 as validateMain, validateMain$8 as validateRecord };
 }
 
-interface Main$8 {
+interface Main$7 {
     $type: 'app.gainforest.organization.predictions.fauna';
     /** An array of GBIF taxon keys for each fauna prediction */
     gbifTaxonKeys: string[];
@@ -278,14 +257,14 @@ interface Main$8 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$8<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.predictions.fauna", "main">;
-declare function validateMain$8<V>(v: V): ValidationResult<Main$8 & V>;
+declare function isMain$7<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.predictions.fauna", "main">;
+declare function validateMain$7<V>(v: V): ValidationResult<Main$7 & V>;
 
 declare namespace AppGainforestOrganizationPredictionsFauna {
-  export { type Main$8 as Main, type Main$8 as Record, isMain$8 as isMain, isMain$8 as isRecord, validateMain$8 as validateMain, validateMain$8 as validateRecord };
+  export { type Main$7 as Main, type Main$7 as Record, isMain$7 as isMain, isMain$7 as isRecord, validateMain$7 as validateMain, validateMain$7 as validateRecord };
 }
 
-interface Main$7 {
+interface Main$6 {
     $type: 'app.gainforest.organization.predictions.flora';
     /** An array of GBIF taxon keys for each flora prediction */
     gbifTaxonKeys: string[];
@@ -293,37 +272,10 @@ interface Main$7 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$7<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.predictions.flora", "main">;
-declare function validateMain$7<V>(v: V): ValidationResult<Main$7 & V>;
-
-declare namespace AppGainforestOrganizationPredictionsFlora {
-  export { type Main$7 as Main, type Main$7 as Record, isMain$7 as isMain, isMain$7 as isRecord, validateMain$7 as validateMain, validateMain$7 as validateRecord };
-}
-
-interface Main$6 {
-    $type: 'app.gainforest.organization.project';
-    /** The name of the site */
-    name: string;
-    /** The description of the project in markdown */
-    description?: string;
-    /** The short description of the project */
-    shortDescription: string;
-    /** An array of at-uris pointing to the records of the ecocerts related to the project */
-    ecocerts: string[];
-    /** An array of at-uris pointing to the records of the layers related to the project */
-    layers: string[];
-    /** An array of at-uris pointing to the records of the sites related to the project */
-    sites: string[];
-    /** An array of at-uris pointing to the records of the measured trees clusters related to the project */
-    measuredTreesClusters: string[];
-    /** The date and time of the creation of the record */
-    createdAt: string;
-    [k: string]: unknown;
-}
-declare function isMain$6<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.project", "main">;
+declare function isMain$6<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.predictions.flora", "main">;
 declare function validateMain$6<V>(v: V): ValidationResult<Main$6 & V>;
 
-declare namespace AppGainforestOrganizationProject {
+declare namespace AppGainforestOrganizationPredictionsFlora {
   export { type Main$6 as Main, type Main$6 as Record, isMain$6 as isMain, isMain$6 as isRecord, validateMain$6 as validateMain, validateMain$6 as validateRecord };
 }
 
@@ -347,7 +299,7 @@ declare function validateMain$5<V>(v: V): ValidationResult<Main$5 & V>;
 
 interface ClaimItem {
     $type?: 'org.hypercerts.claim.collection#claimItem';
-    claim: Main$e;
+    claim: Main$c;
     /** The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100. */
     weight: string;
 }
@@ -386,7 +338,7 @@ declare namespace OrgHypercertsClaimContribution {
 
 interface Main$3 {
     $type: 'org.hypercerts.claim.evaluation';
-    subject: Main$e;
+    subject: Main$c;
     /** DIDs of the evaluators */
     evaluators: string[];
     /** Evaluation data (URIs or blobs) containing detailed reports or methodology */
@@ -395,7 +347,7 @@ interface Main$3 {
     })[];
     /** Brief evaluation summary */
     summary: string;
-    location?: Main$e;
+    location?: Main$c;
     /** Client-declared timestamp when this record was originally created */
     createdAt: string;
     [k: string]: unknown;
@@ -409,7 +361,7 @@ declare namespace OrgHypercertsClaimEvaluation {
 
 interface Main$2 {
     $type: 'org.hypercerts.claim.evidence';
-    activity?: Main$e;
+    activity?: Main$c;
     content: $Typed<Uri> | $Typed<SmallBlob$1> | {
         $type: string;
     };
@@ -432,7 +384,7 @@ declare namespace OrgHypercertsClaimEvidence {
 
 interface Main$1 {
     $type: 'org.hypercerts.claim.measurement';
-    activity: Main$e;
+    activity: Main$c;
     /** DIDs of the entity (or entities) that measured this data */
     measurers: string[];
     /** The metric being measured */
@@ -445,7 +397,7 @@ interface Main$1 {
     measurementMethodURI?: string;
     /** URIs to supporting evidence or data */
     evidenceURI?: string[];
-    location?: Main$e;
+    location?: Main$c;
     /** Client-declared timestamp when this record was originally created */
     createdAt: string;
     [k: string]: unknown;
@@ -512,19 +464,19 @@ declare class AppCertifiedLocationRecord {
         cursor?: string;
         records: {
             uri: string;
-            value: Main$f;
+            value: Main$d;
         }[];
     }>;
     get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
         uri: string;
         cid: string;
-        value: Main$f;
+        value: Main$d;
     }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$f>, headers?: Record<string, string>): Promise<{
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$d>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$f>, headers?: Record<string, string>): Promise<{
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$d>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
@@ -560,39 +512,6 @@ declare class AppGainforestOrganizationDraftEcocertRecord {
         cursor?: string;
         records: {
             uri: string;
-            value: Main$d;
-        }[];
-    }>;
-    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-        uri: string;
-        cid: string;
-        value: Main$d;
-    }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$d>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$d>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
-}
-declare class AppGainforestOrganizationObservationsNS {
-    _client: XrpcClient;
-    dendogram: AppGainforestOrganizationObservationsDendogramRecord;
-    fauna: AppGainforestOrganizationObservationsFaunaRecord;
-    flora: AppGainforestOrganizationObservationsFloraRecord;
-    measuredTreesCluster: AppGainforestOrganizationObservationsMeasuredTreesClusterRecord;
-    constructor(client: XrpcClient);
-}
-declare class AppGainforestOrganizationObservationsDendogramRecord {
-    _client: XrpcClient;
-    constructor(client: XrpcClient);
-    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-        cursor?: string;
-        records: {
-            uri: string;
             value: Main$b;
         }[];
     }>;
@@ -611,7 +530,15 @@ declare class AppGainforestOrganizationObservationsDendogramRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class AppGainforestOrganizationObservationsFaunaRecord {
+declare class AppGainforestOrganizationObservationsNS {
+    _client: XrpcClient;
+    dendogram: AppGainforestOrganizationObservationsDendogramRecord;
+    fauna: AppGainforestOrganizationObservationsFaunaRecord;
+    flora: AppGainforestOrganizationObservationsFloraRecord;
+    measuredTreesCluster: AppGainforestOrganizationObservationsMeasuredTreesClusterRecord;
+    constructor(client: XrpcClient);
+}
+declare class AppGainforestOrganizationObservationsDendogramRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -636,7 +563,7 @@ declare class AppGainforestOrganizationObservationsFaunaRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class AppGainforestOrganizationObservationsFloraRecord {
+declare class AppGainforestOrganizationObservationsFaunaRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -656,6 +583,31 @@ declare class AppGainforestOrganizationObservationsFloraRecord {
         cid: string;
     }>;
     put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$9>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
+}
+declare class AppGainforestOrganizationObservationsFloraRecord {
+    _client: XrpcClient;
+    constructor(client: XrpcClient);
+    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+        cursor?: string;
+        records: {
+            uri: string;
+            value: Main$8;
+        }[];
+    }>;
+    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+        uri: string;
+        cid: string;
+        value: Main$8;
+    }>;
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
@@ -699,31 +651,6 @@ declare class AppGainforestOrganizationPredictionsFaunaRecord {
         cursor?: string;
         records: {
             uri: string;
-            value: Main$8;
-        }[];
-    }>;
-    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-        uri: string;
-        cid: string;
-        value: Main$8;
-    }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$8>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
-}
-declare class AppGainforestOrganizationPredictionsFloraRecord {
-    _client: XrpcClient;
-    constructor(client: XrpcClient);
-    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-        cursor?: string;
-        records: {
-            uri: string;
             value: Main$7;
         }[];
     }>;
@@ -742,7 +669,82 @@ declare class AppGainforestOrganizationPredictionsFloraRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
+declare class AppGainforestOrganizationPredictionsFloraRecord {
+    _client: XrpcClient;
+    constructor(client: XrpcClient);
+    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+        cursor?: string;
+        records: {
+            uri: string;
+            value: Main$6;
+        }[];
+    }>;
+    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+        uri: string;
+        cid: string;
+        value: Main$6;
+    }>;
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$6>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$6>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
+}
 declare class AppGainforestOrganizationDefaultSiteRecord {
+    _client: XrpcClient;
+    constructor(client: XrpcClient);
+    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+        cursor?: string;
+        records: {
+            uri: string;
+            value: Main$e;
+        }[];
+    }>;
+    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+        uri: string;
+        cid: string;
+        value: Main$e;
+    }>;
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$e>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$e>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
+}
+declare class AppGainforestOrganizationInfoRecord {
+    _client: XrpcClient;
+    constructor(client: XrpcClient);
+    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
+        cursor?: string;
+        records: {
+            uri: string;
+            value: Main$f;
+        }[];
+    }>;
+    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
+        uri: string;
+        cid: string;
+        value: Main$f;
+    }>;
+    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$f>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$f>, headers?: Record<string, string>): Promise<{
+        uri: string;
+        cid: string;
+    }>;
+    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
+}
+declare class AppGainforestOrganizationLayerRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -767,7 +769,7 @@ declare class AppGainforestOrganizationDefaultSiteRecord {
     }>;
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
-declare class AppGainforestOrganizationInfoRecord {
+declare class AppGainforestOrganizationProjectRecord {
     _client: XrpcClient;
     constructor(client: XrpcClient);
     list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
@@ -787,56 +789,6 @@ declare class AppGainforestOrganizationInfoRecord {
         cid: string;
     }>;
     put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$h>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
-}
-declare class AppGainforestOrganizationLayerRecord {
-    _client: XrpcClient;
-    constructor(client: XrpcClient);
-    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-        cursor?: string;
-        records: {
-            uri: string;
-            value: Main$c;
-        }[];
-    }>;
-    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-        uri: string;
-        cid: string;
-        value: Main$c;
-    }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$c>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$c>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
-}
-declare class AppGainforestOrganizationProjectRecord {
-    _client: XrpcClient;
-    constructor(client: XrpcClient);
-    list(params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>): Promise<{
-        cursor?: string;
-        records: {
-            uri: string;
-            value: Main$6;
-        }[];
-    }>;
-    get(params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>): Promise<{
-        uri: string;
-        cid: string;
-        value: Main$6;
-    }>;
-    create(params: OmitKey<ComAtprotoRepoCreateRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$6>, headers?: Record<string, string>): Promise<{
-        uri: string;
-        cid: string;
-    }>;
-    put(params: OmitKey<ComAtprotoRepoPutRecord.InputSchema, 'collection' | 'record'>, record: Un$Typed<Main$6>, headers?: Record<string, string>): Promise<{
         uri: string;
         cid: string;
     }>;
@@ -1078,4 +1030,4 @@ declare class OrgHypercertsClaimRightsRecord {
     delete(params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>, headers?: Record<string, string>): Promise<void>;
 }
 
-export { AppCertifiedLocationRecord, AppCertifiedNS, AppGainforestNS, AppGainforestOrganizationDefaultSiteRecord, AppGainforestOrganizationDraftEcocert, AppGainforestOrganizationDraftEcocertRecord, AppGainforestOrganizationDraftNS, AppGainforestOrganizationGetIndexedOrganizations, AppGainforestOrganizationInfoRecord, AppGainforestOrganizationLayer, AppGainforestOrganizationLayerRecord, AppGainforestOrganizationNS, AppGainforestOrganizationObservationsDendogram, AppGainforestOrganizationObservationsDendogramRecord, AppGainforestOrganizationObservationsFauna, AppGainforestOrganizationObservationsFaunaRecord, AppGainforestOrganizationObservationsFlora, AppGainforestOrganizationObservationsFloraRecord, AppGainforestOrganizationObservationsMeasuredTreesClusterRecord, AppGainforestOrganizationObservationsNS, AppGainforestOrganizationPredictionsFauna, AppGainforestOrganizationPredictionsFaunaRecord, AppGainforestOrganizationPredictionsFlora, AppGainforestOrganizationPredictionsFloraRecord, AppGainforestOrganizationPredictionsNS, AppGainforestOrganizationProject, AppGainforestOrganizationProjectRecord, AppGainforestOrganizationSiteRecord, AppNS, AtpBaseClient, ComAtprotoNS, ComAtprotoRepoNS, ComNS, OrgHypercertsClaimActivityRecord, OrgHypercertsClaimCollection, OrgHypercertsClaimCollectionRecord, OrgHypercertsClaimContribution, OrgHypercertsClaimContributionRecord, OrgHypercertsClaimEvaluation, OrgHypercertsClaimEvaluationRecord, OrgHypercertsClaimEvidence, OrgHypercertsClaimEvidenceRecord, OrgHypercertsClaimMeasurement, OrgHypercertsClaimMeasurementRecord, OrgHypercertsClaimNS, OrgHypercertsClaimRights, OrgHypercertsClaimRightsRecord, OrgHypercertsNS, OrgNS };
+export { AppCertifiedLocationRecord, AppCertifiedNS, AppGainforestNS, AppGainforestOrganizationDefaultSiteRecord, AppGainforestOrganizationDraftEcocert, AppGainforestOrganizationDraftEcocertRecord, AppGainforestOrganizationDraftNS, AppGainforestOrganizationGetIndexedOrganizations, AppGainforestOrganizationInfoRecord, AppGainforestOrganizationLayerRecord, AppGainforestOrganizationNS, AppGainforestOrganizationObservationsDendogram, AppGainforestOrganizationObservationsDendogramRecord, AppGainforestOrganizationObservationsFauna, AppGainforestOrganizationObservationsFaunaRecord, AppGainforestOrganizationObservationsFlora, AppGainforestOrganizationObservationsFloraRecord, AppGainforestOrganizationObservationsMeasuredTreesClusterRecord, AppGainforestOrganizationObservationsNS, AppGainforestOrganizationPredictionsFauna, AppGainforestOrganizationPredictionsFaunaRecord, AppGainforestOrganizationPredictionsFlora, AppGainforestOrganizationPredictionsFloraRecord, AppGainforestOrganizationPredictionsNS, AppGainforestOrganizationProjectRecord, AppGainforestOrganizationSiteRecord, AppNS, AtpBaseClient, ComAtprotoNS, ComAtprotoRepoNS, ComNS, OrgHypercertsClaimActivityRecord, OrgHypercertsClaimCollection, OrgHypercertsClaimCollectionRecord, OrgHypercertsClaimContribution, OrgHypercertsClaimContributionRecord, OrgHypercertsClaimEvaluation, OrgHypercertsClaimEvaluationRecord, OrgHypercertsClaimEvidence, OrgHypercertsClaimEvidenceRecord, OrgHypercertsClaimMeasurement, OrgHypercertsClaimMeasurementRecord, OrgHypercertsClaimNS, OrgHypercertsClaimRights, OrgHypercertsClaimRightsRecord, OrgHypercertsNS, OrgNS };
