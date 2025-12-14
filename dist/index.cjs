@@ -3743,7 +3743,8 @@ var getAllProjectsFactory = (allowedPDSDomainSchema) => {
         return null;
       }
       return {
-        ...record,
+        uri: record.uri,
+        cid: record.cid,
         value: filterProjectByOwnership(validatedRecord, input.did)
       };
     }).filter((record) => record !== null);

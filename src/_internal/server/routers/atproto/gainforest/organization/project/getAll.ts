@@ -47,7 +47,8 @@ export const getAllProjectsFactory = <T extends SupportedPDSDomain>(
             return null;
           }
           return {
-            ...record,
+            uri: record.uri,
+            cid: record.cid,
             value: filterProjectByOwnership(validatedRecord, input.did),
           };
         })

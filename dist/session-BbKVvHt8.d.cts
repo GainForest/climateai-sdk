@@ -1,15 +1,15 @@
 import { JwtPayload } from '@atproto/oauth-client-node';
-import { a as $Typed } from './utils-BtB-jULs.js';
-import { M as Main, a as Main$1, b as Main$2, c as Main$3, d as Main$4, e as Main$5, f as Main$7, U as Uri, S as SmallImage, L as LargeImage, g as SmallBlob, o as LargeBlob } from './info-CAW9Nl57.js';
-import { b as BlobRefGenerator } from './blobref-e8ss-bC-.js';
+import { a as $Typed } from './utils-BtB-jULs.cjs';
+import { M as Main, a as Main$1, b as Main$2, c as Main$3, d as Main$4, e as Main$5, f as Main$7, U as Uri, S as SmallImage, L as LargeImage, g as SmallBlob, o as LargeBlob } from './info-JAV9WD3r.cjs';
+import { b as BlobRefGenerator } from './blobref-e8ss-bC-.cjs';
 import { z } from 'zod';
-import { M as Main$6, B as BlobRef } from './activity-DdmMw7Qf.js';
+import { M as Main$6, B as BlobRef } from './activity-DclFid0x.cjs';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 
@@ -167,10 +167,9 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             pdsDomain: Record<T, T>[T];
                         };
                         output: {
-                            value: Main$1;
-                            $type?: "com.atproto.repo.listRecords#record";
                             uri: string;
                             cid: string;
+                            value: Main$1;
                         }[];
                         meta: object;
                     }>;
@@ -627,10 +626,9 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             pdsDomain: Record<T, T>[T];
                         };
                         output: {
-                            value: Main$1;
-                            $type?: "com.atproto.repo.listRecords#record";
                             uri: string;
                             cid: string;
+                            value: Main$1;
                         }[];
                         meta: object;
                     }>;

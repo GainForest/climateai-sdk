@@ -4,7 +4,7 @@ import '../utils-BtB-jULs.js';
 import { M as Main } from '../info-CAW9Nl57.js';
 import { M as Main$1 } from '../activity-DdmMw7Qf.js';
 import { G as GetRecordResponse } from '../response-types-DkRV5jYn.js';
-import { S as SupportedPDSDomain } from '../session-BSIYjpcM.js';
+import { S as SupportedPDSDomain } from '../session-DPnxr57y.js';
 import 'zod';
 import 'multiformats/cid';
 import '@atproto/oauth-client-node';
