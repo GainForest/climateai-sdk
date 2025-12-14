@@ -1,13 +1,19 @@
 {
   "name": "climateai-sdk",
+  "version": "0.1.0",
+  "description": "ClimateAI SDK",
+  "license": "MIT",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
+  "scripts": {
+    "lexgen": "sh scripts/lexgen.sh",
+    "prebuild": "bun run scripts/prebuild.ts",
+    "build": "tsup --config tsup.config.ts"
+  },
   "files": [
-    "dist",
-    "lex-api",
-    "README.md"
+    "dist"
   ],
   "exports": {
     ".": {
@@ -15,78 +21,85 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./client": {
-      "types": "./dist/client/index.d.ts",
-      "import": "./dist/client/index.js",
-      "require": "./dist/client/index.cjs"
+    "./lex-api": {
+      "types": "./dist/lex-api.d.ts",
+      "import": "./dist/lex-api.js",
+      "require": "./dist/lex-api.cjs"
+    },
+    "./lex-api/utils": {
+      "types": "./dist/lex-api/utils.d.ts",
+      "import": "./dist/lex-api/utils.js",
+      "require": "./dist/lex-api/utils.cjs"
+    },
+    "./lex-api/*": {
+      "types": "./dist/lex-api/*.d.ts",
+      "import": "./dist/lex-api/*.js",
+      "require": "./dist/lex-api/*.cjs"
     },
     "./utilities": {
-      "types": "./dist/utilities/index.d.ts",
-      "import": "./dist/utilities/index.js",
-      "require": "./dist/utilities/index.cjs"
+      "types": "./dist/utilities.d.ts",
+      "import": "./dist/utilities.js",
+      "require": "./dist/utilities.cjs"
     },
-    "./utilities/transformer": {
-      "types": "./dist/utilities/transformer.d.ts",
-      "import": "./dist/utilities/transformer.js",
-      "require": "./dist/utilities/transformer.cjs"
+    "./utilities/atproto": {
+      "types": "./dist/utilities/atproto.d.ts",
+      "import": "./dist/utilities/atproto.js",
+      "require": "./dist/utilities/atproto.cjs"
     },
     "./utilities/hypercerts": {
       "types": "./dist/utilities/hypercerts.d.ts",
       "import": "./dist/utilities/hypercerts.js",
       "require": "./dist/utilities/hypercerts.cjs"
     },
+    "./utilities/transform": {
+      "types": "./dist/utilities/transform.d.ts",
+      "import": "./dist/utilities/transform.js",
+      "require": "./dist/utilities/transform.cjs"
+    },
     "./utilities/*": {
       "types": "./dist/utilities/*.d.ts",
       "import": "./dist/utilities/*.js",
       "require": "./dist/utilities/*.cjs"
     },
-    "./zod-schemas": {
-      "types": "./dist/zod-schemas/index.d.ts",
-      "import": "./dist/zod-schemas/index.js",
-      "require": "./dist/zod-schemas/index.cjs"
-    },
-    "./types": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/types/index.js",
-      "require": "./dist/types/index.cjs"
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js",
+      "require": "./dist/client.cjs"
     },
     "./session": {
-      "types": "./dist/server/session.d.ts",
-      "import": "./dist/server/session.js",
-      "require": "./dist/server/session.cjs"
+      "types": "./dist/session.d.ts",
+      "import": "./dist/session.js",
+      "require": "./dist/session.cjs"
     },
-    "./lex-api": {
-      "types": "./dist/lex-api/index.d.ts",
-      "import": "./dist/lex-api/index.js",
-      "require": "./dist/lex-api/index.cjs"
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
     },
-    "./lex-api/util": {
-      "types": "./dist/lex-api/util.d.ts",
-      "import": "./dist/lex-api/util.js",
-      "require": "./dist/lex-api/util.cjs"
+    "./zod": {
+      "types": "./dist/zod.d.ts",
+      "import": "./dist/zod.js",
+      "require": "./dist/zod.cjs"
     }
   },
   "typesVersions": {
     "*": {
       "utilities": [
-        "dist/utilities/index.d.ts"
+        "dist/utilities.d.ts"
       ],
       "utilities/*": [
         "dist/utilities/*.d.ts"
       ],
       "lex-api": [
-        "dist/lex-api/index.d.ts"
+        "dist/lex-api.d.ts"
       ],
       "lex-api/*": [
         "dist/lex-api/*.d.ts"
       ]
     }
   },
+  "sideEffects": false,
   "private": true,
-  "scripts": {
-    "lexgen": "sh scripts/lexgen.sh",
-    "build": "tsup --config tsup.config.ts"
-  },
   "devDependencies": {
     "@atproto/lex-cli": "^0.9.7",
     "@types/bun": "latest",

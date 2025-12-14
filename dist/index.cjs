@@ -1,50 +1,34 @@
-"use strict";
-var __create = Object.create;
+'use strict';
+
+var z11 = require('zod');
+var api = require('@atproto/api');
+var server = require('@trpc/server');
+var headers = require('next/headers');
+var jose = require('jose');
+var superjson = require('superjson');
+var cid = require('multiformats/cid');
+var xrpc = require('@atproto/xrpc');
+var lexicon = require('@atproto/lexicon');
+var turf = require('@turf/turf');
+
+function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
+
+var z11__default = /*#__PURE__*/_interopDefault(z11);
+var superjson__default = /*#__PURE__*/_interopDefault(superjson);
+
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  ClimateAiSDK: () => ClimateAiSDK,
-  createContext: () => createContext,
-  supportedPDSDomainSchema: () => supportedPDSDomainSchema
-});
-module.exports = __toCommonJS(src_exports);
-var import_zod23 = require("zod");
-
-// src/utilities/getBlobUrl.ts
-var import_api = require("@atproto/api");
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 var getBlobUrl = (did, imageData, pdsDomain) => {
   if (typeof imageData === "string") {
     const imageUrl = new URL(imageData);
     return imageUrl.toString();
   }
-  const isBlobRef = imageData instanceof import_api.BlobRef || "ref" in imageData && "mimeType" in imageData && "size" in imageData;
+  const isBlobRef = imageData instanceof api.BlobRef || "ref" in imageData && "mimeType" in imageData && "size" in imageData;
   if (isBlobRef) {
     const ref = imageData.ref;
     const cid = typeof ref === "string" ? ref : ref?.$link ?? String(ref);
@@ -78,9 +62,8 @@ var getBlobUrl = (did, imageData, pdsDomain) => {
   const imageDataTypeCheck = imageData;
   return imageDataTypeCheck;
 };
-var getBlobUrl_default = getBlobUrl;
 
-// src/utilities/parseAtUri.ts
+// src/_internal/utilities/atproto/parseAtUri.ts
 var parseAtUri = (atUri) => {
   let cleanedAtUri = atUri.replace("at://", "");
   const splitUri = cleanedAtUri.split("/");
@@ -89,280 +72,22 @@ var parseAtUri = (atUri) => {
   const rkey = splitUri.at(2) ?? "self";
   return { did, collection, rkey };
 };
-var parseAtUri_default = parseAtUri;
-
-// src/lib/geojson/validate.ts
-function validateGeojsonOrThrow(value) {
-  if (value === null || typeof value !== "object") {
-    throw new Error("GeoJSON must be an object");
-  }
-  const obj = value;
-  if (!("type" in obj) || typeof obj.type !== "string") {
-    throw new Error("GeoJSON must have a 'type' property of type string");
-  }
-  const type = obj.type;
-  if (type === "FeatureCollection") {
-    if (!("features" in obj) || !Array.isArray(obj.features)) {
-      throw new Error(
-        "FeatureCollection must have a 'features' property of type array"
-      );
-    }
-    for (let i = 0; i < obj.features.length; i++) {
-      try {
-        validateGeojsonOrThrow(obj.features[i]);
-      } catch (error) {
-        throw new Error(
-          `FeatureCollection.features[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-        );
-      }
-    }
-    return obj;
-  }
-  if (type === "Feature") {
-    if (!("geometry" in obj)) {
-      throw new Error("Feature must have a 'geometry' property");
-    }
-    if (obj.geometry !== null) {
-      try {
-        validateGeometry(obj.geometry);
-      } catch (error) {
-        throw new Error(
-          `Feature.geometry is invalid: ${error instanceof Error ? error.message : String(error)}`
-        );
-      }
-    }
-    if (!("properties" in obj)) {
-      throw new Error("Feature must have a 'properties' property");
-    }
-    if (obj.properties !== null && typeof obj.properties !== "object") {
-      throw new Error("Feature.properties must be an object or null");
-    }
-    return obj;
-  }
-  try {
-    validateGeometry(obj);
-    return obj;
-  } catch (error) {
-    throw new Error(
-      `Invalid GeoJSON type '${type}': ${error instanceof Error ? error.message : String(error)}`
-    );
-  }
-}
-function validateGeometry(value) {
-  if (value === null || typeof value !== "object") {
-    throw new Error("Geometry must be an object");
-  }
-  const geometry = value;
-  if (!("type" in geometry) || typeof geometry.type !== "string") {
-    throw new Error("Geometry must have a 'type' property of type string");
-  }
-  const type = geometry.type;
-  if (type === "GeometryCollection") {
-    if (!("geometries" in geometry) || !Array.isArray(geometry.geometries)) {
-      throw new Error(
-        "GeometryCollection must have a 'geometries' property of type array"
-      );
-    }
-    for (let i = 0; i < geometry.geometries.length; i++) {
-      try {
-        validateGeometry(geometry.geometries[i]);
-      } catch (error) {
-        throw new Error(
-          `GeometryCollection.geometries[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-        );
-      }
-    }
-    return;
-  }
-  const coordinateGeometries = [
-    "Point",
-    "LineString",
-    "Polygon",
-    "MultiPoint",
-    "MultiLineString",
-    "MultiPolygon"
-  ];
-  if (coordinateGeometries.includes(type)) {
-    if (!("coordinates" in geometry)) {
-      throw new Error(`${type} must have a 'coordinates' property`);
-    }
-    validateCoordinates(geometry.coordinates, type);
-    return;
-  }
-  throw new Error(`Unknown geometry type: ${type}`);
-}
-function validateCoordinates(coordinates, type) {
-  if (!Array.isArray(coordinates)) {
-    throw new Error("Coordinates must be an array");
-  }
-  switch (type) {
-    case "Point":
-      validatePosition(coordinates);
-      break;
-    case "LineString":
-      validateLineString(coordinates);
-      break;
-    case "Polygon":
-      validatePolygon(coordinates);
-      break;
-    case "MultiPoint":
-      validateMultiPoint(coordinates);
-      break;
-    case "MultiLineString":
-      validateMultiLineString(coordinates);
-      break;
-    case "MultiPolygon":
-      validateMultiPolygon(coordinates);
-      break;
-  }
-}
-function validatePosition(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("Position must be an array");
-  }
-  if (value.length < 2) {
-    throw new Error(
-      "Position must have at least 2 elements (longitude, latitude)"
-    );
-  }
-  if (typeof value[0] !== "number" || typeof value[1] !== "number") {
-    throw new Error("Position must have numbers for longitude and latitude");
-  }
-  if (value.length > 2 && typeof value[2] !== "number") {
-    throw new Error(
-      "Position elevation (3rd element) must be a number if present"
-    );
-  }
-  if (value[0] < -180 || value[0] > 180) {
-    throw new Error("Longitude must be between -180 and 180");
-  }
-  if (value[1] < -90 || value[1] > 90) {
-    throw new Error("Latitude must be between -90 and 90");
-  }
-}
-function validateLineString(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("LineString must be an array");
-  }
-  if (value.length < 2) {
-    throw new Error("LineString must have at least 2 positions");
-  }
-  for (let i = 0; i < value.length; i++) {
-    try {
-      validatePosition(value[i]);
-    } catch (error) {
-      throw new Error(
-        `LineString[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-}
-function validatePolygon(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("Polygon must be an array");
-  }
-  if (value.length === 0) {
-    throw new Error("Polygon must have at least one LinearRing");
-  }
-  for (let i = 0; i < value.length; i++) {
-    try {
-      validateLinearRing(value[i]);
-    } catch (error) {
-      throw new Error(
-        `Polygon[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-}
-function validateLinearRing(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("LinearRing must be an array");
-  }
-  if (value.length < 4) {
-    throw new Error("LinearRing must have at least 4 positions");
-  }
-  for (let i = 0; i < value.length; i++) {
-    try {
-      validatePosition(value[i]);
-    } catch (error) {
-      throw new Error(
-        `LinearRing[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-  const first = value[0];
-  const last = value[value.length - 1];
-  if (first[0] !== last[0] || first[1] !== last[1] || first.length > 2 && first[2] !== last[2]) {
-    throw new Error(
-      "LinearRing must be closed (first and last positions must be equal)"
-    );
-  }
-}
-function validateMultiPoint(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("MultiPoint must be an array");
-  }
-  for (let i = 0; i < value.length; i++) {
-    try {
-      validatePosition(value[i]);
-    } catch (error) {
-      throw new Error(
-        `MultiPoint[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-}
-function validateMultiLineString(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("MultiLineString must be an array");
-  }
-  for (let i = 0; i < value.length; i++) {
-    try {
-      validateLineString(value[i]);
-    } catch (error) {
-      throw new Error(
-        `MultiLineString[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-}
-function validateMultiPolygon(value) {
-  if (!Array.isArray(value)) {
-    throw new Error("MultiPolygon must be an array");
-  }
-  for (let i = 0; i < value.length; i++) {
-    try {
-      validatePolygon(value[i]);
-    } catch (error) {
-      throw new Error(
-        `MultiPolygon[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
-  }
-}
-
-// src/server/trpc.ts
-var import_server = require("@trpc/server");
-
-// src/server/session.ts
-var import_headers = require("next/headers");
-var import_jose = require("jose");
 var SECRET_KEY = new TextEncoder().encode(
   process.env.COOKIE_SECRET || "your-secret-key-min-32-chars-long"
 );
 async function encrypt(payload) {
-  return await new import_jose.SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(SECRET_KEY);
+  return await new jose.SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(SECRET_KEY);
 }
 async function decrypt(token) {
   try {
-    const { payload } = await (0, import_jose.jwtVerify)(token, SECRET_KEY);
+    const { payload } = await jose.jwtVerify(token, SECRET_KEY);
     return payload;
   } catch {
     return null;
   }
 }
 async function getSessionFromRequest(service = "climateai.org") {
-  const cookieStore = await (0, import_headers.cookies)();
+  const cookieStore = await headers.cookies();
   const encryptedSession = cookieStore.get(`${service}_session`);
   if (!encryptedSession) {
     return null;
@@ -370,7 +95,7 @@ async function getSessionFromRequest(service = "climateai.org") {
   return await decrypt(encryptedSession.value);
 }
 async function saveSession(session, service = "climateai.org") {
-  const cookieStore = await (0, import_headers.cookies)();
+  const cookieStore = await headers.cookies();
   const encrypted = await encrypt(session);
   cookieStore.set(`${service}_session`, encrypted, {
     httpOnly: true,
@@ -382,30 +107,22 @@ async function saveSession(session, service = "climateai.org") {
   return encrypted;
 }
 async function clearSession(service = "climateai.org") {
-  const cookieStore = await (0, import_headers.cookies)();
+  const cookieStore = await headers.cookies();
   cookieStore.delete(`${service}_session`);
 }
-
-// src/utilities/transformer.ts
-var import_superjson = __toESM(require("superjson"), 1);
-
-// src/zod-schemas/blobref.ts
-var import_zod = __toESM(require("zod"), 1);
-var import_cid = require("multiformats/cid");
-var import_api2 = require("@atproto/api");
-var BlobRefGeneratorSchema = import_zod.default.object({
-  $type: import_zod.default.literal("blob-ref-generator"),
-  ref: import_zod.default.object({
-    $link: import_zod.default.string()
+var BlobRefGeneratorSchema = z11__default.default.object({
+  $type: z11__default.default.literal("blob-ref-generator"),
+  ref: z11__default.default.object({
+    $link: z11__default.default.string()
   }),
-  mimeType: import_zod.default.string(),
-  size: import_zod.default.number()
+  mimeType: z11__default.default.string(),
+  size: z11__default.default.number()
 });
 var toBlobRef = (input) => {
-  const validCID = import_cid.CID.parse(
+  const validCID = cid.CID.parse(
     input.ref.$link
   );
-  return import_api2.BlobRef.fromJsonRef({
+  return api.BlobRef.fromJsonRef({
     $type: "blob",
     ref: validCID,
     mimeType: input.mimeType,
@@ -422,12 +139,12 @@ var toBlobRefGenerator = (blobRef) => {
   };
 };
 
-// src/lib/isObject.ts
+// src/_internal/lib/isObject.ts
 var isObject = (value) => {
   return typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof RegExp) && !(value instanceof Date) && !(value instanceof Set) && !(value instanceof Map);
 };
 
-// src/utilities/transformer.ts
+// src/_internal/utilities/transform/index.ts
 var _serialize = (data) => {
   return JSON.parse(JSON.stringify(data));
 };
@@ -454,57 +171,50 @@ var _deserialize = (data) => {
 var customTransformer = {
   serialize: (object) => {
     const atprotoSerialized = _serialize(object);
-    const serializedObject = import_superjson.default.serialize(atprotoSerialized);
+    const serializedObject = superjson__default.default.serialize(atprotoSerialized);
     return serializedObject;
   },
   deserialize: (object) => {
-    const superjsonDeserialized = import_superjson.default.deserialize(object);
+    const superjsonDeserialized = superjson__default.default.deserialize(object);
     const deserializedObject = _deserialize(superjsonDeserialized);
     return deserializedObject;
   }
 };
 
-// src/server/trpc.ts
+// src/_internal/server/trpc.ts
 async function createContext(opts) {
   const session = opts?.req ? await getSessionFromRequest(opts.allowedPDSDomains[0]) : null;
   return {
     session
   };
 }
-var t = import_server.initTRPC.context().create({
+var t = server.initTRPC.context().create({
   transformer: customTransformer
 });
 var createTRPCRouter = t.router;
 var publicProcedure = t.procedure;
 var protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session) {
-    throw new import_server.TRPCError({
+    throw new server.TRPCError({
       code: "UNAUTHORIZED",
       message: "You must be logged in"
     });
   }
   return next({ ctx });
 });
-
-// src/server/routers/atproto/common/uploadFileAsBlob.ts
-var import_zod3 = __toESM(require("zod"), 1);
-
-// src/server/utils/agent.ts
-var import_api3 = require("@atproto/api");
-var import_server2 = require("@trpc/server");
 var getReadAgent = (pdsDomain) => {
-  return new import_api3.Agent({
+  return new api.Agent({
     service: new URL(`https://${pdsDomain}`)
   });
 };
 var getWriteAgent = async (pdsDomain) => {
   const session = await getSessionFromRequest(pdsDomain);
   if (!session)
-    throw new import_server2.TRPCError({
+    throw new server.TRPCError({
       code: "UNAUTHORIZED",
       message: "You are not authorized."
     });
-  const credentialSession = new import_api3.CredentialSession(
+  const credentialSession = new api.CredentialSession(
     new URL(`https://${pdsDomain}`)
   );
   const result = await credentialSession.resumeSession({
@@ -515,19 +225,16 @@ var getWriteAgent = async (pdsDomain) => {
     active: true
   });
   if (!result.success)
-    throw new import_server2.TRPCError({
+    throw new server.TRPCError({
       code: "UNAUTHORIZED",
       message: "Failed to resume session."
     });
-  return new import_api3.Agent(credentialSession);
+  return new api.Agent(credentialSession);
 };
-
-// src/zod-schemas/file.ts
-var import_zod2 = __toESM(require("zod"), 1);
-var FileGeneratorSchema = import_zod2.default.object({
-  name: import_zod2.default.string(),
-  type: import_zod2.default.string(),
-  dataBase64: import_zod2.default.string()
+var FileGeneratorSchema = z11__default.default.object({
+  name: z11__default.default.string(),
+  type: z11__default.default.string(),
+  dataBase64: z11__default.default.string()
 });
 var toFile = async (fileGenerator) => {
   const file2 = new File(
@@ -537,9 +244,6 @@ var toFile = async (fileGenerator) => {
   );
   return file2;
 };
-
-// src/server/routers/atproto/common/uploadFileAsBlob.ts
-var import_server3 = require("@trpc/server");
 var uploadFileAsBlobPure = async (file2, agent) => {
   let fileToUpload;
   if (file2 instanceof File) {
@@ -549,7 +253,7 @@ var uploadFileAsBlobPure = async (file2, agent) => {
   }
   const response = await agent.uploadBlob(fileToUpload);
   if (response.success !== true) {
-    throw new import_server3.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to upload file as blob."
     });
@@ -558,7 +262,7 @@ var uploadFileAsBlobPure = async (file2, agent) => {
 };
 var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod3.default.object({
+    z11__default.default.object({
       file: FileGeneratorSchema,
       pdsDomain: allowedPDSDomainSchema
     })
@@ -568,21 +272,16 @@ var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
     return response;
   });
 };
-
-// src/server/routers/atproto/auth/login.ts
-var import_api4 = require("@atproto/api");
-var import_server4 = require("@trpc/server");
-var import_zod4 = __toESM(require("zod"), 1);
 var loginFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod4.default.object({
-      handlePrefix: import_zod4.default.string().regex(/^^[a-zA-Z0-9-]+$/),
+    z11__default.default.object({
+      handlePrefix: z11__default.default.string().regex(/^^[a-zA-Z0-9-]+$/),
       // alphanumerics and hyphens only
       service: allowedPDSDomainSchema,
-      password: import_zod4.default.string()
+      password: z11__default.default.string()
     })
   ).mutation(async ({ input }) => {
-    const session = new import_api4.CredentialSession(
+    const session = new api.CredentialSession(
       new URL(`https://${input.service}`)
     );
     const result = await session.login({
@@ -590,7 +289,7 @@ var loginFactory = (allowedPDSDomainSchema) => {
       password: input.password
     });
     if (!result.success) {
-      throw new import_server4.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Login failed"
       });
@@ -603,40 +302,35 @@ var loginFactory = (allowedPDSDomainSchema) => {
     };
     await saveSession(context, input.service);
     return {
-      context,
+      did: context.did,
+      handle: context.handle,
       service: input.service
     };
   });
 };
-
-// src/server/routers/atproto/auth/resume.ts
-var import_server5 = require("@trpc/server");
-var import_zod5 = __toESM(require("zod"), 1);
 var resumeFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod5.default.object({
+    z11__default.default.object({
       service: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
     const session = await getSessionFromRequest(input.service);
     if (!session) {
-      throw new import_server5.TRPCError({
+      throw new server.TRPCError({
         code: "UNAUTHORIZED",
         message: "No session found"
       });
     }
     return {
-      context: session,
+      did: session.did,
+      handle: session.handle,
       service: input.service
     };
   });
 };
-
-// src/server/routers/atproto/auth/logout.ts
-var import_zod6 = __toESM(require("zod"), 1);
 var logoutFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod6.default.object({
+    z11__default.default.object({
       service: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -647,10 +341,7 @@ var logoutFactory = (allowedPDSDomainSchema) => {
   });
 };
 
-// src/server/routers/atproto/gainforest/organizationInfo/get.ts
-var import_zod7 = require("zod");
-
-// src/lib/tryCatch.ts
+// src/_internal/lib/tryCatch.ts
 var tryCatch = async (promise) => {
   try {
     const result = await promise;
@@ -659,15 +350,6 @@ var tryCatch = async (promise) => {
     return [null, error];
   }
 };
-
-// src/server/routers/atproto/gainforest/organizationInfo/get.ts
-var import_xrpc2 = require("@atproto/xrpc");
-
-// lex-api/index.ts
-var import_xrpc = require("@atproto/xrpc");
-
-// lex-api/lexicons.ts
-var import_lexicon = require("@atproto/lexicon");
 
 // lex-api/util.ts
 function isObject2(v) {
@@ -1966,11 +1648,11 @@ var schemaDict = {
   }
 };
 var schemas = Object.values(schemaDict);
-var lexicons = new import_lexicon.Lexicons(schemas);
+var lexicons = new lexicon.Lexicons(schemas);
 function validate(v, id8, hash, requiredType) {
   return (requiredType ? is$typed : maybe$typed)(v, id8, hash) ? lexicons.validate(`${id8}#${hash}`, v) : {
     success: false,
-    error: new import_lexicon.ValidationError(
+    error: new lexicon.ValidationError(
       `Must be an object with "${hash === "main" ? id8 : `${id8}#${hash}`}" $type property`
     )
   };
@@ -2117,38 +1799,29 @@ function isMain7(v) {
 function validateMain7(v) {
   return validate8(v, id7, hashMain7, true);
 }
-
-// src/server/utils/classify-xrpc-error.ts
-var import_server6 = require("@trpc/server");
 var xrpcErrorToTRPCError = (error) => {
   if (error.error === "InvalidRequest") {
-    return new import_server6.TRPCError({
+    return new server.TRPCError({
       code: "BAD_REQUEST",
       message: "This resource does not exist."
     });
   } else if (error.error === "RecordNotFound") {
-    return new import_server6.TRPCError({
+    return new server.TRPCError({
       code: "NOT_FOUND",
       message: "The resource you are looking for does not exist."
     });
   } else {
     console.error("xrpc error could not be classified by trpc. error:", error);
-    return new import_server6.TRPCError({
+    return new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred."
     });
   }
 };
-
-// src/server/routers/atproto/gainforest/organizationInfo/get.ts
-var import_server8 = require("@trpc/server");
-
-// src/server/utils/validate-record-or-throw.ts
-var import_server7 = require("@trpc/server");
 var validateRecordOrThrow = (record, { validateRecord }) => {
   const validation = validateRecord(record);
   if (!validation.success) {
-    throw new import_server7.TRPCError({
+    throw new server.TRPCError({
       code: "UNPROCESSABLE_CONTENT",
       message: validation.error.message,
       cause: validation.error
@@ -2157,7 +1830,7 @@ var validateRecordOrThrow = (record, { validateRecord }) => {
   return record;
 };
 
-// src/server/routers/atproto/gainforest/organizationInfo/get.ts
+// src/_internal/server/routers/atproto/gainforest/organizationInfo/get.ts
 var getOrganizationInfoPure = async (did, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   console.log("TEMP DEBUG LOG:", JSON.stringify({ did, pdsDomain }));
@@ -2168,12 +1841,12 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
   });
   const [response, error] = await tryCatch(getRecordPromise);
   if (error) {
-    if (error instanceof import_xrpc2.XRPCError) {
+    if (error instanceof xrpc.XRPCError) {
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
       console.error("getOrganizationInfo error:", error);
-      throw new import_server8.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
       });
@@ -2181,7 +1854,7 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
   }
   if (response.success !== true) {
     console.error("getOrganizationInfo error: response.success is not true");
-    throw new import_server8.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info."
     });
@@ -2190,18 +1863,15 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
   return response.data;
 };
 var getOrganizationInfoFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(import_zod7.z.object({ did: import_zod7.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(z11.z.object({ did: z11.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     return await getOrganizationInfoPure(input.did, input.pdsDomain);
   });
 };
-
-// src/server/routers/atproto/gainforest/site/get.ts
-var import_zod8 = require("zod");
 var getSiteFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod8.z.object({
-      did: import_zod8.z.string(),
-      rkey: import_zod8.z.string(),
+    z11.z.object({
+      did: z11.z.string(),
+      rkey: z11.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2218,13 +1888,10 @@ var getSiteFactory = (allowedPDSDomainSchema) => {
     return response.data;
   });
 };
-
-// src/server/routers/atproto/gainforest/site/getDefault.ts
-var import_zod9 = __toESM(require("zod"), 1);
 var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod9.default.object({
-      did: import_zod9.default.string(),
+    z11__default.default.object({
+      did: z11__default.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2244,13 +1911,10 @@ var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
     return response.data;
   });
 };
-
-// src/server/routers/atproto/gainforest/measuredTrees/get.ts
-var import_zod10 = __toESM(require("zod"), 1);
 var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod10.default.object({
-      did: import_zod10.default.string(),
+    z11__default.default.object({
+      did: z11__default.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2268,10 +1932,6 @@ var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
     return response.data;
   });
 };
-
-// src/server/routers/atproto/hypercerts/claim/activity/create.ts
-var import_zod11 = __toESM(require("zod"), 1);
-var import_server9 = require("@trpc/server");
 var uploadFile = async (fileGenerator, agent) => {
   const file2 = new File(
     [Buffer.from(fileGenerator.dataBase64, "base64")],
@@ -2283,21 +1943,21 @@ var uploadFile = async (fileGenerator, agent) => {
 };
 var createClaimActivityFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod11.default.object({
-      activity: import_zod11.default.object({
-        title: import_zod11.default.string(),
-        shortDescription: import_zod11.default.string(),
-        description: import_zod11.default.string().optional(),
-        workScopes: import_zod11.default.array(import_zod11.default.string()),
-        startDate: import_zod11.default.string(),
-        endDate: import_zod11.default.string()
+    z11__default.default.object({
+      activity: z11__default.default.object({
+        title: z11__default.default.string(),
+        shortDescription: z11__default.default.string(),
+        description: z11__default.default.string().optional(),
+        workScopes: z11__default.default.array(z11__default.default.string()),
+        startDate: z11__default.default.string(),
+        endDate: z11__default.default.string()
       }),
-      uploads: import_zod11.default.object({
+      uploads: z11__default.default.object({
         image: FileGeneratorSchema,
-        contributors: import_zod11.default.array(import_zod11.default.string()).refine((v) => v.length > 0, {
+        contributors: z11__default.default.array(z11__default.default.string()).refine((v) => v.length > 0, {
           message: "At least one contribution is required"
         }),
-        siteAtUri: import_zod11.default.string()
+        siteAtUri: z11__default.default.string()
       }),
       pdsDomain: allowedPDSDomainSchema
     })
@@ -2305,7 +1965,7 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
     const agent = await getWriteAgent(input.pdsDomain);
     const did = agent.did;
     if (!did) {
-      throw new import_server9.TRPCError({
+      throw new server.TRPCError({
         code: "UNAUTHORIZED",
         message: "You are not authorized to perform this action."
       });
@@ -2373,7 +2033,7 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
       record: validatedLocation
     });
     if (locationWriteResponse.success !== true) {
-      throw new import_server9.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to write location record"
       });
@@ -2396,7 +2056,7 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
       }
     });
     if (activityResponse.success !== true) {
-      throw new import_server9.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to write activity record"
       });
@@ -2414,7 +2074,7 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
       }
     });
     if (contributionWriteResponse.success !== true) {
-      throw new import_server9.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to write contribution record"
       });
@@ -2422,23 +2082,19 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
     return activityResponse;
   });
 };
-
-// src/server/routers/atproto/gainforest/organizationInfo/createOrUpdate.ts
-var import_zod12 = __toESM(require("zod"), 1);
-var import_server10 = require("@trpc/server");
 var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod12.default.object({
-      did: import_zod12.default.string(),
-      info: import_zod12.default.object({
-        displayName: import_zod12.default.string(),
-        shortDescription: import_zod12.default.string(),
-        longDescription: import_zod12.default.string(),
-        website: import_zod12.default.string().optional(),
+    z11__default.default.object({
+      did: z11__default.default.string(),
+      info: z11__default.default.object({
+        displayName: z11__default.default.string(),
+        shortDescription: z11__default.default.string(),
+        longDescription: z11__default.default.string(),
+        website: z11__default.default.string().optional(),
         logo: BlobRefGeneratorSchema.optional(),
         coverImage: BlobRefGeneratorSchema.optional(),
-        objectives: import_zod12.default.array(
-          import_zod12.default.enum([
+        objectives: z11__default.default.array(
+          z11__default.default.enum([
             "Conservation",
             "Research",
             "Education",
@@ -2446,11 +2102,11 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
             "Other"
           ])
         ),
-        startDate: import_zod12.default.string().optional(),
-        country: import_zod12.default.string(),
-        visibility: import_zod12.default.enum(["Public", "Hidden"])
+        startDate: z11__default.default.string().optional(),
+        country: z11__default.default.string(),
+        visibility: z11__default.default.enum(["Public", "Hidden"])
       }),
-      uploads: import_zod12.default.object({
+      uploads: z11__default.default.object({
         logo: FileGeneratorSchema.optional(),
         coverImage: FileGeneratorSchema.optional()
       }).optional(),
@@ -2488,7 +2144,7 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
       rkey: "self"
     });
     if (response.success !== true) {
-      throw new import_server10.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to update organization info"
       });
@@ -2499,13 +2155,8 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
     };
   });
 };
-
-// src/server/routers/atproto/gainforest/site/getAll.ts
-var import_zod13 = require("zod");
-var import_server11 = require("@trpc/server");
-var import_xrpc3 = require("@atproto/xrpc");
 var getAllSitesFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(import_zod13.z.object({ did: import_zod13.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(z11.z.object({ did: z11.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const listSitesTryCatchPromise = tryCatch(
       agent.com.atproto.repo.listRecords({
@@ -2528,16 +2179,16 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
       getDefaultSiteTryCatchPromise
     ]);
     if (errorListSites) {
-      if (errorListSites instanceof import_xrpc3.XRPCError) {
+      if (errorListSites instanceof xrpc.XRPCError) {
         const trpcError = xrpcErrorToTRPCError(errorListSites);
         throw trpcError;
       }
-      throw new import_server11.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
       });
     } else if (listSitesResponse.success !== true) {
-      throw new import_server11.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
       });
@@ -2571,15 +2222,255 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
   });
 };
 
-// src/server/routers/atproto/gainforest/site/create.ts
-var import_zod14 = require("zod");
-var import_server13 = require("@trpc/server");
-
-// src/server/routers/atproto/gainforest/site/utils.ts
-var import_server12 = require("@trpc/server");
-
-// src/lib/geojson/computations.ts
-var import_turf = require("@turf/turf");
+// src/_internal/lib/geojson/validate.ts
+function validateGeojsonOrThrow(value) {
+  if (value === null || typeof value !== "object") {
+    throw new Error("GeoJSON must be an object");
+  }
+  const obj = value;
+  if (!("type" in obj) || typeof obj.type !== "string") {
+    throw new Error("GeoJSON must have a 'type' property of type string");
+  }
+  const type = obj.type;
+  if (type === "FeatureCollection") {
+    if (!("features" in obj) || !Array.isArray(obj.features)) {
+      throw new Error(
+        "FeatureCollection must have a 'features' property of type array"
+      );
+    }
+    for (let i = 0; i < obj.features.length; i++) {
+      try {
+        validateGeojsonOrThrow(obj.features[i]);
+      } catch (error) {
+        throw new Error(
+          `FeatureCollection.features[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    }
+    return obj;
+  }
+  if (type === "Feature") {
+    if (!("geometry" in obj)) {
+      throw new Error("Feature must have a 'geometry' property");
+    }
+    if (obj.geometry !== null) {
+      try {
+        validateGeometry(obj.geometry);
+      } catch (error) {
+        throw new Error(
+          `Feature.geometry is invalid: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    }
+    if (!("properties" in obj)) {
+      throw new Error("Feature must have a 'properties' property");
+    }
+    if (obj.properties !== null && typeof obj.properties !== "object") {
+      throw new Error("Feature.properties must be an object or null");
+    }
+    return obj;
+  }
+  try {
+    validateGeometry(obj);
+    return obj;
+  } catch (error) {
+    throw new Error(
+      `Invalid GeoJSON type '${type}': ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+}
+function validateGeometry(value) {
+  if (value === null || typeof value !== "object") {
+    throw new Error("Geometry must be an object");
+  }
+  const geometry = value;
+  if (!("type" in geometry) || typeof geometry.type !== "string") {
+    throw new Error("Geometry must have a 'type' property of type string");
+  }
+  const type = geometry.type;
+  if (type === "GeometryCollection") {
+    if (!("geometries" in geometry) || !Array.isArray(geometry.geometries)) {
+      throw new Error(
+        "GeometryCollection must have a 'geometries' property of type array"
+      );
+    }
+    for (let i = 0; i < geometry.geometries.length; i++) {
+      try {
+        validateGeometry(geometry.geometries[i]);
+      } catch (error) {
+        throw new Error(
+          `GeometryCollection.geometries[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    }
+    return;
+  }
+  const coordinateGeometries = [
+    "Point",
+    "LineString",
+    "Polygon",
+    "MultiPoint",
+    "MultiLineString",
+    "MultiPolygon"
+  ];
+  if (coordinateGeometries.includes(type)) {
+    if (!("coordinates" in geometry)) {
+      throw new Error(`${type} must have a 'coordinates' property`);
+    }
+    validateCoordinates(geometry.coordinates, type);
+    return;
+  }
+  throw new Error(`Unknown geometry type: ${type}`);
+}
+function validateCoordinates(coordinates, type) {
+  if (!Array.isArray(coordinates)) {
+    throw new Error("Coordinates must be an array");
+  }
+  switch (type) {
+    case "Point":
+      validatePosition(coordinates);
+      break;
+    case "LineString":
+      validateLineString(coordinates);
+      break;
+    case "Polygon":
+      validatePolygon(coordinates);
+      break;
+    case "MultiPoint":
+      validateMultiPoint(coordinates);
+      break;
+    case "MultiLineString":
+      validateMultiLineString(coordinates);
+      break;
+    case "MultiPolygon":
+      validateMultiPolygon(coordinates);
+      break;
+  }
+}
+function validatePosition(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("Position must be an array");
+  }
+  if (value.length < 2) {
+    throw new Error(
+      "Position must have at least 2 elements (longitude, latitude)"
+    );
+  }
+  if (typeof value[0] !== "number" || typeof value[1] !== "number") {
+    throw new Error("Position must have numbers for longitude and latitude");
+  }
+  if (value.length > 2 && typeof value[2] !== "number") {
+    throw new Error(
+      "Position elevation (3rd element) must be a number if present"
+    );
+  }
+  if (value[0] < -180 || value[0] > 180) {
+    throw new Error("Longitude must be between -180 and 180");
+  }
+  if (value[1] < -90 || value[1] > 90) {
+    throw new Error("Latitude must be between -90 and 90");
+  }
+}
+function validateLineString(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("LineString must be an array");
+  }
+  if (value.length < 2) {
+    throw new Error("LineString must have at least 2 positions");
+  }
+  for (let i = 0; i < value.length; i++) {
+    try {
+      validatePosition(value[i]);
+    } catch (error) {
+      throw new Error(
+        `LineString[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+}
+function validatePolygon(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("Polygon must be an array");
+  }
+  if (value.length === 0) {
+    throw new Error("Polygon must have at least one LinearRing");
+  }
+  for (let i = 0; i < value.length; i++) {
+    try {
+      validateLinearRing(value[i]);
+    } catch (error) {
+      throw new Error(
+        `Polygon[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+}
+function validateLinearRing(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("LinearRing must be an array");
+  }
+  if (value.length < 4) {
+    throw new Error("LinearRing must have at least 4 positions");
+  }
+  for (let i = 0; i < value.length; i++) {
+    try {
+      validatePosition(value[i]);
+    } catch (error) {
+      throw new Error(
+        `LinearRing[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+  const first = value[0];
+  const last = value[value.length - 1];
+  if (first[0] !== last[0] || first[1] !== last[1] || first.length > 2 && first[2] !== last[2]) {
+    throw new Error(
+      "LinearRing must be closed (first and last positions must be equal)"
+    );
+  }
+}
+function validateMultiPoint(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("MultiPoint must be an array");
+  }
+  for (let i = 0; i < value.length; i++) {
+    try {
+      validatePosition(value[i]);
+    } catch (error) {
+      throw new Error(
+        `MultiPoint[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+}
+function validateMultiLineString(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("MultiLineString must be an array");
+  }
+  for (let i = 0; i < value.length; i++) {
+    try {
+      validateLineString(value[i]);
+    } catch (error) {
+      throw new Error(
+        `MultiLineString[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+}
+function validateMultiPolygon(value) {
+  if (!Array.isArray(value)) {
+    throw new Error("MultiPolygon must be an array");
+  }
+  for (let i = 0; i < value.length; i++) {
+    try {
+      validatePolygon(value[i]);
+    } catch (error) {
+      throw new Error(
+        `MultiPolygon[${i}] is invalid: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+  }
+}
 var HECTARES_PER_SQUARE_METER = 1e-4;
 var isFeatureCollection = (value) => value.type === "FeatureCollection";
 var isFeature = (value) => value.type === "Feature";
@@ -2621,13 +2512,13 @@ var extractPolygonFeatures = (input) => {
 };
 var computeCentroid = (features) => {
   if (features.length === 0) return null;
-  const collection = (0, import_turf.featureCollection)(features);
+  const collection = turf.featureCollection(features);
   try {
-    const { geometry } = (0, import_turf.centerOfMass)(collection);
+    const { geometry } = turf.centerOfMass(collection);
     return geometry.coordinates;
   } catch {
     try {
-      const { geometry } = (0, import_turf.centroid)(collection);
+      const { geometry } = turf.centroid(collection);
       return geometry.coordinates;
     } catch {
       return null;
@@ -2645,11 +2536,11 @@ var computePolygonMetrics = (geoJson) => {
     };
   }
   const areaSqMeters = polygonFeatures.reduce(
-    (acc, feature) => acc + (0, import_turf.area)(feature),
+    (acc, feature) => acc + turf.area(feature),
     0
   );
   const centroidPosition = computeCentroid(polygonFeatures);
-  const bbox = (0, import_turf.bbox)((0, import_turf.featureCollection)(polygonFeatures));
+  const bbox = turf.bbox(turf.featureCollection(polygonFeatures));
   let centroid = null;
   if (centroidPosition && centroidPosition[0] !== void 0 && centroidPosition[1] !== void 0) {
     const [lon, lat] = centroidPosition;
@@ -2663,18 +2554,18 @@ var computePolygonMetrics = (geoJson) => {
   };
 };
 
-// src/server/routers/atproto/gainforest/site/utils.ts
+// src/_internal/server/routers/atproto/gainforest/site/utils.ts
 async function fetchGeojsonFromUrl(url) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new import_server12.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to fetch site"
     });
   }
   const blob = await response.blob();
   if (blob.type !== "application/geo+json") {
-    throw new import_server12.TRPCError({
+    throw new server.TRPCError({
       code: "BAD_REQUEST",
       message: "Site must be a GeoJSON file"
     });
@@ -2686,7 +2577,7 @@ async function fetchGeojsonFromUrl(url) {
 }
 async function computeGeojsonFile(file2) {
   if (file2.type !== "application/geo+json") {
-    throw new import_server12.TRPCError({
+    throw new server.TRPCError({
       code: "BAD_REQUEST",
       message: "Site must be a GeoJSON file"
     });
@@ -2697,7 +2588,7 @@ async function computeGeojsonFile(file2) {
     new Promise((r) => r(validateGeojsonOrThrow(geojson)))
   );
   if (geojsonValidationError) {
-    throw new import_server12.TRPCError({
+    throw new server.TRPCError({
       code: "BAD_REQUEST",
       message: "Invalid GeoJSON file: " + geojsonValidationError.message
     });
@@ -2707,7 +2598,7 @@ async function computeGeojsonFile(file2) {
   const lon = polygonMetrics.centroid?.lon;
   const area = polygonMetrics.areaHectares;
   if (!lat || !lon || !area) {
-    throw new import_server12.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to process the geojson data."
     });
@@ -2719,23 +2610,23 @@ async function computeGeojsonFile(file2) {
   };
 }
 
-// src/server/routers/atproto/gainforest/site/create.ts
+// src/_internal/server/routers/atproto/gainforest/site/create.ts
 var createSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod14.z.object({
-      rkey: import_zod14.z.string().optional(),
-      site: import_zod14.z.object({
-        name: import_zod14.z.string().min(1)
+    z11.z.object({
+      rkey: z11.z.string().optional(),
+      site: z11.z.object({
+        name: z11.z.string().min(1)
       }),
-      uploads: import_zod14.z.object({
-        shapefile: import_zod14.z.union([import_zod14.z.url(), FileGeneratorSchema])
+      uploads: z11.z.object({
+        shapefile: z11.z.union([z11.z.url(), FileGeneratorSchema])
       }),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
-      throw new import_server13.TRPCError({
+      throw new server.TRPCError({
         code: "UNAUTHORIZED",
         message: "You are not authenticated"
       });
@@ -2765,7 +2656,7 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       rkey: input.rkey
     });
     if (creationResponse.success !== true) {
-      throw new import_server13.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to add new site"
       });
@@ -2773,25 +2664,21 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
     return creationResponse.data;
   });
 };
-
-// src/server/routers/atproto/gainforest/site/update.ts
-var import_zod15 = require("zod");
-var import_server14 = require("@trpc/server");
 var updateSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod15.z.object({
-      rkey: import_zod15.z.string(),
-      site: import_zod15.z.object({
-        name: import_zod15.z.string().min(1),
-        shapefile: import_zod15.z.object({
-          $type: import_zod15.z.literal("app.gainforest.common.defs#smallBlob"),
+    z11.z.object({
+      rkey: z11.z.string(),
+      site: z11.z.object({
+        name: z11.z.string().min(1),
+        shapefile: z11.z.object({
+          $type: z11.z.literal("app.gainforest.common.defs#smallBlob"),
           blob: BlobRefGeneratorSchema
         }).optional(),
-        lat: import_zod15.z.string(),
-        lon: import_zod15.z.string(),
-        area: import_zod15.z.string()
+        lat: z11.z.string(),
+        lon: z11.z.string(),
+        area: z11.z.string()
       }),
-      uploads: import_zod15.z.object({
+      uploads: z11.z.object({
         shapefile: FileGeneratorSchema.optional()
       }).optional(),
       pdsDomain: allowedPDSDomainSchema
@@ -2799,7 +2686,7 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
-      throw new import_server14.TRPCError({
+      throw new server.TRPCError({
         code: "UNAUTHORIZED",
         message: "You are not authenticated"
       });
@@ -2835,7 +2722,7 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
       lon = input.site.lon;
       area = input.site.area;
     } else {
-      throw new import_server14.TRPCError({
+      throw new server.TRPCError({
         code: "BAD_REQUEST",
         message: "No shapefile provided"
       });
@@ -2858,7 +2745,7 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
       rkey: input.rkey
     });
     if (updateResponse.success !== true) {
-      throw new import_server14.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to update site"
       });
@@ -2866,20 +2753,16 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
     return updateResponse.data;
   });
 };
-
-// src/server/routers/atproto/gainforest/site/setDefault.ts
-var import_zod16 = __toESM(require("zod"), 1);
-var import_server15 = require("@trpc/server");
 var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod16.default.object({
-      siteAtUri: import_zod16.default.string(),
+    z11__default.default.object({
+      siteAtUri: z11__default.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
-      throw new import_server15.TRPCError({
+      throw new server.TRPCError({
         code: "UNAUTHORIZED",
         message: "You are not authenticated"
       });
@@ -2887,7 +2770,7 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
     const siteUri = input.siteAtUri;
     const siteNSID = "app.gainforest.organization.site";
     if (!(siteUri.startsWith(`at://`) && siteUri.includes(siteNSID))) {
-      throw new import_server15.TRPCError({
+      throw new server.TRPCError({
         code: "BAD_REQUEST",
         message: "Invalid site URI"
       });
@@ -2895,10 +2778,10 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
     const site = await agent.com.atproto.repo.getRecord({
       collection: siteNSID,
       repo: agent.did,
-      rkey: parseAtUri_default(siteUri).rkey
+      rkey: parseAtUri(siteUri).rkey
     });
     if (site.success !== true) {
-      throw new import_server15.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to get site"
       });
@@ -2917,7 +2800,7 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
       record: defaultSite
     });
     if (updateDefaultSiteResponse.success !== true) {
-      throw new import_server15.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to update default site"
       });
@@ -2925,17 +2808,13 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
     return updateDefaultSiteResponse.data;
   });
 };
-
-// src/server/routers/atproto/gainforest/site/delete.ts
-var import_server16 = require("@trpc/server");
-var import_zod17 = __toESM(require("zod"), 1);
 var deleteSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    import_zod17.default.object({ siteAtUri: import_zod17.default.string(), pdsDomain: allowedPDSDomainSchema })
+    z11__default.default.object({ siteAtUri: z11__default.default.string(), pdsDomain: allowedPDSDomainSchema })
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
-      throw new import_server16.TRPCError({
+      throw new server.TRPCError({
         code: "UNAUTHORIZED",
         message: "You are not authenticated"
       });
@@ -2957,7 +2836,7 @@ var deleteSiteFactory = (allowedPDSDomainSchema) => {
       if (defaultSite.site === input.siteAtUri) throw new Error("Equal");
     } catch (error) {
       if (error instanceof Error && error.message === "Equal") {
-        throw new import_server16.TRPCError({
+        throw new server.TRPCError({
           code: "BAD_REQUEST",
           message: "Cannot delete default site"
         });
@@ -2966,25 +2845,16 @@ var deleteSiteFactory = (allowedPDSDomainSchema) => {
     const deletionResponse = await agent.com.atproto.repo.deleteRecord({
       collection: "app.gainforest.organization.site",
       repo: agent.did,
-      rkey: parseAtUri_default(input.siteAtUri).rkey
+      rkey: parseAtUri(input.siteAtUri).rkey
     });
     if (deletionResponse.success !== true)
-      throw new import_server16.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to delete site"
       });
     return deletionResponse.data;
   });
 };
-
-// src/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
-var import_zod19 = require("zod");
-var import_server18 = require("@trpc/server");
-
-// src/server/routers/atproto/hypercerts/claim/activity/getAll.ts
-var import_zod18 = require("zod");
-var import_server17 = require("@trpc/server");
-var import_xrpc4 = require("@atproto/xrpc");
 var getAllClaimActivitiesPure = async (did, pdsDomain) => {
   const activityNSID = "org.hypercerts.claim.activity";
   const agent = getReadAgent(pdsDomain);
@@ -2995,16 +2865,16 @@ var getAllClaimActivitiesPure = async (did, pdsDomain) => {
     })
   );
   if (errorListClaimActivities) {
-    if (errorListClaimActivities instanceof import_xrpc4.XRPCError) {
+    if (errorListClaimActivities instanceof xrpc.XRPCError) {
       const trpcError = xrpcErrorToTRPCError(errorListClaimActivities);
       throw trpcError;
     }
-    throw new import_server17.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred."
     });
   } else if (listClaimActivitiesResponse.success !== true) {
-    throw new import_server17.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "An unknown error occurred."
     });
@@ -3024,9 +2894,9 @@ var getAllClaimActivitiesPure = async (did, pdsDomain) => {
   };
 };
 
-// src/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
+// src/_internal/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
 var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(import_zod19.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(z11.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
       agent.com.atproto.sync.listRepos({
@@ -3034,7 +2904,7 @@ var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) =
       })
     );
     if (repositoriesListFetchError || repositoriesListResponse.success !== true) {
-      throw new import_server18.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to fetch repositories list"
       });
@@ -3057,7 +2927,7 @@ var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) =
       )
     );
     if (organizationsFetchError) {
-      throw new import_server18.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to fetch organizations list"
       });
@@ -3083,7 +2953,7 @@ var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) =
       )
     );
     if (activitiesFetchError) {
-      throw new import_server18.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "Failed to fetch activities list"
       });
@@ -3094,11 +2964,6 @@ var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) =
     return validActivities;
   });
 };
-
-// src/server/routers/atproto/hypercerts/claim/activity/get.ts
-var import_zod20 = require("zod");
-var import_xrpc5 = require("@atproto/xrpc");
-var import_server19 = require("@trpc/server");
 var getClaimActivityPure = async (did, rkey, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   const nsid = "org.hypercerts.claim.activity";
@@ -3109,18 +2974,18 @@ var getClaimActivityPure = async (did, rkey, pdsDomain) => {
   });
   const [response, error] = await tryCatch(getRecordPromise);
   if (error) {
-    if (error instanceof import_xrpc5.XRPCError) {
+    if (error instanceof xrpc.XRPCError) {
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
-      throw new import_server19.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
       });
     }
   }
   if (response.success !== true) {
-    throw new import_server19.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info."
     });
@@ -3130,20 +2995,15 @@ var getClaimActivityPure = async (did, rkey, pdsDomain) => {
 };
 var getCliamActivityFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod20.z.object({
-      did: import_zod20.z.string(),
-      rkey: import_zod20.z.string(),
+    z11.z.object({
+      did: z11.z.string(),
+      rkey: z11.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
     return await getClaimActivityPure(input.did, input.rkey, input.pdsDomain);
   });
 };
-
-// src/server/routers/atproto/hypercerts/location/get.ts
-var import_zod21 = require("zod");
-var import_xrpc6 = require("@atproto/xrpc");
-var import_server20 = require("@trpc/server");
 var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   const getRecordPromise = agent.com.atproto.repo.getRecord({
@@ -3153,18 +3013,18 @@ var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
   });
   const [response, error] = await tryCatch(getRecordPromise);
   if (error) {
-    if (error instanceof import_xrpc6.XRPCError) {
+    if (error instanceof xrpc.XRPCError) {
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
-      throw new import_server20.TRPCError({
+      throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
       });
     }
   }
   if (response.success !== true) {
-    throw new import_server20.TRPCError({
+    throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info."
     });
@@ -3174,9 +3034,9 @@ var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
 };
 var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    import_zod21.z.object({
-      did: import_zod21.z.string(),
-      rkey: import_zod21.z.string(),
+    z11.z.object({
+      did: z11.z.string(),
+      rkey: z11.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -3187,16 +3047,18 @@ var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
     );
   });
 };
-
-// src/server/routers/_app.ts
-var import_zod22 = __toESM(require("zod"), 1);
 var AppRouterFactory = class {
-  allowedPDSDomains;
-  allowedPDSDomainSchema;
-  appRouter;
   constructor(_allowedPDSDomains) {
+    __publicField(this, "allowedPDSDomains");
+    __publicField(this, "allowedPDSDomainSchema");
+    __publicField(this, "appRouter");
+    __publicField(this, "getServerCaller", () => {
+      return this.appRouter.createCaller(
+        async () => await createContext({ allowedPDSDomains: this.allowedPDSDomains })
+      );
+    });
     this.allowedPDSDomains = _allowedPDSDomains;
-    this.allowedPDSDomainSchema = import_zod22.default.enum(this.allowedPDSDomains);
+    this.allowedPDSDomainSchema = z11__default.default.enum(this.allowedPDSDomains);
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
@@ -3247,23 +3109,18 @@ var AppRouterFactory = class {
       }
     });
   }
-  getServerCaller = () => {
-    return this.appRouter.createCaller(
-      async () => await createContext({ allowedPDSDomains: this.allowedPDSDomains })
-    );
-  };
 };
 
-// src/index.ts
+// src/_internal/index.ts
 var supportedDomains = ["climateai.org", "hypercerts.org"];
-var supportedPDSDomainSchema = import_zod23.z.enum(supportedDomains);
-var supportedPDSDomainsSchema = import_zod23.z.array(supportedPDSDomainSchema);
+var supportedPDSDomainSchema = z11.z.enum(supportedDomains);
+var supportedPDSDomainsSchema = z11.z.array(supportedPDSDomainSchema);
 var ClimateAiSDK = class {
-  allowedPDSDomains;
-  appRouter;
-  getServerCaller;
-  utilities;
   constructor(_allowedPDSDomains) {
+    __publicField(this, "allowedPDSDomains");
+    __publicField(this, "appRouter");
+    __publicField(this, "getServerCaller");
+    __publicField(this, "utilities");
     if (!Array.isArray(_allowedPDSDomains)) {
       throw new Error("Allowed domains must be an array");
     } else if (_allowedPDSDomains.length === 0) {
@@ -3279,9 +3136,18 @@ var ClimateAiSDK = class {
     this.appRouter = appRouterFactory.appRouter;
     this.getServerCaller = appRouterFactory.getServerCaller;
     this.utilities = {
-      getBlobUrl: getBlobUrl_default,
-      parseAtUri: parseAtUri_default
+      getBlobUrl,
+      parseAtUri
     };
   }
 };
+
+// src/_public/index.ts
+var sdkInternal = new ClimateAiSDK(["climateai.org", "hypercerts.org"]);
+sdkInternal.getServerCaller();
+
+exports.ClimateAiSDK = ClimateAiSDK;
+exports.createContext = createContext;
+exports.supportedPDSDomainSchema = supportedPDSDomainSchema;
+//# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

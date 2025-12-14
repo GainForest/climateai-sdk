@@ -1,5 +1,5 @@
-import { validateRecordOrThrow } from "@/server/utils/validate-record-or-throw";
-import { toBlobRef, toFile } from "@/zod-schemas";
+import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { toBlobRef, toFile } from "@/_internal/zod-schemas";
 import { Agent, BlobRef, CredentialSession } from "@atproto/api";
 import { AppGainforestOrganizationSite } from "lex-api";
 

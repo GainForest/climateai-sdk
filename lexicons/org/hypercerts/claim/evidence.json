@@ -1,0 +1,52 @@
+{
+  "lexicon": 1,
+  "id": "org.hypercerts.claim.evidence",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A piece of evidence supporting a hypercert claim",
+      "key": "any",
+      "record": {
+        "type": "object",
+        "required": ["content", "title", "createdAt"],
+        "properties": {
+          "activity": {
+            "type": "ref",
+            "ref": "com.atproto.repo.strongRef",
+            "description": "A strong reference to the activity this evidence is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+          },
+          "content": {
+            "type": "union",
+            "refs": [
+              "org.hypercerts.defs#uri",
+              "org.hypercerts.defs#smallBlob"
+            ],
+            "description": "A piece of evidence (URI or blobs) supporting a hypercert claim"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "Title to describe the nature of the evidence"
+          },
+          "shortDescription": {
+            "type": "string",
+            "maxLength": 3000,
+            "maxGraphemes": 300,
+            "description": "Short description explaining what this evidence demonstrates or proves"
+          },
+          "description": {
+            "type": "string",
+            "description": "Longer description describing the impact claim evidence.",
+            "maxLength": 30000,
+            "maxGraphemes": 3000
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this hypercert claim was originally created"
+          }
+        }
+      }
+    }
+  }
+}

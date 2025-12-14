@@ -1,5 +1,6 @@
-// src/utilities/getBlobUrl.ts
-import { BlobRef } from "@atproto/api";
+import { BlobRef } from '@atproto/api';
+
+// src/_internal/utilities/atproto/getBlobUrl.ts
 var getBlobUrl = (did, imageData, pdsDomain) => {
   if (typeof imageData === "string") {
     const imageUrl = new URL(imageData);
@@ -39,14 +40,13 @@ var getBlobUrl = (did, imageData, pdsDomain) => {
   const imageDataTypeCheck = imageData;
   return imageDataTypeCheck;
 };
-var getBlobUrl_default = getBlobUrl;
 
-// src/server/utils/claims.ts
+// src/_internal/server/utils/claims.ts
 var getEcocertsFromClaimActivities = (activitiesWithOrgInfo, pdsDomain) => {
   const ecocerts = [];
   for (const activityWithOrgInfo of activitiesWithOrgInfo) {
     const logo = activityWithOrgInfo.organizationInfo.logo;
-    const logoUrl = logo ? getBlobUrl_default(activityWithOrgInfo.repo.did, logo.image, pdsDomain) : null;
+    const logoUrl = logo ? getBlobUrl(activityWithOrgInfo.repo.did, logo.image, pdsDomain) : null;
     for (const activity of activityWithOrgInfo.activities) {
       ecocerts.push({
         repo: {
@@ -62,7 +62,7 @@ var getEcocertsFromClaimActivities = (activitiesWithOrgInfo, pdsDomain) => {
   }
   return ecocerts;
 };
-export {
-  getEcocertsFromClaimActivities
-};
+
+export { getEcocertsFromClaimActivities };
+//# sourceMappingURL=hypercerts.js.map
 //# sourceMappingURL=hypercerts.js.map

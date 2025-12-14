@@ -1,9 +1,15 @@
-import './lex-api/util.js';
-import './info-BGFSzg3y.js';
-import './blobref-dnAPTT_v.js';
-import '@atproto/lexicon';
-import 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
-import './activity-CcsC6-ni.js';
+import { S as SupportedPDSDomain, a as StoredSession } from './session-BM24r9mL.js';
+export { C as ClimateAiSDK, s as supportedPDSDomainSchema } from './session-BM24r9mL.js';
+export { A as AppRouter } from './_app-ZLYpAkbt.js';
+import '@atproto/oauth-client-node';
+import './utils-BtB-jULs.js';
+import 'zod';
+import './info-D4RPERNr.js';
+import './activity-DdmMw7Qf.js';
+import 'multiformats/cid';
+import './blobref-e8ss-bC-.js';
+import '@atproto/api';
+import '@trpc/server/unstable-core-do-not-import';
 import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
@@ -11,7 +17,12 @@ import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import './response-types-a9c2mEQD.js';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
-export { A as AppRouter, C as ClimateAiSDK, S as SupportedPDSDomain, d as createContext, b as supportedPDSDomainSchema } from './index-CPSnSCqs.js';
-import 'zod';
-import '@atproto/api';
-import '@atproto/oauth-client-node';
+
+declare function createContext<T extends SupportedPDSDomain>(opts?: {
+    req?: Request;
+    allowedPDSDomains: T[];
+}): Promise<{
+    session: StoredSession | null;
+}>;
+
+export { SupportedPDSDomain, createContext };

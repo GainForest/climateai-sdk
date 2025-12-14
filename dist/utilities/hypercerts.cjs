@@ -1,37 +1,14 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+'use strict';
 
-// src/utilities/hypercerts.ts
-var hypercerts_exports = {};
-__export(hypercerts_exports, {
-  getEcocertsFromClaimActivities: () => getEcocertsFromClaimActivities
-});
-module.exports = __toCommonJS(hypercerts_exports);
+var api = require('@atproto/api');
 
-// src/utilities/getBlobUrl.ts
-var import_api = require("@atproto/api");
+// src/_internal/utilities/atproto/getBlobUrl.ts
 var getBlobUrl = (did, imageData, pdsDomain) => {
   if (typeof imageData === "string") {
     const imageUrl = new URL(imageData);
     return imageUrl.toString();
   }
-  const isBlobRef = imageData instanceof import_api.BlobRef || "ref" in imageData && "mimeType" in imageData && "size" in imageData;
+  const isBlobRef = imageData instanceof api.BlobRef || "ref" in imageData && "mimeType" in imageData && "size" in imageData;
   if (isBlobRef) {
     const ref = imageData.ref;
     const cid = typeof ref === "string" ? ref : ref?.$link ?? String(ref);
@@ -65,14 +42,13 @@ var getBlobUrl = (did, imageData, pdsDomain) => {
   const imageDataTypeCheck = imageData;
   return imageDataTypeCheck;
 };
-var getBlobUrl_default = getBlobUrl;
 
-// src/server/utils/claims.ts
+// src/_internal/server/utils/claims.ts
 var getEcocertsFromClaimActivities = (activitiesWithOrgInfo, pdsDomain) => {
   const ecocerts = [];
   for (const activityWithOrgInfo of activitiesWithOrgInfo) {
     const logo = activityWithOrgInfo.organizationInfo.logo;
-    const logoUrl = logo ? getBlobUrl_default(activityWithOrgInfo.repo.did, logo.image, pdsDomain) : null;
+    const logoUrl = logo ? getBlobUrl(activityWithOrgInfo.repo.did, logo.image, pdsDomain) : null;
     for (const activity of activityWithOrgInfo.activities) {
       ecocerts.push({
         repo: {
@@ -88,4 +64,7 @@ var getEcocertsFromClaimActivities = (activitiesWithOrgInfo, pdsDomain) => {
   }
   return ecocerts;
 };
+
+exports.getEcocertsFromClaimActivities = getEcocertsFromClaimActivities;
+//# sourceMappingURL=hypercerts.cjs.map
 //# sourceMappingURL=hypercerts.cjs.map
