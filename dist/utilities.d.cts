@@ -8,7 +8,7 @@ import './activity-DclFid0x.cjs';
 import 'multiformats/cid';
 import './blobref-e8ss-bC-.cjs';
 import '@atproto/api';
-import './session-BbKVvHt8.cjs';
+import './session-C_B9tOsx.cjs';
 import '@atproto/oauth-client-node';
 import '@trpc/server/unstable-core-do-not-import';
 import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';

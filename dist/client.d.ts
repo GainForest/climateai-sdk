@@ -1,6 +1,6 @@
 import * as _trpc_client from '@trpc/client';
-import { A as AppRouter } from './_app-BYYADcik.js';
-import { S as SupportedPDSDomain } from './session-DPnxr57y.js';
+import { A as AppRouter } from './_app-Biikaryw.js';
+import { S as SupportedPDSDomain } from './session-B86fofTy.js';
 import '@trpc/server/unstable-core-do-not-import';
 import './info-CAW9Nl57.js';
 import './utils-BtB-jULs.js';

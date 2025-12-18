@@ -1,6 +1,8 @@
 import { type SupportedPDSDomain } from "@/_internal/index";
+import { tryCatch } from "@/_internal/lib/tryCatch";
 import { getSessionFromRequest } from "@/_internal/server/session";
 import { publicProcedure } from "@/_internal/server/trpc";
+import { CredentialSession } from "@atproto/api";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
@@ -13,7 +15,7 @@ export const resumeFactory = <T extends SupportedPDSDomain>(
         service: allowedPDSDomainSchema,
       })
     )
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       const session = await getSessionFromRequest(input.service);
       if (!session) {
         throw new TRPCError({
@@ -21,9 +23,35 @@ export const resumeFactory = <T extends SupportedPDSDomain>(
           message: "No session found",
         });
       }
-      return {
-        did: session.did,
+      const credentialSession = new CredentialSession(
+        new URL(`https://${input.service}`)
+      );
+      const resumeSessionPromise = credentialSession.resumeSession({
+        accessJwt: session.accessJwt,
+        refreshJwt: session.refreshJwt,
         handle: session.handle,
+        did: session.did,
+        active: true,
+      });
+      const [resumeSessionResult, resumeSessionError] =
+        await tryCatch(resumeSessionPromise);
+      if (resumeSessionError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to resume session",
+          cause: resumeSessionError,
+        });
+      }
+      if (!resumeSessionResult.success) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to resume session",
+          cause: "Session could not be resumed successfully",
+        });
+      }
+      return {
+        did: resumeSessionResult.data.did,
+        handle: resumeSessionResult.data.handle,
         service: input.service,
       };
     });

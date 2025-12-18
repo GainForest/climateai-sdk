@@ -301,12 +301,22 @@ var loginFactory = (allowedPDSDomainSchema) => {
     };
   });
 };
+
+// src/_internal/lib/tryCatch.ts
+var tryCatch = async (promise) => {
+  try {
+    const result = await promise;
+    return [result, null];
+  } catch (error) {
+    return [null, error];
+  }
+};
 var resumeFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
     z11.object({
       service: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
+  ).query(async ({ input }) => {
     const session = await getSessionFromRequest(input.service);
     if (!session) {
       throw new TRPCError({
@@ -314,9 +324,34 @@ var resumeFactory = (allowedPDSDomainSchema) => {
         message: "No session found"
       });
     }
-    return {
-      did: session.did,
+    const credentialSession = new CredentialSession(
+      new URL(`https://${input.service}`)
+    );
+    const resumeSessionPromise = credentialSession.resumeSession({
+      accessJwt: session.accessJwt,
+      refreshJwt: session.refreshJwt,
       handle: session.handle,
+      did: session.did,
+      active: true
+    });
+    const [resumeSessionResult, resumeSessionError] = await tryCatch(resumeSessionPromise);
+    if (resumeSessionError) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to resume session",
+        cause: resumeSessionError
+      });
+    }
+    if (!resumeSessionResult.success) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to resume session",
+        cause: "Session could not be resumed successfully"
+      });
+    }
+    return {
+      did: resumeSessionResult.data.did,
+      handle: resumeSessionResult.data.handle,
       service: input.service
     };
   });
@@ -332,16 +367,6 @@ var logoutFactory = (allowedPDSDomainSchema) => {
       success: true
     };
   });
-};
-
-// src/_internal/lib/tryCatch.ts
-var tryCatch = async (promise) => {
-  try {
-    const result = await promise;
-    return [result, null];
-  } catch (error) {
-    return [null, error];
-  }
 };
 
 // lex-api/util.ts

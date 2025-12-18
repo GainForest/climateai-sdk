@@ -1,4 +1,4 @@
-export { a as StoredSession, g as getSessionFromRequest } from './session-BbKVvHt8.cjs';
+export { a as StoredSession, g as getSessionFromRequest } from './session-C_B9tOsx.cjs';
 import '@atproto/oauth-client-node';
 import './utils-BtB-jULs.cjs';
 import 'zod';

@@ -2,7 +2,7 @@ import { U as Uri, S as SmallImage, L as LargeImage, g as SmallBlob, o as LargeB
 import { a as $Typed } from '../utils-BtB-jULs.cjs';
 import { b as BlobRefGenerator } from '../blobref-e8ss-bC-.cjs';
 import { BlobRef } from '@atproto/api';
-import { S as SupportedPDSDomain } from '../session-BbKVvHt8.cjs';
+import { S as SupportedPDSDomain } from '../session-C_B9tOsx.cjs';
 import '../activity-DclFid0x.cjs';
 import 'multiformats/cid';
 import 'zod';
