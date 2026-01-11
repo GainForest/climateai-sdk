@@ -56,6 +56,11 @@
       "import": "./dist/utilities/transform.js",
       "require": "./dist/utilities/transform.cjs"
     },
+    "./utilities/geojson": {
+      "types": "./dist/utilities/geojson.d.ts",
+      "import": "./dist/utilities/geojson.js",
+      "require": "./dist/utilities/geojson.cjs"
+    },
     "./utilities/*": {
       "types": "./dist/utilities/*.d.ts",
       "import": "./dist/utilities/*.js",

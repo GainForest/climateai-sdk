@@ -12,6 +12,7 @@ export default defineConfig({
     "utilities/atproto": "src/_public/utilities/atproto.ts",
     "utilities/hypercerts": "src/_public/utilities/hypercerts.ts",
     "utilities/transform": "src/_public/utilities/transform.ts",
+    "utilities/geojson": "src/_public/utilities/geojson.ts",
     client: "src/_public/client.ts",
     session: "src/_public/session.ts",
     types: "src/_public/types.ts",

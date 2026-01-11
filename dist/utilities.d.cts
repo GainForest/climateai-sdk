@@ -1,6 +1,7 @@
 export { getBlobUrl, parseAtUri } from './utilities/atproto.cjs';
 export { getEcocertsFromClaimActivities } from './utilities/hypercerts.cjs';
 export { SerializedSuperjson, customTransformer, deserialize, serialize } from './utilities/transform.cjs';
+export { Coordinates, HECTARES_PER_SQUARE_METER, PolygonMetrics, computePolygonMetrics, extractLineStringFeatures, extractPointFeatures, extractPolygonFeatures, toFeatureCollection, validateGeojsonOrThrow } from './utilities/geojson.cjs';
 import './info-QcQhGTfG.cjs';
 import './utils-BtB-jULs.cjs';
 import 'zod';
@@ -20,3 +21,4 @@ import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
 import './types.cjs';
 import 'superjson';
+import 'geojson';
