@@ -41,6 +41,7 @@ export const createOrUpdateOrganizationInfoFactory = <
           startDate: z.string().optional(),
           country: z.string(),
           visibility: z.enum(["Public", "Hidden"]),
+          createdAt: z.string().optional(),
         }),
         uploads: z
           .object({
@@ -88,7 +89,10 @@ export const createOrUpdateOrganizationInfoFactory = <
         startDate: input.info.startDate ? input.info.startDate : undefined,
         country: input.info.country,
         visibility: input.info.visibility,
-        createdAt: new Date().toISOString(),
+        createdAt:
+          input.info.createdAt ?
+            input.info.createdAt
+          : new Date().toISOString(),
       };
 
       validateRecordOrThrow(info, AppGainforestOrganizationInfo);

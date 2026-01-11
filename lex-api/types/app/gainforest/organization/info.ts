@@ -21,7 +21,7 @@ export interface Main {
   displayName: string
   /** The description of the organization or project */
   shortDescription: string
-  /** The long description of the organization or project in markdown */
+  /** The long description of the organization or project in richtext */
   longDescription: string
   coverImage?: AppGainforestCommonDefs.SmallImage
   logo?: AppGainforestCommonDefs.SmallImage

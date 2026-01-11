@@ -1,4 +1,4 @@
-import z11, { z } from 'zod';
+import z12, { z } from 'zod';
 import { BlobRef, CredentialSession, Agent } from '@atproto/api';
 import { initTRPC, TRPCError } from '@trpc/server';
 import { cookies } from 'next/headers';
@@ -7,7 +7,7 @@ import superjson from 'superjson';
 import { CID } from 'multiformats/cid';
 import { XRPCError } from '@atproto/xrpc';
 import { Lexicons, ValidationError } from '@atproto/lexicon';
-import { area, bbox, featureCollection, centerOfMass, centroid } from '@turf/turf';
+import { bbox, featureCollection, length, area, centerOfMass, centroid } from '@turf/turf';
 
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -103,13 +103,13 @@ async function clearSession(service = "climateai.org") {
   const cookieStore = await cookies();
   cookieStore.delete(`${service}_session`);
 }
-var BlobRefGeneratorSchema = z11.object({
-  $type: z11.literal("blob-ref-generator"),
-  ref: z11.object({
-    $link: z11.string()
+var BlobRefGeneratorSchema = z12.object({
+  $type: z12.literal("blob-ref-generator"),
+  ref: z12.object({
+    $link: z12.string()
   }),
-  mimeType: z11.string(),
-  size: z11.number()
+  mimeType: z12.string(),
+  size: z12.number()
 });
 var toBlobRef = (input) => {
   const validCID = CID.parse(
@@ -224,10 +224,10 @@ var getWriteAgent = async (pdsDomain) => {
     });
   return new Agent(credentialSession);
 };
-var FileGeneratorSchema = z11.object({
-  name: z11.string(),
-  type: z11.string(),
-  dataBase64: z11.string()
+var FileGeneratorSchema = z12.object({
+  name: z12.string(),
+  type: z12.string(),
+  dataBase64: z12.string()
 });
 var toFile = async (fileGenerator) => {
   const file2 = new File(
@@ -255,7 +255,7 @@ var uploadFileAsBlobPure = async (file2, agent) => {
 };
 var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z11.object({
+    z12.object({
       file: FileGeneratorSchema,
       pdsDomain: allowedPDSDomainSchema
     })
@@ -267,11 +267,11 @@ var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
 };
 var loginFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z11.object({
-      handlePrefix: z11.string().regex(/^^[a-zA-Z0-9-]+$/),
+    z12.object({
+      handlePrefix: z12.string().regex(/^^[a-zA-Z0-9-]+$/),
       // alphanumerics and hyphens only
       service: allowedPDSDomainSchema,
-      password: z11.string()
+      password: z12.string()
     })
   ).mutation(async ({ input }) => {
     const session = new CredentialSession(
@@ -313,7 +313,7 @@ var tryCatch = async (promise) => {
 };
 var resumeFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z11.object({
+    z12.object({
       service: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -358,7 +358,7 @@ var resumeFactory = (allowedPDSDomainSchema) => {
 };
 var logoutFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z11.object({
+    z12.object({
       service: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -373,21 +373,161 @@ var logoutFactory = (allowedPDSDomainSchema) => {
 function isObject2(v) {
   return v != null && typeof v === "object";
 }
-function is$type($type, id10, hash) {
-  return hash === "main" ? $type === id10 : (
+function is$type($type, id9, hash) {
+  return hash === "main" ? $type === id9 : (
     // $type === `${id}#${hash}`
-    typeof $type === "string" && $type.length === id10.length + 1 + hash.length && $type.charCodeAt(id10.length) === 35 && $type.startsWith(id10) && $type.endsWith(hash)
+    typeof $type === "string" && $type.length === id9.length + 1 + hash.length && $type.charCodeAt(id9.length) === 35 && $type.startsWith(id9) && $type.endsWith(hash)
   );
 }
-function is$typed(v, id10, hash) {
-  return isObject2(v) && "$type" in v && is$type(v.$type, id10, hash);
+function is$typed(v, id9, hash) {
+  return isObject2(v) && "$type" in v && is$type(v.$type, id9, hash);
 }
-function maybe$typed(v, id10, hash) {
-  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id10, hash) : true);
+function maybe$typed(v, id9, hash) {
+  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id9, hash) : true);
 }
 
 // lex-api/lexicons.ts
 var schemaDict = {
+  AppCertifiedBadgeAward: {
+    lexicon: 1,
+    id: "app.certified.badge.award",
+    defs: {
+      main: {
+        type: "record",
+        description: "Records a badge award to a user, project, or activity claim.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["badge", "subject", "createdAt"],
+          properties: {
+            badge: {
+              type: "ref",
+              ref: "lex:app.certified.badge.definition",
+              description: "Reference to the badge definition for this award."
+            },
+            subject: {
+              type: "union",
+              description: "Entity the badge award is for (either an account DID or any specific AT Protocol record), e.g. a user, a project, or a specific activity claim.",
+              refs: [
+                "lex:app.certified.defs#did",
+                "lex:com.atproto.repo.strongRef"
+              ]
+            },
+            note: {
+              type: "string",
+              description: "Optional statement explaining the reason for this badge award."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppCertifiedBadgeDefinition: {
+    lexicon: 1,
+    id: "app.certified.badge.definition",
+    defs: {
+      main: {
+        type: "record",
+        description: "Defines a badge that can be awarded via badge award records to users, projects, or activity claims.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["title", "badgeType", "icon", "createdAt"],
+          properties: {
+            badgeType: {
+              type: "string",
+              description: "Category of the badge (e.g. endorsement, participation, affiliation)."
+            },
+            title: {
+              type: "string",
+              description: "Human-readable title of the badge."
+            },
+            icon: {
+              type: "blob",
+              description: "Icon representing the badge, stored as a blob for compact visual display.",
+              accept: [
+                "image/png",
+                "image/jpeg",
+                "image/webp",
+                "image/svg+xml"
+              ],
+              maxSize: 1048576
+            },
+            description: {
+              type: "string",
+              description: "Optional short statement describing what the badge represents."
+            },
+            allowedIssuers: {
+              type: "array",
+              description: "Optional allowlist of DIDs allowed to issue this badge. If omitted, anyone may issue it.",
+              items: {
+                type: "ref",
+                ref: "lex:app.certified.defs#did"
+              }
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppCertifiedBadgeResponse: {
+    lexicon: 1,
+    id: "app.certified.badge.response",
+    defs: {
+      main: {
+        type: "record",
+        description: "Recipient response to a badge award.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["badgeAward", "response", "createdAt"],
+          properties: {
+            badgeAward: {
+              type: "ref",
+              ref: "lex:app.certified.badge.award",
+              description: "Reference to the badge award."
+            },
+            response: {
+              type: "string",
+              enum: ["accepted", "rejected"],
+              description: "The recipient\u2019s response for the badge (accepted or rejected)."
+            },
+            weight: {
+              type: "string",
+              description: "Optional relative weight for accepted badges, assigned by the recipient."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppCertifiedDefs: {
+    lexicon: 1,
+    id: "app.certified.defs",
+    description: "Common type definitions used across certified protocols.",
+    defs: {
+      did: {
+        type: "string",
+        format: "did",
+        description: "A Decentralized Identifier (DID) string."
+      }
+    }
+  },
   AppCertifiedLocation: {
     lexicon: 1,
     id: "app.certified.location",
@@ -395,7 +535,7 @@ var schemaDict = {
       main: {
         type: "record",
         description: "A location reference",
-        key: "any",
+        key: "tid",
         record: {
           type: "object",
           required: [
@@ -566,88 +706,6 @@ var schemaDict = {
       }
     }
   },
-  AppGainforestOrganizationDraftEcocert: {
-    lexicon: 1,
-    id: "app.gainforest.organization.draft.ecocert",
-    defs: {
-      main: {
-        type: "record",
-        description: "A declaration of an unpublished ecocert for an organization",
-        key: "tid",
-        record: {
-          type: "object",
-          required: [
-            "title",
-            "coverImage",
-            "workScopes",
-            "workStartDate",
-            "workEndDate",
-            "description",
-            "shortDescription",
-            "contributors",
-            "site",
-            "createdAt"
-          ],
-          nullable: ["coverImage"],
-          properties: {
-            title: {
-              type: "string",
-              description: "The title of the ecocert"
-            },
-            coverImage: {
-              type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallImage",
-              description: "The cover image of the ecocert"
-            },
-            workScopes: {
-              type: "array",
-              description: "The work scopes of the ecocert",
-              items: {
-                type: "string",
-                description: "The work scope of the ecocert"
-              }
-            },
-            workStartDate: {
-              type: "string",
-              description: "The start date of the work",
-              format: "datetime"
-            },
-            workEndDate: {
-              type: "string",
-              description: "The end date of the work",
-              format: "datetime"
-            },
-            description: {
-              type: "string",
-              description: "The description of the ecocert in markdown"
-            },
-            shortDescription: {
-              type: "string",
-              description: "The short description of the ecocert in markdown"
-            },
-            contributors: {
-              type: "array",
-              description: "The contributors of the ecocert in markdown",
-              items: {
-                type: "string",
-                description: "The contributor of the ecocert"
-              }
-            },
-            site: {
-              type: "string",
-              format: "at-uri",
-              description: "The reference to the site record in the PDS"
-            },
-            createdAt: {
-              type: "string",
-              description: "The date and time of the creation of the record",
-              format: "datetime"
-            }
-          }
-        }
-      }
-    }
-  },
   AppGainforestOrganizationGetIndexedOrganizations: {
     lexicon: 1,
     id: "app.gainforest.organization.getIndexedOrganizations",
@@ -712,7 +770,7 @@ var schemaDict = {
             },
             longDescription: {
               type: "string",
-              description: "The long description of the organization or project in markdown",
+              description: "The long description of the organization or project in richtext",
               minLength: 50,
               maxLength: 5e3
             },
@@ -991,127 +1049,6 @@ var schemaDict = {
       }
     }
   },
-  AppGainforestOrganizationProject: {
-    lexicon: 1,
-    id: "app.gainforest.organization.project",
-    defs: {
-      main: {
-        type: "record",
-        description: "A declaration of a project for an organization",
-        key: "tid",
-        record: {
-          type: "object",
-          required: [
-            "name",
-            "shortDescription",
-            "ecocerts",
-            "sites",
-            "measuredTreesClusters",
-            "layers",
-            "createdAt"
-          ],
-          properties: {
-            name: {
-              type: "string",
-              description: "The name of the site"
-            },
-            description: {
-              type: "string",
-              description: "The description of the project in markdown"
-            },
-            shortDescription: {
-              type: "string",
-              description: "The short description of the project"
-            },
-            ecocerts: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the ecocerts related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the ecocert record in the PDS"
-              }
-            },
-            layers: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the layers related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the layer record in the PDS"
-              }
-            },
-            sites: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the sites related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the site record in the PDS"
-              }
-            },
-            measuredTreesClusters: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the measured trees clusters related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the measured trees cluster record in the PDS"
-              }
-            },
-            createdAt: {
-              type: "string",
-              description: "The date and time of the creation of the record",
-              format: "datetime"
-            }
-          }
-        }
-      }
-    }
-  },
-  AppGainforestOrganizationSite: {
-    lexicon: 1,
-    id: "app.gainforest.organization.site",
-    defs: {
-      main: {
-        type: "record",
-        description: "A declaration of a site for an organization",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["name", "lat", "lon", "area", "shapefile", "createdAt"],
-          properties: {
-            name: {
-              type: "string",
-              description: "The name of the site"
-            },
-            lat: {
-              type: "string",
-              description: "The latitude of the centerpoint of the site"
-            },
-            lon: {
-              type: "string",
-              description: "The longitude of the centerpoint of the site"
-            },
-            area: {
-              type: "string",
-              description: "The area of the site in hectares"
-            },
-            shapefile: {
-              type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallBlob",
-              description: "A blob pointing to a geoJSON file containing the site boundaries"
-            },
-            createdAt: {
-              type: "string",
-              description: "The date and time of the creation of the record",
-              format: "datetime"
-            }
-          }
-        }
-      }
-    }
-  },
   ComAtprotoRepoStrongRef: {
     lexicon: 1,
     id: "com.atproto.repo.strongRef",
@@ -1153,7 +1090,7 @@ var schemaDict = {
           properties: {
             title: {
               type: "string",
-              description: "Title of the hypercert",
+              description: "Title of the hypercert.",
               maxLength: 256
             },
             shortDescription: {
@@ -1174,7 +1111,7 @@ var schemaDict = {
                 "lex:org.hypercerts.defs#uri",
                 "lex:org.hypercerts.defs#smallImage"
               ],
-              description: "The hypercert visual representation as a URI or image blob"
+              description: "The hypercert visual representation as a URI or image blob."
             },
             workScope: {
               type: "ref",
@@ -1192,7 +1129,7 @@ var schemaDict = {
             },
             contributions: {
               type: "array",
-              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution",
+              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution.",
               items: {
                 type: "ref",
                 ref: "lex:com.atproto.repo.strongRef"
@@ -1201,12 +1138,20 @@ var schemaDict = {
             rights: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights"
+              description: "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights."
             },
-            location: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the location where the work for done hypercert was located. The record referenced must conform with the lexicon app.certified.location"
+            locations: {
+              type: "array",
+              description: "An array of strong references to the location where activity was performed. The record referenced must conform with the lexicon app.certified.location.",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              }
+            },
+            project: {
+              type: "string",
+              format: "at-uri",
+              description: "A reference (AT-URI) to the project record that this activity is part of. The record referenced must conform with the lexicon org.hypercerts.claim.project. This activity must also be referenced by the project, establishing a bidirectional link."
             },
             createdAt: {
               type: "string",
@@ -1218,9 +1163,9 @@ var schemaDict = {
       },
       workScope: {
         type: "object",
-        description: "Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply.",
+        description: "Logical scope of the work using label-based conditions. All labels in `withinAllOf` must apply; at least one label in `withinAnyOf` must apply if provided; no label in `withinNoneOf` may apply.",
         properties: {
-          allOf: {
+          withinAllOf: {
             type: "array",
             description: "Labels that MUST all hold for the scope to apply.",
             items: {
@@ -1228,7 +1173,7 @@ var schemaDict = {
             },
             maxLength: 100
           },
-          anyOf: {
+          withinAnyOf: {
             type: "array",
             description: "Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition.",
             items: {
@@ -1236,13 +1181,28 @@ var schemaDict = {
             },
             maxLength: 100
           },
-          noneOf: {
+          withinNoneOf: {
             type: "array",
             description: "Labels that MUST NOT hold for the scope to apply.",
             items: {
               type: "string"
             },
             maxLength: 100
+          }
+        }
+      },
+      activityWeight: {
+        type: "object",
+        required: ["activity", "weight"],
+        properties: {
+          activity: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef",
+            description: "A strong reference to a hypercert activity record. This activity must conform to the lexicon org.hypercerts.claim.activity"
+          },
+          weight: {
+            type: "string",
+            description: "The relative weight/importance of this hypercert activity (stored as a string to avoid float precision issues). Weights can be any positive numeric values and do not need to sum to a specific total; normalization can be performed by the consuming application as needed."
           }
         }
       }
@@ -1258,7 +1218,7 @@ var schemaDict = {
         key: "tid",
         record: {
           type: "object",
-          required: ["title", "claims", "createdAt"],
+          required: ["title", "activities", "createdAt"],
           properties: {
             title: {
               type: "string",
@@ -1272,20 +1232,24 @@ var schemaDict = {
               maxGraphemes: 300,
               description: "A short description of this collection"
             },
-            coverPhoto: {
-              type: "union",
-              refs: [
-                "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallBlob"
-              ],
-              description: "The cover photo of this collection (either in URI format or in a blob)."
+            avatar: {
+              type: "blob",
+              description: "Primary avatar image representing this collection across apps and views; typically a square image.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
             },
-            claims: {
+            coverPhoto: {
+              type: "blob",
+              description: "The cover photo of this collection.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
+            },
+            activities: {
               type: "array",
-              description: "Array of claims with their associated weights in this collection",
+              description: "Array of activities with their associated weights in this collection",
               items: {
                 type: "ref",
-                ref: "lex:org.hypercerts.claim.collection#claimItem"
+                ref: "lex:org.hypercerts.claim.activity#activityWeight"
               }
             },
             createdAt: {
@@ -1293,21 +1257,6 @@ var schemaDict = {
               format: "datetime",
               description: "Client-declared timestamp when this record was originally created"
             }
-          }
-        }
-      },
-      claimItem: {
-        type: "object",
-        required: ["claim", "weight"],
-        properties: {
-          claim: {
-            type: "ref",
-            ref: "lex:com.atproto.repo.strongRef",
-            description: "A strong reference to a hypercert claim record. This claim must conform to the lexicon org.hypercerts.claim.activity"
-          },
-          weight: {
-            type: "string",
-            description: "The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100."
           }
         }
       }
@@ -1320,7 +1269,7 @@ var schemaDict = {
       main: {
         type: "record",
         description: "A contribution made toward a hypercert's impact.",
-        key: "any",
+        key: "tid",
         record: {
           type: "object",
           required: ["contributors", "createdAt"],
@@ -1367,29 +1316,48 @@ var schemaDict = {
     lexicon: 1,
     id: "org.hypercerts.claim.evaluation",
     defs: {
+      score: {
+        type: "object",
+        description: "Overall score for an evaluation on a numeric scale.",
+        required: ["min", "max", "value"],
+        properties: {
+          min: {
+            type: "integer",
+            description: "Minimum value of the scale, e.g. 0 or 1."
+          },
+          max: {
+            type: "integer",
+            description: "Maximum value of the scale, e.g. 5 or 10."
+          },
+          value: {
+            type: "integer",
+            description: "Score within the inclusive range [min, max]."
+          }
+        }
+      },
       main: {
         type: "record",
-        description: "An evaluation of a hypercert or other claim",
+        description: "An evaluation of a hypercert record (e.g. an activity and its impact).",
         key: "tid",
         record: {
           type: "object",
-          required: ["subject", "evaluators", "summary", "createdAt"],
+          required: ["evaluators", "summary", "createdAt"],
           properties: {
             subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the evaluated claim. (e.g measurement, hypercert, contribution, etc)"
+              description: "A strong reference to what is being evaluated. (e.g activity, measurement, contribution, etc.)"
             },
             evaluators: {
               type: "array",
               description: "DIDs of the evaluators",
               items: {
-                type: "string",
-                format: "did"
+                type: "ref",
+                ref: "lex:app.certified.defs#did"
               },
-              maxLength: 100
+              maxLength: 1e3
             },
-            evaluations: {
+            content: {
               type: "array",
               description: "Evaluation data (URIs or blobs) containing detailed reports or methodology",
               items: {
@@ -1401,11 +1369,25 @@ var schemaDict = {
               },
               maxLength: 100
             },
+            measurements: {
+              type: "array",
+              description: "Optional references to the measurements that contributed to this evaluation. The record(s) referenced must conform with the lexicon org.hypercerts.claim.measurement ",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              },
+              maxLength: 100
+            },
             summary: {
               type: "string",
               description: "Brief evaluation summary",
               maxLength: 5e3,
               maxGraphemes: 1e3
+            },
+            score: {
+              type: "ref",
+              ref: "lex:org.hypercerts.claim.evaluation#score",
+              description: "Optional overall score for this evaluation on a numeric scale."
             },
             location: {
               type: "ref",
@@ -1428,16 +1410,16 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A piece of evidence supporting a hypercert claim",
-        key: "any",
+        description: "A piece of evidence related to a hypercert record (e.g. an activity, project, claim, or evaluation). Evidence may support, clarify, or challenge the referenced subject.",
+        key: "tid",
         record: {
           type: "object",
           required: ["content", "title", "createdAt"],
           properties: {
-            activity: {
+            subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the activity this evidence is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+              description: "A strong reference to the record this evidence relates to (e.g. an activity, project, claim, or evaluation)."
             },
             content: {
               type: "union",
@@ -1445,29 +1427,34 @@ var schemaDict = {
                 "lex:org.hypercerts.defs#uri",
                 "lex:org.hypercerts.defs#smallBlob"
               ],
-              description: "A piece of evidence (URI or blobs) supporting a hypercert claim"
+              description: "A piece of evidence (URI or blob) related to the subject record; it may support, clarify, or challenge a hypercert claim."
             },
             title: {
               type: "string",
               maxLength: 256,
-              description: "Title to describe the nature of the evidence"
+              description: "Title to describe the nature of the evidence."
             },
             shortDescription: {
               type: "string",
               maxLength: 3e3,
               maxGraphemes: 300,
-              description: "Short description explaining what this evidence demonstrates or proves"
+              description: "Short description explaining what this evidence shows."
             },
             description: {
               type: "string",
-              description: "Longer description describing the impact claim evidence.",
+              description: "Longer description describing the evidence in more detail.",
               maxLength: 3e4,
               maxGraphemes: 3e3
+            },
+            relationType: {
+              type: "string",
+              description: "How this evidence relates to the subject.",
+              knownValues: ["supports", "challenges", "clarifies"]
             },
             createdAt: {
               type: "string",
               format: "datetime",
-              description: "Client-declared timestamp when this hypercert claim was originally created"
+              description: "Client-declared timestamp when this record was originally created"
             }
           }
         }
@@ -1480,23 +1467,23 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "External measurement data supporting a hypercert claim",
+        description: "Measurement data related to a hypercert record (e.g. an activity and its impact).",
         key: "tid",
         record: {
           type: "object",
-          required: ["activity", "measurers", "metric", "value", "createdAt"],
+          required: ["measurers", "metric", "value", "createdAt"],
           properties: {
-            activity: {
+            subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the activity that this measurement is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+              description: "A strong reference to the record this measurement refers to (e.g. an activity, project, or claim)."
             },
             measurers: {
               type: "array",
               description: "DIDs of the entity (or entities) that measured this data",
               items: {
-                type: "string",
-                format: "did"
+                type: "ref",
+                ref: "lex:app.certified.defs#did"
               },
               maxLength: 100
             },
@@ -1510,19 +1497,19 @@ var schemaDict = {
               description: "The measured value",
               maxLength: 500
             },
-            measurementMethodType: {
+            methodType: {
               type: "string",
               description: "Short identifier for the measurement methodology",
               maxLength: 30
             },
-            measurementMethodURI: {
+            methodURI: {
               type: "string",
               format: "uri",
               description: "URI to methodology documentation, standard protocol, or measurement procedure"
             },
             evidenceURI: {
               type: "array",
-              description: "URIs to supporting evidence or data",
+              description: "URIs to related evidence or underlying data (e.g. org.hypercerts.claim.evidence records or raw datasets)",
               items: {
                 type: "string",
                 format: "uri"
@@ -1544,6 +1531,70 @@ var schemaDict = {
       }
     }
   },
+  OrgHypercertsClaimProject: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.project",
+    defs: {
+      main: {
+        type: "record",
+        description: "A project that can include multiple activities, each of which may be linked to at most one project.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["title", "shortDescription", "createdAt"],
+          properties: {
+            title: {
+              type: "string",
+              description: "Title of this project",
+              maxLength: 800,
+              maxGraphemes: 80
+            },
+            shortDescription: {
+              type: "string",
+              maxLength: 3e3,
+              maxGraphemes: 300,
+              description: "Short summary of this project, suitable for previews and list views."
+            },
+            description: {
+              type: "ref",
+              ref: "lex:pub.leaflet.pages.linearDocument#main",
+              description: "Rich-text description of this project, represented as a Leaflet linear document."
+            },
+            avatar: {
+              type: "blob",
+              description: "Primary avatar image representing this project across apps and views; typically a square logo or project identity image.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
+            },
+            coverPhoto: {
+              type: "blob",
+              description: "The cover photo of this project.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
+            },
+            activities: {
+              type: "array",
+              description: "Array of activities with their associated weights in this project",
+              items: {
+                type: "ref",
+                ref: "lex:org.hypercerts.claim.activity#activityWeight"
+              }
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to a location record describing where the work for this project took place. The referenced record must conform to the app.certified.location lexicon."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
   OrgHypercertsClaimRights: {
     lexicon: 1,
     id: "org.hypercerts.claim.rights",
@@ -1551,7 +1602,7 @@ var schemaDict = {
       main: {
         type: "record",
         description: "Describes the rights that a contributor and/or an owner has, such as whether the hypercert can be sold, transferred, and under what conditions.",
-        key: "any",
+        key: "tid",
         record: {
           type: "object",
           required: [
@@ -1663,15 +1714,619 @@ var schemaDict = {
         }
       }
     }
+  },
+  OrgHypercertsFundingReceipt: {
+    lexicon: 1,
+    id: "org.hypercerts.funding.receipt",
+    defs: {
+      main: {
+        type: "record",
+        description: "Records a funding receipt for a payment from one user to another user. It may be recorded by the recipient, by the sender, or by a third party. The sender may remain anonymous.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["from", "to", "amount", "currency", "createdAt"],
+          properties: {
+            from: {
+              type: "ref",
+              ref: "lex:app.certified.defs#did",
+              description: "DID of the sender who transferred the funds. Leave empty if sender wants to stay anonymous."
+            },
+            to: {
+              type: "string",
+              description: "The recipient of the funds. Can be identified by DID or a clear-text name."
+            },
+            amount: {
+              type: "string",
+              description: "Amount of funding received."
+            },
+            currency: {
+              type: "string",
+              description: "Currency of the payment (e.g. EUR, USD, ETH)."
+            },
+            paymentRail: {
+              type: "string",
+              description: "How the funds were transferred (e.g. bank_transfer, credit_card, onchain, cash, check, payment_processor)."
+            },
+            paymentNetwork: {
+              type: "string",
+              description: "Optional network within the payment rail (e.g. arbitrum, ethereum, sepa, visa, paypal)."
+            },
+            transactionId: {
+              type: "string",
+              description: "Identifier of the underlying payment transaction (e.g. bank reference, onchain transaction hash, or processor-specific ID). Use paymentNetwork to specify the network where applicable."
+            },
+            for: {
+              type: "string",
+              format: "at-uri",
+              description: "Optional reference to the activity, project, or organization this funding relates to."
+            },
+            notes: {
+              type: "string",
+              description: "Optional notes or additional context for this funding receipt.",
+              maxLength: 500
+            },
+            occurredAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp when the payment occurred."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this receipt record was created."
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksBlockquote: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.blockquote",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          plaintext: {
+            type: "string"
+          },
+          facets: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.richtext.facet"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksBskyPost: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.bskyPost",
+    defs: {
+      main: {
+        type: "object",
+        required: ["postRef"],
+        properties: {
+          postRef: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksButton: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.button",
+    defs: {
+      main: {
+        type: "object",
+        required: ["text", "url"],
+        properties: {
+          text: {
+            type: "string"
+          },
+          url: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksCode: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.code",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          plaintext: {
+            type: "string"
+          },
+          language: {
+            type: "string"
+          },
+          syntaxHighlightingTheme: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksHeader: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.header",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          level: {
+            type: "integer",
+            minimum: 1,
+            maximum: 6
+          },
+          plaintext: {
+            type: "string"
+          },
+          facets: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.richtext.facet"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksHorizontalRule: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.horizontalRule",
+    defs: {
+      main: {
+        type: "object",
+        required: [],
+        properties: {}
+      }
+    }
+  },
+  PubLeafletBlocksIframe: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.iframe",
+    defs: {
+      main: {
+        type: "object",
+        required: ["url"],
+        properties: {
+          url: {
+            type: "string",
+            format: "uri"
+          },
+          height: {
+            type: "integer",
+            minimum: 16,
+            maximum: 1600
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksImage: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.image",
+    defs: {
+      main: {
+        type: "object",
+        required: ["image", "aspectRatio"],
+        properties: {
+          image: {
+            type: "blob",
+            accept: ["image/*"],
+            maxSize: 1e6
+          },
+          alt: {
+            type: "string",
+            description: "Alt text description of the image, for accessibility."
+          },
+          aspectRatio: {
+            type: "ref",
+            ref: "lex:pub.leaflet.blocks.image#aspectRatio"
+          }
+        }
+      },
+      aspectRatio: {
+        type: "object",
+        required: ["width", "height"],
+        properties: {
+          width: {
+            type: "integer"
+          },
+          height: {
+            type: "integer"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksMath: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.math",
+    defs: {
+      main: {
+        type: "object",
+        required: ["tex"],
+        properties: {
+          tex: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksPage: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.page",
+    defs: {
+      main: {
+        type: "object",
+        required: ["id"],
+        properties: {
+          id: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksPoll: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.poll",
+    defs: {
+      main: {
+        type: "object",
+        required: ["pollRef"],
+        properties: {
+          pollRef: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksText: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.text",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          plaintext: {
+            type: "string"
+          },
+          textSize: {
+            type: "string",
+            enum: ["default", "small", "large"]
+          },
+          facets: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.richtext.facet"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksUnorderedList: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.unorderedList",
+    defs: {
+      main: {
+        type: "object",
+        required: ["children"],
+        properties: {
+          children: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.blocks.unorderedList#listItem"
+            }
+          }
+        }
+      },
+      listItem: {
+        type: "object",
+        required: ["content"],
+        properties: {
+          content: {
+            type: "union",
+            refs: [
+              "lex:pub.leaflet.blocks.text",
+              "lex:pub.leaflet.blocks.header",
+              "lex:pub.leaflet.blocks.image"
+            ]
+          },
+          children: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.blocks.unorderedList#listItem"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksWebsite: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.website",
+    defs: {
+      main: {
+        type: "object",
+        required: ["src"],
+        properties: {
+          previewImage: {
+            type: "blob",
+            accept: ["image/*"],
+            maxSize: 1e6
+          },
+          title: {
+            type: "string"
+          },
+          description: {
+            type: "string"
+          },
+          src: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletPagesLinearDocument: {
+    lexicon: 1,
+    id: "pub.leaflet.pages.linearDocument",
+    defs: {
+      main: {
+        type: "object",
+        required: ["blocks"],
+        properties: {
+          id: {
+            type: "string"
+          },
+          blocks: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.pages.linearDocument#block"
+            }
+          }
+        }
+      },
+      block: {
+        type: "object",
+        required: ["block"],
+        properties: {
+          block: {
+            type: "union",
+            refs: [
+              "lex:pub.leaflet.blocks.iframe",
+              "lex:pub.leaflet.blocks.text",
+              "lex:pub.leaflet.blocks.blockquote",
+              "lex:pub.leaflet.blocks.header",
+              "lex:pub.leaflet.blocks.image",
+              "lex:pub.leaflet.blocks.unorderedList",
+              "lex:pub.leaflet.blocks.website",
+              "lex:pub.leaflet.blocks.math",
+              "lex:pub.leaflet.blocks.code",
+              "lex:pub.leaflet.blocks.horizontalRule",
+              "lex:pub.leaflet.blocks.bskyPost",
+              "lex:pub.leaflet.blocks.page",
+              "lex:pub.leaflet.blocks.poll",
+              "lex:pub.leaflet.blocks.button"
+            ]
+          },
+          alignment: {
+            type: "string",
+            knownValues: [
+              "lex:pub.leaflet.pages.linearDocument#textAlignLeft",
+              "lex:pub.leaflet.pages.linearDocument#textAlignCenter",
+              "lex:pub.leaflet.pages.linearDocument#textAlignRight",
+              "lex:pub.leaflet.pages.linearDocument#textAlignJustify"
+            ]
+          }
+        }
+      },
+      textAlignLeft: {
+        type: "token"
+      },
+      textAlignCenter: {
+        type: "token"
+      },
+      textAlignRight: {
+        type: "token"
+      },
+      textAlignJustify: {
+        type: "token"
+      },
+      quote: {
+        type: "object",
+        required: ["start", "end"],
+        properties: {
+          start: {
+            type: "ref",
+            ref: "lex:pub.leaflet.pages.linearDocument#position"
+          },
+          end: {
+            type: "ref",
+            ref: "lex:pub.leaflet.pages.linearDocument#position"
+          }
+        }
+      },
+      position: {
+        type: "object",
+        required: ["block", "offset"],
+        properties: {
+          block: {
+            type: "array",
+            items: {
+              type: "integer"
+            }
+          },
+          offset: {
+            type: "integer"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletRichtextFacet: {
+    lexicon: 1,
+    id: "pub.leaflet.richtext.facet",
+    defs: {
+      main: {
+        type: "object",
+        description: "Annotation of a sub-string within rich text.",
+        required: ["index", "features"],
+        properties: {
+          index: {
+            type: "ref",
+            ref: "lex:pub.leaflet.richtext.facet#byteSlice"
+          },
+          features: {
+            type: "array",
+            items: {
+              type: "union",
+              refs: [
+                "lex:pub.leaflet.richtext.facet#link",
+                "lex:pub.leaflet.richtext.facet#didMention",
+                "lex:pub.leaflet.richtext.facet#atMention",
+                "lex:pub.leaflet.richtext.facet#code",
+                "lex:pub.leaflet.richtext.facet#highlight",
+                "lex:pub.leaflet.richtext.facet#underline",
+                "lex:pub.leaflet.richtext.facet#strikethrough",
+                "lex:pub.leaflet.richtext.facet#id",
+                "lex:pub.leaflet.richtext.facet#bold",
+                "lex:pub.leaflet.richtext.facet#italic"
+              ]
+            }
+          }
+        }
+      },
+      byteSlice: {
+        type: "object",
+        description: "Specifies the sub-string range a facet feature applies to. Start index is inclusive, end index is exclusive. Indices are zero-indexed, counting bytes of the UTF-8 encoded text. NOTE: some languages, like Javascript, use UTF-16 or Unicode codepoints for string slice indexing; in these languages, convert to byte arrays before working with facets.",
+        required: ["byteStart", "byteEnd"],
+        properties: {
+          byteStart: {
+            type: "integer",
+            minimum: 0
+          },
+          byteEnd: {
+            type: "integer",
+            minimum: 0
+          }
+        }
+      },
+      link: {
+        type: "object",
+        description: "Facet feature for a URL. The text URL may have been simplified or truncated, but the facet reference should be a complete URL.",
+        required: ["uri"],
+        properties: {
+          uri: {
+            type: "string"
+          }
+        }
+      },
+      didMention: {
+        type: "object",
+        description: "Facet feature for mentioning a did.",
+        required: ["did"],
+        properties: {
+          did: {
+            type: "string",
+            format: "did"
+          }
+        }
+      },
+      atMention: {
+        type: "object",
+        description: "Facet feature for mentioning an AT URI.",
+        required: ["atURI"],
+        properties: {
+          atURI: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      },
+      code: {
+        type: "object",
+        description: "Facet feature for inline code.",
+        required: [],
+        properties: {}
+      },
+      highlight: {
+        type: "object",
+        description: "Facet feature for highlighted text.",
+        required: [],
+        properties: {}
+      },
+      underline: {
+        type: "object",
+        description: "Facet feature for underline markup",
+        required: [],
+        properties: {}
+      },
+      strikethrough: {
+        type: "object",
+        description: "Facet feature for strikethrough markup",
+        required: [],
+        properties: {}
+      },
+      id: {
+        type: "object",
+        description: "Facet feature for an identifier. Used for linking to a segment",
+        required: [],
+        properties: {
+          id: {
+            type: "string"
+          }
+        }
+      },
+      bold: {
+        type: "object",
+        description: "Facet feature for bold text",
+        required: [],
+        properties: {}
+      },
+      italic: {
+        type: "object",
+        description: "Facet feature for italic text",
+        required: [],
+        properties: {}
+      }
+    }
   }
 };
 var schemas = Object.values(schemaDict);
 var lexicons = new Lexicons(schemas);
-function validate(v, id10, hash, requiredType) {
-  return (requiredType ? is$typed : maybe$typed)(v, id10, hash) ? lexicons.validate(`${id10}#${hash}`, v) : {
+function validate(v, id9, hash, requiredType) {
+  return (requiredType ? is$typed : maybe$typed)(v, id9, hash) ? lexicons.validate(`${id9}#${hash}`, v) : {
     success: false,
     error: new ValidationError(
-      `Must be an object with "${hash === "main" ? id10 : `${id10}#${hash}`}" $type property`
+      `Must be an object with "${hash === "main" ? id9 : `${id9}#${hash}`}" $type property`
     )
   };
 }
@@ -1771,17 +2426,21 @@ function validateMain5(v) {
   return validate6(v, id5, hashMain5, true);
 }
 
-// lex-api/types/app/gainforest/organization/project.ts
-var project_exports = {};
-__export(project_exports, {
+// lex-api/types/org/hypercerts/claim/activity.ts
+var activity_exports = {};
+__export(activity_exports, {
+  isActivityWeight: () => isActivityWeight,
   isMain: () => isMain6,
   isRecord: () => isMain6,
+  isWorkScope: () => isWorkScope,
+  validateActivityWeight: () => validateActivityWeight,
   validateMain: () => validateMain6,
-  validateRecord: () => validateMain6
+  validateRecord: () => validateMain6,
+  validateWorkScope: () => validateWorkScope
 });
 var is$typed7 = is$typed;
 var validate7 = validate;
-var id6 = "app.gainforest.organization.project";
+var id6 = "org.hypercerts.claim.activity";
 var hashMain6 = "main";
 function isMain6(v) {
   return is$typed7(v, id6, hashMain6);
@@ -1789,10 +2448,24 @@ function isMain6(v) {
 function validateMain6(v) {
   return validate7(v, id6, hashMain6, true);
 }
+var hashWorkScope = "workScope";
+function isWorkScope(v) {
+  return is$typed7(v, id6, hashWorkScope);
+}
+function validateWorkScope(v) {
+  return validate7(v, id6, hashWorkScope);
+}
+var hashActivityWeight = "activityWeight";
+function isActivityWeight(v) {
+  return is$typed7(v, id6, hashActivityWeight);
+}
+function validateActivityWeight(v) {
+  return validate7(v, id6, hashActivityWeight);
+}
 
-// lex-api/types/app/gainforest/organization/site.ts
-var site_exports = {};
-__export(site_exports, {
+// lex-api/types/org/hypercerts/claim/contribution.ts
+var contribution_exports = {};
+__export(contribution_exports, {
   isMain: () => isMain7,
   isRecord: () => isMain7,
   validateMain: () => validateMain7,
@@ -1800,7 +2473,7 @@ __export(site_exports, {
 });
 var is$typed8 = is$typed;
 var validate8 = validate;
-var id7 = "app.gainforest.organization.site";
+var id7 = "org.hypercerts.claim.contribution";
 var hashMain7 = "main";
 function isMain7(v) {
   return is$typed8(v, id7, hashMain7);
@@ -1809,51 +2482,23 @@ function validateMain7(v) {
   return validate8(v, id7, hashMain7, true);
 }
 
-// lex-api/types/org/hypercerts/claim/activity.ts
-var activity_exports = {};
-__export(activity_exports, {
+// lex-api/types/org/hypercerts/claim/project.ts
+var project_exports = {};
+__export(project_exports, {
   isMain: () => isMain8,
   isRecord: () => isMain8,
-  isWorkScope: () => isWorkScope,
   validateMain: () => validateMain8,
-  validateRecord: () => validateMain8,
-  validateWorkScope: () => validateWorkScope
+  validateRecord: () => validateMain8
 });
 var is$typed9 = is$typed;
 var validate9 = validate;
-var id8 = "org.hypercerts.claim.activity";
+var id8 = "org.hypercerts.claim.project";
 var hashMain8 = "main";
 function isMain8(v) {
   return is$typed9(v, id8, hashMain8);
 }
 function validateMain8(v) {
   return validate9(v, id8, hashMain8, true);
-}
-var hashWorkScope = "workScope";
-function isWorkScope(v) {
-  return is$typed9(v, id8, hashWorkScope);
-}
-function validateWorkScope(v) {
-  return validate9(v, id8, hashWorkScope);
-}
-
-// lex-api/types/org/hypercerts/claim/contribution.ts
-var contribution_exports = {};
-__export(contribution_exports, {
-  isMain: () => isMain9,
-  isRecord: () => isMain9,
-  validateMain: () => validateMain9,
-  validateRecord: () => validateMain9
-});
-var is$typed10 = is$typed;
-var validate10 = validate;
-var id9 = "org.hypercerts.claim.contribution";
-var hashMain9 = "main";
-function isMain9(v) {
-  return is$typed10(v, id9, hashMain9);
-}
-function validateMain9(v) {
-  return validate10(v, id9, hashMain9, true);
 }
 var xrpcErrorToTRPCError = (error) => {
   if (error.error === "InvalidRequest") {
@@ -1944,7 +2589,7 @@ var getSiteFactory = (allowedPDSDomainSchema) => {
   ).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const response = await agent.com.atproto.repo.getRecord({
-      collection: "app.gainforest.organization.site",
+      collection: "app.certified.location",
       repo: input.did,
       rkey: input.rkey
     });
@@ -1954,14 +2599,14 @@ var getSiteFactory = (allowedPDSDomainSchema) => {
         message: "Failed to get the site"
       });
     }
-    validateRecordOrThrow(response.data.value, site_exports);
+    validateRecordOrThrow(response.data.value, location_exports);
     return response.data;
   });
 };
 var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z11.object({
-      did: z11.string(),
+    z12.object({
+      did: z12.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -1983,8 +2628,8 @@ var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
 };
 var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z11.object({
-      did: z11.string(),
+    z12.object({
+      did: z12.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2005,6 +2650,22 @@ var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
     return response.data;
   });
 };
+var StrongRefSchema = z12.object({
+  $type: z12.literal("com.atproto.repo.strongRef").optional(),
+  uri: z12.string().regex(/^at:\/\//),
+  cid: z12.string()
+});
+
+// src/_internal/server/utils/ownership.ts
+var checkOwnershipByAtUri = (atUri, userDid) => {
+  const { did } = parseAtUri(atUri);
+  if (did !== userDid) {
+    return false;
+  }
+  return true;
+};
+
+// src/_internal/server/routers/atproto/hypercerts/claim/activity/create.ts
 var uploadFile = async (fileGenerator, agent) => {
   const file2 = new File(
     [Buffer.from(fileGenerator.dataBase64, "base64")],
@@ -2016,21 +2677,23 @@ var uploadFile = async (fileGenerator, agent) => {
 };
 var createClaimActivityFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z11.object({
-      activity: z11.object({
-        title: z11.string(),
-        shortDescription: z11.string(),
-        description: z11.string().optional(),
-        workScopes: z11.array(z11.string()),
-        startDate: z11.string(),
-        endDate: z11.string()
-      }),
-      uploads: z11.object({
-        image: FileGeneratorSchema,
-        contributors: z11.array(z11.string()).refine((v) => v.length > 0, {
-          message: "At least one contribution is required"
+    z12.object({
+      activity: z12.object({
+        title: z12.string(),
+        shortDescription: z12.string(),
+        description: z12.string().optional(),
+        locations: StrongRefSchema.array(),
+        project: z12.string().optional(),
+        workScopes: z12.array(z12.string()),
+        startDate: z12.string(),
+        endDate: z12.string(),
+        contributors: z12.array(z12.string()).refine((v) => v.length > 0, {
+          message: "At least one contributor is required"
         }),
-        siteAtUri: z11.string()
+        createdAt: z12.string().optional()
+      }),
+      uploads: z12.object({
+        image: FileGeneratorSchema
       }),
       pdsDomain: allowedPDSDomainSchema
     })
@@ -2043,36 +2706,21 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
         message: "You are not authorized to perform this action."
       });
     }
-    const locationNSID = "app.certified.location";
-    const location = {
-      $type: locationNSID,
-      lpVersion: "1.0.0",
-      srs: "https://epsg.io/3857",
-      locationType: "geojson",
-      location: {
-        $type: "org.hypercerts.defs#uri",
-        uri: input.uploads.siteAtUri
-      },
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    const validatedLocation = validateRecordOrThrow(
-      location,
-      location_exports
-    );
     const activityNSID = "org.hypercerts.claim.activity";
     const activity = {
       $type: activityNSID,
       title: input.activity.title,
       shortDescription: input.activity.shortDescription,
       description: input.activity.description,
-      // These will be set after the records are created:
+      // These will be set later in the function:
       image: void 0,
-      location: void 0,
       contributions: void 0,
       // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      location: input.activity.locations,
+      project: input.activity.project,
       workScope: {
         $type: "org.hypercerts.claim.activity#workScope",
-        anyOf: input.activity.workScopes
+        withinAnyOf: input.activity.workScopes
       },
       startDate: input.activity.startDate,
       endDate: input.activity.endDate,
@@ -2093,23 +2741,28 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
       },
       // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       role: "Contributor",
-      contributors: input.uploads.contributors,
+      contributors: input.activity.contributors,
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     const validatedContribution = validateRecordOrThrow(
       contribution,
       contribution_exports
     );
-    const locationWriteResponse = await agent.com.atproto.repo.createRecord({
-      repo: did,
-      collection: locationNSID,
-      record: validatedLocation
-    });
-    if (locationWriteResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to write location record"
-      });
+    for (const location of input.activity.locations) {
+      if (!checkOwnershipByAtUri(location.uri, did)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "One of the locations being referenced is not owned by you."
+        });
+      }
+    }
+    if (input.activity.project) {
+      if (!checkOwnershipByAtUri(input.activity.project, did)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "The project being referenced is not owned by you."
+        });
+      }
     }
     const imageBlobRef = await uploadFile(input.uploads.image, agent);
     const activityResponse = await agent.com.atproto.repo.createRecord({
@@ -2120,11 +2773,6 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
         image: {
           $type: "org.hypercerts.defs#smallImage",
           image: toBlobRef(imageBlobRef)
-        },
-        location: {
-          $type: "com.atproto.repo.strongRef",
-          uri: locationWriteResponse.data.uri,
-          cid: locationWriteResponse.data.cid
         }
       }
     });
@@ -2157,17 +2805,17 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
 };
 var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z11.object({
-      did: z11.string(),
-      info: z11.object({
-        displayName: z11.string(),
-        shortDescription: z11.string(),
-        longDescription: z11.string(),
-        website: z11.string().optional(),
+    z12.object({
+      did: z12.string(),
+      info: z12.object({
+        displayName: z12.string(),
+        shortDescription: z12.string(),
+        longDescription: z12.string(),
+        website: z12.string().optional(),
         logo: BlobRefGeneratorSchema.optional(),
         coverImage: BlobRefGeneratorSchema.optional(),
-        objectives: z11.array(
-          z11.enum([
+        objectives: z12.array(
+          z12.enum([
             "Conservation",
             "Research",
             "Education",
@@ -2175,11 +2823,12 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
             "Other"
           ])
         ),
-        startDate: z11.string().optional(),
-        country: z11.string(),
-        visibility: z11.enum(["Public", "Hidden"])
+        startDate: z12.string().optional(),
+        country: z12.string(),
+        visibility: z12.enum(["Public", "Hidden"]),
+        createdAt: z12.string().optional()
       }),
-      uploads: z11.object({
+      uploads: z12.object({
         logo: FileGeneratorSchema.optional(),
         coverImage: FileGeneratorSchema.optional()
       }).optional(),
@@ -2207,7 +2856,7 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
       startDate: input.info.startDate ? input.info.startDate : void 0,
       country: input.info.country,
       visibility: input.info.visibility,
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
+      createdAt: input.info.createdAt ? input.info.createdAt : (/* @__PURE__ */ new Date()).toISOString()
     };
     validateRecordOrThrow(info, info_exports);
     const response = await agent.com.atproto.repo.putRecord({
@@ -2233,13 +2882,13 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
     const agent = getReadAgent(input.pdsDomain);
     const listSitesTryCatchPromise = tryCatch(
       agent.com.atproto.repo.listRecords({
-        collection: "app.gainforest.organization.site",
+        collection: "app.certified.location",
         repo: input.did
       })
     );
     const getDefaultSiteTryCatchPromise = tryCatch(
       agent.com.atproto.repo.getRecord({
-        collection: "app.gainforest.organization.defaultSite",
+        collection: "app.certified.location",
         repo: input.did,
         rkey: "self"
       })
@@ -2268,7 +2917,7 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
     }
     const validRecords = listSitesResponse.data.records.map((record) => {
       try {
-        validateRecordOrThrow(record.value, site_exports);
+        validateRecordOrThrow(record.value, location_exports);
         return record;
       } catch {
         return null;
@@ -2550,6 +3199,33 @@ var isFeature = (value) => value.type === "Feature";
 var isGeometryCollection = (value) => value.type === "GeometryCollection";
 var isPolygon = (value) => value.type === "Polygon";
 var isMultiPolygon = (value) => value.type === "MultiPolygon";
+var isLineString = (value) => value.type === "LineString";
+var isMultiLineString = (value) => value.type === "MultiLineString";
+var isPoint = (value) => value.type === "Point";
+var isMultiPoint = (value) => value.type === "MultiPoint";
+var isLineStringClosed = (lineString) => {
+  const coords = lineString.coordinates;
+  if (coords.length < 4) return false;
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  if (!first || !last || first.length < 2 || last.length < 2) return false;
+  const firstLon = first[0];
+  const firstLat = first[1];
+  const lastLon = last[0];
+  const lastLat = last[1];
+  if (firstLon === void 0 || firstLat === void 0 || lastLon === void 0 || lastLat === void 0) {
+    return false;
+  }
+  const tolerance = 1e-10;
+  return Math.abs(firstLon - lastLon) < tolerance && Math.abs(firstLat - lastLat) < tolerance;
+};
+var lineStringToPolygon = (lineString) => {
+  if (!isLineStringClosed(lineString)) return null;
+  return {
+    type: "Polygon",
+    coordinates: [lineString.coordinates]
+  };
+};
 var toFeature = (geometry) => ({
   type: "Feature",
   geometry,
@@ -2583,7 +3259,110 @@ var extractPolygonFeatures = (input) => {
   }
   return [];
 };
+var extractLineStringFeatures = (input) => {
+  if (isFeatureCollection(input)) {
+    return input.features.flatMap(
+      (feature) => extractLineStringFeatures(feature)
+    );
+  }
+  if (isFeature(input)) {
+    const geometry2 = input.geometry;
+    if (!geometry2) return [];
+    if (isGeometryCollection(geometry2)) {
+      return geometry2.geometries.flatMap(
+        (subGeometry) => extractLineStringFeatures(toFeature(subGeometry))
+      );
+    }
+    if (isLineString(geometry2) || isMultiLineString(geometry2)) {
+      return [input];
+    }
+    return [];
+  }
+  const geometry = input;
+  if (isGeometryCollection(geometry)) {
+    return geometry.geometries.flatMap(
+      (subGeometry) => extractLineStringFeatures(toFeature(subGeometry))
+    );
+  }
+  if (isLineString(geometry) || isMultiLineString(geometry)) {
+    return [toFeature(geometry)];
+  }
+  return [];
+};
+var extractPointFeatures = (input) => {
+  if (isFeatureCollection(input)) {
+    return input.features.flatMap((feature) => extractPointFeatures(feature));
+  }
+  if (isFeature(input)) {
+    const geometry2 = input.geometry;
+    if (!geometry2) return [];
+    if (isGeometryCollection(geometry2)) {
+      return geometry2.geometries.flatMap(
+        (subGeometry) => extractPointFeatures(toFeature(subGeometry))
+      );
+    }
+    if (isPoint(geometry2) || isMultiPoint(geometry2)) {
+      return [input];
+    }
+    return [];
+  }
+  const geometry = input;
+  if (isGeometryCollection(geometry)) {
+    return geometry.geometries.flatMap(
+      (subGeometry) => extractPointFeatures(toFeature(subGeometry))
+    );
+  }
+  if (isPoint(geometry) || isMultiPoint(geometry)) {
+    return [toFeature(geometry)];
+  }
+  return [];
+};
 var computeCentroid = (features) => {
+  if (features.length === 0) return null;
+  const collection = featureCollection(features);
+  try {
+    const { geometry } = centerOfMass(collection);
+    return geometry.coordinates;
+  } catch {
+    try {
+      const { geometry } = centroid(collection);
+      return geometry.coordinates;
+    } catch {
+      return null;
+    }
+  }
+};
+var computeCentroidForLineStrings = (features) => {
+  if (features.length === 0) return null;
+  const collection = featureCollection(features);
+  try {
+    const { geometry } = centerOfMass(collection);
+    return geometry.coordinates;
+  } catch {
+    try {
+      const { geometry } = centroid(collection);
+      return geometry.coordinates;
+    } catch {
+      return null;
+    }
+  }
+};
+var computeCentroidForPoints = (features) => {
+  if (features.length === 0) return null;
+  const collection = featureCollection(features);
+  try {
+    const { geometry } = centerOfMass(collection);
+    return geometry.coordinates;
+  } catch {
+    try {
+      const { geometry } = centroid(collection);
+      return geometry.coordinates;
+    } catch {
+      return null;
+    }
+  }
+};
+var computeCentroidForMixed = (features) => {
   if (features.length === 0) return null;
   const collection = featureCollection(features);
   try {
@@ -2600,20 +3379,118 @@ var computeCentroid = (features) => {
 };
 var computePolygonMetrics = (geoJson) => {
   const polygonFeatures = extractPolygonFeatures(geoJson);
-  if (polygonFeatures.length === 0) {
+  const lineStringFeatures = extractLineStringFeatures(geoJson);
+  const pointFeatures = extractPointFeatures(geoJson);
+  const convertedPolygons = [];
+  for (const lineStringFeature of lineStringFeatures) {
+    if (lineStringFeature.geometry.type === "LineString") {
+      const polygon = lineStringToPolygon(lineStringFeature.geometry);
+      if (polygon) {
+        convertedPolygons.push({
+          type: "Feature",
+          geometry: polygon,
+          properties: lineStringFeature.properties
+        });
+      }
+    } else if (lineStringFeature.geometry.type === "MultiLineString") {
+      for (const lineString of lineStringFeature.geometry.coordinates) {
+        const ls = { coordinates: lineString };
+        const polygon = lineStringToPolygon(ls);
+        if (polygon) {
+          convertedPolygons.push({
+            type: "Feature",
+            geometry: polygon,
+            properties: lineStringFeature.properties
+          });
+        }
+      }
+    }
+  }
+  const allPolygonFeatures = [...polygonFeatures, ...convertedPolygons];
+  if (pointFeatures.length > 0 && allPolygonFeatures.length === 0 && lineStringFeatures.length === 0) {
+    const centroidPosition2 = computeCentroidForPoints(pointFeatures);
+    const bbox2 = bbox(featureCollection(pointFeatures));
+    let centroid2 = null;
+    if (centroidPosition2 && centroidPosition2[0] !== void 0 && centroidPosition2[1] !== void 0) {
+      const [lon, lat] = centroidPosition2;
+      centroid2 = { lat, lon };
+    }
+    return {
+      areaSqMeters: null,
+      areaHectares: null,
+      centroid: centroid2,
+      bbox: bbox2,
+      message: centroid2 ? "Success (Point)" : "Centroid calculation failed"
+    };
+  }
+  if (lineStringFeatures.length > 0 && allPolygonFeatures.length === 0) {
+    lineStringFeatures.reduce(
+      (acc, feature) => acc + length(feature, { units: "meters" }),
+      0
+    );
+    const centroidPosition2 = computeCentroidForLineStrings(lineStringFeatures);
+    const bbox2 = bbox(featureCollection(lineStringFeatures));
+    let centroid2 = null;
+    if (centroidPosition2 && centroidPosition2[0] !== void 0 && centroidPosition2[1] !== void 0) {
+      const [lon, lat] = centroidPosition2;
+      centroid2 = { lat, lon };
+    }
+    return {
+      areaSqMeters: null,
+      areaHectares: null,
+      centroid: centroid2,
+      bbox: bbox2,
+      message: centroid2 ? "Success (LineString)" : "Centroid calculation failed"
+    };
+  }
+  const hasPolygons = allPolygonFeatures.length > 0;
+  const hasLineStrings = lineStringFeatures.length > 0;
+  const hasPoints = pointFeatures.length > 0;
+  const geometryTypeCount = (hasPolygons ? 1 : 0) + (hasLineStrings ? 1 : 0) + (hasPoints ? 1 : 0);
+  if (geometryTypeCount > 1) {
+    const areaSqMeters2 = allPolygonFeatures.reduce(
+      (acc, feature) => acc + area(feature),
+      0
+    );
+    const allFeatures = [
+      ...allPolygonFeatures,
+      ...lineStringFeatures,
+      ...pointFeatures
+    ];
+    const centroidPosition2 = computeCentroidForMixed(allFeatures);
+    const bbox2 = bbox(featureCollection(allFeatures));
+    let centroid2 = null;
+    if (centroidPosition2 && centroidPosition2[0] !== void 0 && centroidPosition2[1] !== void 0) {
+      const [lon, lat] = centroidPosition2;
+      centroid2 = { lat, lon };
+    }
+    const typeLabels = [];
+    if (hasPolygons) typeLabels.push("Polygon");
+    if (hasLineStrings) typeLabels.push("LineString");
+    if (hasPoints) typeLabels.push("Point");
+    return {
+      areaSqMeters: areaSqMeters2,
+      areaHectares: areaSqMeters2 * HECTARES_PER_SQUARE_METER,
+      centroid: centroid2,
+      bbox: bbox2,
+      message: centroid2 ? `Success (mixed: ${typeLabels.join(", ")})` : "Centroid calculation failed"
+    };
+  }
+  if (allPolygonFeatures.length === 0 && lineStringFeatures.length === 0 && pointFeatures.length === 0) {
     return {
       areaSqMeters: null,
       areaHectares: null,
       centroid: null,
-      bbox: null
+      bbox: null,
+      message: "No polygons found"
     };
   }
-  const areaSqMeters = polygonFeatures.reduce(
+  const areaSqMeters = allPolygonFeatures.reduce(
     (acc, feature) => acc + area(feature),
     0
   );
-  const centroidPosition = computeCentroid(polygonFeatures);
-  const bbox$1 = bbox(featureCollection(polygonFeatures));
+  const centroidPosition = computeCentroid(allPolygonFeatures);
+  const bbox$1 = bbox(featureCollection(allPolygonFeatures));
   let centroid = null;
   if (centroidPosition && centroidPosition[0] !== void 0 && centroidPosition[1] !== void 0) {
     const [lon, lat] = centroidPosition;
@@ -2623,11 +3500,12 @@ var computePolygonMetrics = (geoJson) => {
     areaSqMeters,
     areaHectares: areaSqMeters * HECTARES_PER_SQUARE_METER,
     centroid,
-    bbox: bbox$1
+    bbox: bbox$1,
+    message: centroid ? "Success" : "Centroid calculation failed"
   };
 };
 
-// src/_internal/server/routers/atproto/gainforest/organization/site/utils.ts
+// src/_internal/server/routers/atproto/hypercerts/site/utils.ts
 async function fetchGeojsonFromUrl(url) {
   const response = await fetch(url);
   if (!response.ok) {
@@ -2648,7 +3526,7 @@ async function fetchGeojsonFromUrl(url) {
   });
   return file2;
 }
-async function computeGeojsonFile(file2) {
+async function processGeojsonFileOrThrow(file2) {
   if (file2.type !== "application/geo+json") {
     throw new TRPCError({
       code: "BAD_REQUEST",
@@ -2683,7 +3561,7 @@ async function computeGeojsonFile(file2) {
   };
 }
 
-// src/_internal/server/routers/atproto/gainforest/organization/site/create.ts
+// src/_internal/server/routers/atproto/hypercerts/site/create.ts
 var createSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     z.object({
@@ -2705,23 +3583,30 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
       });
     }
     const file2 = typeof input.uploads.shapefile === "string" ? await fetchGeojsonFromUrl(input.uploads.shapefile) : await toFile(input.uploads.shapefile);
-    const { lat, lon, area } = await computeGeojsonFile(file2);
+    const tenMBs = 10 * 1024 * 1024;
+    if (file2.size > tenMBs) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "The GeoJSON file is too large. It must be less than 10MB."
+      });
+    }
+    await processGeojsonFileOrThrow(file2);
     const geojsonUploadResponse = await agent.uploadBlob(file2);
     const geojsonBlobRef = geojsonUploadResponse.data.blob;
-    const nsid = "app.gainforest.organization.site";
+    const nsid = "app.certified.location";
     const site = {
       $type: nsid,
       name: input.site.name,
-      lat,
-      lon,
-      area,
-      shapefile: {
-        $type: "app.gainforest.common.defs#smallBlob",
+      lpVersion: "1.0.0",
+      srs: "https://epsg.io/3857",
+      locationType: "geojson-point",
+      location: {
+        $type: "org.hypercerts.defs#smallBlob",
         blob: geojsonBlobRef
       },
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    validateRecordOrThrow(site, site_exports);
+    validateRecordOrThrow(site, location_exports);
     const creationResponse = await agent.com.atproto.repo.createRecord({
       collection: nsid,
       repo: agent.did,
@@ -2746,10 +3631,7 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
         shapefile: z.object({
           $type: z.literal("app.gainforest.common.defs#smallBlob"),
           blob: BlobRefGeneratorSchema
-        }).optional(),
-        lat: z.string(),
-        lon: z.string(),
-        area: z.string()
+        }).optional()
       }),
       uploads: z.object({
         shapefile: FileGeneratorSchema.optional()
@@ -2772,45 +3654,39 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
         file2 = await toFile(input.uploads.shapefile);
       }
     }
-    let lat;
-    let lon;
-    let area;
     let shapefile;
     if (file2 !== null) {
-      const computed = await computeGeojsonFile(file2);
+      await processGeojsonFileOrThrow(file2);
       const geojsonUploadResponse = await agent.uploadBlob(file2);
       shapefile = {
         $type: "app.gainforest.common.defs#smallBlob",
         blob: geojsonUploadResponse.data.blob
       };
-      lat = computed.lat;
-      lon = computed.lon;
-      area = computed.area;
     } else if (input.site.shapefile) {
       shapefile = {
         $type: "app.gainforest.common.defs#smallBlob",
         blob: toBlobRef(input.site.shapefile.blob)
       };
-      lat = input.site.lat;
-      lon = input.site.lon;
-      area = input.site.area;
     } else {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "No shapefile provided"
       });
     }
-    const nsid = "app.gainforest.organization.site";
+    const nsid = "app.certified.location";
     const site = {
       $type: nsid,
       name: input.site.name,
-      lat,
-      lon,
-      area,
-      shapefile,
+      lpVersion: "1.0.0",
+      srs: "https://epsg.io/3857",
+      locationType: "geojson-point",
+      location: {
+        $type: "org.hypercerts.defs#smallBlob",
+        blob: shapefile.blob
+      },
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    validateRecordOrThrow(site, site_exports);
+    validateRecordOrThrow(site, location_exports);
     const updateResponse = await agent.com.atproto.repo.putRecord({
       collection: nsid,
       repo: agent.did,
@@ -2828,8 +3704,8 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
 };
 var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z11.object({
-      siteAtUri: z11.string(),
+    z12.object({
+      siteAtUri: z12.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -2841,7 +3717,7 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
       });
     }
     const siteUri = input.siteAtUri;
-    const siteNSID = "app.gainforest.organization.site";
+    const siteNSID = "app.certified.location";
     if (!(siteUri.startsWith(`at://`) && siteUri.includes(siteNSID))) {
       throw new TRPCError({
         code: "BAD_REQUEST",
@@ -2883,7 +3759,7 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
 };
 var deleteSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z11.object({ siteAtUri: z11.string(), pdsDomain: allowedPDSDomainSchema })
+    z12.object({ siteAtUri: z12.string(), pdsDomain: allowedPDSDomainSchema })
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
@@ -2965,6 +3841,16 @@ var getAllClaimActivitiesPure = async (did, pdsDomain) => {
   return {
     activities: validRecords
   };
+};
+var getAllClaimActivitiesFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    z.object({
+      did: z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    return await getAllClaimActivitiesPure(input.did, input.pdsDomain);
+  });
 };
 
 // src/_internal/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
@@ -3120,202 +4006,6 @@ var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
     );
   });
 };
-
-// src/_internal/server/utils/ownership.ts
-var checkOwnershipByAtUri = (atUri, userDid) => {
-  const { did } = parseAtUri(atUri);
-  if (did !== userDid) {
-    return false;
-  }
-  return true;
-};
-
-// src/_internal/server/routers/atproto/gainforest/organization/project/utils.ts
-var filterProjectByOwnership = (project, userDid) => {
-  return {
-    ...project,
-    sites: project.sites.filter((site) => checkOwnershipByAtUri(site, userDid)),
-    measuredTreesClusters: project.measuredTreesClusters.filter(
-      (measuredTreesCluster) => checkOwnershipByAtUri(measuredTreesCluster, userDid)
-    ),
-    layers: project.layers.filter(
-      (layer) => checkOwnershipByAtUri(layer, userDid)
-    ),
-    ecocerts: project.ecocerts.filter(
-      (ecocert) => checkOwnershipByAtUri(ecocert, userDid)
-    )
-  };
-};
-
-// src/_internal/server/routers/atproto/gainforest/organization/site/addToProject.ts
-var addSitesToProjectFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z.object({
-      did: z.string(),
-      projectRkey: z.string(),
-      siteUris: z.array(z.string()).min(1),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const readAgent = getReadAgent(input.pdsDomain);
-    const writeAgent = await getWriteAgent(input.pdsDomain);
-    if (!writeAgent.did) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authenticated"
-      });
-    }
-    const ownedSiteUris = input.siteUris.filter(
-      (uri) => checkOwnershipByAtUri(uri, input.did)
-    );
-    if (ownedSiteUris.length !== input.siteUris.length) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: ownedSiteUris.length === 1 ? "The site you are trying to add is not owned by you" : "The sites you are trying to add are not owned by you"
-      });
-    }
-    const siteExistencePromise = Promise.all(
-      input.siteUris.map(async (uri) => {
-        const { did, collection, rkey } = parseAtUri(uri);
-        const response = await readAgent.com.atproto.repo.getRecord({
-          collection,
-          repo: did,
-          rkey
-        });
-        return response.success === true;
-      })
-    );
-    const [siteExistence, siteExistenceCheckError] = await tryCatch(siteExistencePromise);
-    if (siteExistenceCheckError) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to check the existence of the sites"
-      });
-    }
-    if (!siteExistence.every(Boolean)) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: siteExistence.length === 1 ? "The site you are trying to add does not exist" : "The sites you are trying to add do not exist"
-      });
-    }
-    const getResponse = await readAgent.com.atproto.repo.getRecord({
-      collection: "app.gainforest.organization.project",
-      repo: input.did,
-      rkey: input.projectRkey
-    });
-    if (getResponse.success !== true) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Project not found"
-      });
-    }
-    const validatedProject = validateRecordOrThrow(
-      getResponse.data.value,
-      project_exports
-    );
-    const existingSites = new Set(validatedProject.sites);
-    const newSites = input.siteUris.filter((uri) => !existingSites.has(uri));
-    const updatedSites = [...validatedProject.sites, ...newSites];
-    const updatedProject = {
-      ...validatedProject,
-      sites: updatedSites
-    };
-    const ownershipCheckedProject = filterProjectByOwnership(
-      updatedProject,
-      input.did
-    );
-    validateRecordOrThrow(
-      ownershipCheckedProject,
-      project_exports
-    );
-    const putResponse = await writeAgent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.project",
-      record: ownershipCheckedProject,
-      rkey: input.projectRkey
-    });
-    if (putResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to add sites to project"
-      });
-    }
-    return {
-      uri: putResponse.data.uri,
-      cid: putResponse.data.cid,
-      validationStatus: putResponse.data.validationStatus,
-      value: ownershipCheckedProject
-    };
-  });
-};
-var removeSitesFromProjectFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z.object({
-      did: z.string(),
-      projectRkey: z.string(),
-      siteUris: z.array(z.string()).min(1),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const readAgent = getReadAgent(input.pdsDomain);
-    const writeAgent = await getWriteAgent(input.pdsDomain);
-    if (!writeAgent.did) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authenticated"
-      });
-    }
-    const getResponse = await readAgent.com.atproto.repo.getRecord({
-      collection: "app.gainforest.organization.project",
-      repo: input.did,
-      rkey: input.projectRkey
-    });
-    if (getResponse.success !== true) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Project not found"
-      });
-    }
-    const validatedProject = validateRecordOrThrow(
-      getResponse.data.value,
-      project_exports
-    );
-    const sitesToRemove = new Set(input.siteUris);
-    const updatedSites = validatedProject.sites.filter(
-      (uri) => !sitesToRemove.has(uri)
-    );
-    const updatedProject = {
-      ...validatedProject,
-      sites: updatedSites
-    };
-    const ownershipCheckedProject = filterProjectByOwnership(
-      updatedProject,
-      input.did
-    );
-    validateRecordOrThrow(
-      ownershipCheckedProject,
-      project_exports
-    );
-    const putResponse = await writeAgent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.project",
-      record: ownershipCheckedProject,
-      rkey: input.projectRkey
-    });
-    if (putResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to remove sites from project"
-      });
-    }
-    return {
-      uri: putResponse.data.uri,
-      cid: putResponse.data.cid,
-      validationStatus: putResponse.data.validationStatus,
-      value: ownershipCheckedProject
-    };
-  });
-};
 var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     z.object({
@@ -3379,48 +4069,8 @@ var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
         message: "Project not found"
       });
     }
-    const validatedProject = validateRecordOrThrow(
-      getResponse.data.value,
-      project_exports
-    );
-    const existingClusters = new Set(validatedProject.measuredTreesClusters);
-    const newClusters = input.measuredTreesClusterUris.filter(
-      (uri) => !existingClusters.has(uri)
-    );
-    const updatedClusters = [
-      ...validatedProject.measuredTreesClusters,
-      ...newClusters
-    ];
-    const updatedProject = {
-      ...validatedProject,
-      measuredTreesClusters: updatedClusters
-    };
-    const ownershipCheckedProject = filterProjectByOwnership(
-      updatedProject,
-      input.did
-    );
-    validateRecordOrThrow(
-      ownershipCheckedProject,
-      project_exports
-    );
-    const putResponse = await writeAgent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.project",
-      record: ownershipCheckedProject,
-      rkey: input.projectRkey
-    });
-    if (putResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to add measured trees clusters to project"
-      });
-    }
-    return {
-      uri: putResponse.data.uri,
-      cid: putResponse.data.cid,
-      validationStatus: putResponse.data.validationStatus,
-      value: ownershipCheckedProject
-    };
+    console.log("\u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F THIS ENDPOINT IS NOT IMPLEMENTED YET \u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F");
+    return true;
   });
 };
 var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
@@ -3451,44 +4101,8 @@ var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
         message: "Project not found"
       });
     }
-    const validatedProject = validateRecordOrThrow(
-      getResponse.data.value,
-      project_exports
-    );
-    const clustersToRemove = new Set(input.measuredTreesClusterUris);
-    const updatedClusters = validatedProject.measuredTreesClusters.filter(
-      (uri) => !clustersToRemove.has(uri)
-    );
-    const updatedProject = {
-      ...validatedProject,
-      measuredTreesClusters: updatedClusters
-    };
-    const ownershipCheckedProject = filterProjectByOwnership(
-      updatedProject,
-      input.did
-    );
-    validateRecordOrThrow(
-      ownershipCheckedProject,
-      project_exports
-    );
-    const putResponse = await writeAgent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.project",
-      record: ownershipCheckedProject,
-      rkey: input.projectRkey
-    });
-    if (putResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to remove measured trees clusters from project"
-      });
-    }
-    return {
-      uri: putResponse.data.uri,
-      cid: putResponse.data.cid,
-      validationStatus: putResponse.data.validationStatus,
-      value: ownershipCheckedProject
-    };
+    console.log("\u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F THIS ENDPOINT IS NOT IMPLEMENTED YET \u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F");
+    return true;
   });
 };
 var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
@@ -3554,45 +4168,8 @@ var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
         message: "Project not found"
       });
     }
-    const validatedProject = validateRecordOrThrow(
-      getResponse.data.value,
-      project_exports
-    );
-    const existingLayers = new Set(validatedProject.layers);
-    const newLayers = input.layerUris.filter(
-      (uri) => !existingLayers.has(uri)
-    );
-    const updatedLayers = [...validatedProject.layers, ...newLayers];
-    const updatedProject = {
-      ...validatedProject,
-      layers: updatedLayers
-    };
-    const ownershipCheckedProject = filterProjectByOwnership(
-      updatedProject,
-      input.did
-    );
-    validateRecordOrThrow(
-      ownershipCheckedProject,
-      project_exports
-    );
-    const putResponse = await writeAgent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.project",
-      record: ownershipCheckedProject,
-      rkey: input.projectRkey
-    });
-    if (putResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to add layers to project"
-      });
-    }
-    return {
-      uri: putResponse.data.uri,
-      cid: putResponse.data.cid,
-      validationStatus: putResponse.data.validationStatus,
-      value: ownershipCheckedProject
-    };
+    console.log("\u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F THIS ENDPOINT IS NOT IMPLEMENTED YET \u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F");
+    return true;
   });
 };
 var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
@@ -3623,44 +4200,12 @@ var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
         message: "Project not found"
       });
     }
-    const validatedProject = validateRecordOrThrow(
+    validateRecordOrThrow(
       getResponse.data.value,
       project_exports
     );
-    const layersToRemove = new Set(input.layerUris);
-    const updatedLayers = validatedProject.layers.filter(
-      (uri) => !layersToRemove.has(uri)
-    );
-    const updatedProject = {
-      ...validatedProject,
-      layers: updatedLayers
-    };
-    const ownershipCheckedProject = filterProjectByOwnership(
-      updatedProject,
-      input.did
-    );
-    validateRecordOrThrow(
-      ownershipCheckedProject,
-      project_exports
-    );
-    const putResponse = await writeAgent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.project",
-      record: ownershipCheckedProject,
-      rkey: input.projectRkey
-    });
-    if (putResponse.success !== true) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to remove layers from project"
-      });
-    }
-    return {
-      uri: putResponse.data.uri,
-      cid: putResponse.data.cid,
-      validationStatus: putResponse.data.validationStatus,
-      value: ownershipCheckedProject
-    };
+    console.log("\u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F THIS ENDPOINT IS NOT IMPLEMENTED YET \u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F");
+    return true;
   });
 };
 var getLayerFactory = (allowedPDSDomainSchema) => {
@@ -3704,7 +4249,7 @@ var getProjectFactory = (allowedPDSDomainSchema) => {
     })
   ).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
-    const nsid = "app.gainforest.organization.project";
+    const nsid = "org.hypercerts.claim.project";
     const response = await agent.com.atproto.repo.getRecord({
       collection: nsid,
       repo: input.did,
@@ -3720,13 +4265,9 @@ var getProjectFactory = (allowedPDSDomainSchema) => {
       response.data.value,
       project_exports
     );
-    const ownershipCheckedRecord = filterProjectByOwnership(
-      validatedRecord,
-      input.did
-    );
     response.data = {
       ...response.data,
-      value: ownershipCheckedRecord
+      value: validatedRecord
     };
     return response.data;
   });
@@ -3739,7 +4280,7 @@ var getAllProjectsFactory = (allowedPDSDomainSchema) => {
     })
   ).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
-    const nsid = "app.gainforest.organization.project";
+    const nsid = "org.hypercerts.claim.project";
     const response = await agent.com.atproto.repo.listRecords({
       collection: nsid,
       repo: input.did
@@ -3763,12 +4304,55 @@ var getAllProjectsFactory = (allowedPDSDomainSchema) => {
       return {
         uri: record.uri,
         cid: record.cid,
-        value: filterProjectByOwnership(validatedRecord, input.did)
+        value: validatedRecord
       };
     }).filter((record) => record !== null);
     return ownershipCheckedRecords;
   });
 };
+var getAllLayersFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    z.object({
+      did: z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    const agent = getReadAgent(input.pdsDomain);
+    const nsid = "app.gainforest.organization.layer";
+    const response = await agent.com.atproto.repo.listRecords({
+      collection: nsid,
+      repo: input.did
+    });
+    if (response.success !== true) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get the layers"
+      });
+    }
+    const validatedRecords = response.data.records.map((record) => {
+      let validatedRecord;
+      try {
+        validatedRecord = validateRecordOrThrow(
+          record.value,
+          layer_exports
+        );
+      } catch (error) {
+        return null;
+      }
+      return {
+        ...record,
+        value: validatedRecord
+      };
+    }).filter((record) => record !== null);
+    return validatedRecords.map((record) => ({
+      uri: record.uri,
+      cid: record.cid,
+      value: record.value
+    }));
+  });
+};
+
+// src/_internal/server/routers/_app.ts
 var AppRouterFactory = class {
   constructor(_allowedPDSDomains) {
     __publicField(this, "allowedPDSDomains");
@@ -3780,7 +4364,7 @@ var AppRouterFactory = class {
       );
     });
     this.allowedPDSDomains = _allowedPDSDomains;
-    this.allowedPDSDomainSchema = z11.enum(this.allowedPDSDomains);
+    this.allowedPDSDomainSchema = z12.enum(this.allowedPDSDomains);
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
@@ -3799,45 +4383,26 @@ var AppRouterFactory = class {
               this.allowedPDSDomainSchema
             )
           },
-          project: {
-            get: getProjectFactory(this.allowedPDSDomainSchema),
-            getAll: getAllProjectsFactory(this.allowedPDSDomainSchema),
-            createOrUpdate: createOrUpdateOrganizationInfoFactory(
-              this.allowedPDSDomainSchema
-            )
-          },
-          site: {
-            get: getSiteFactory(this.allowedPDSDomainSchema),
-            getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
-            create: createSiteFactory(this.allowedPDSDomainSchema),
-            update: updateSiteFactory(this.allowedPDSDomainSchema),
-            delete: deleteSiteFactory(this.allowedPDSDomainSchema),
-            getDefault: getDefaultProjectSiteFactory(
-              this.allowedPDSDomainSchema
-            ),
-            setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema),
-            addToProject: addSitesToProjectFactory(this.allowedPDSDomainSchema),
-            removeFromProject: removeSitesFromProjectFactory(
-              this.allowedPDSDomainSchema
-            )
-          },
-          measuredTreesCluster: {
-            get: getMeasuredTreesFactory(this.allowedPDSDomainSchema),
-            addToProject: addMeasuredTreesClusterToProjectFactory(
-              this.allowedPDSDomainSchema
-            ),
-            removeFromProject: removeMeasuredTreesClusterFromProjectFactory(
-              this.allowedPDSDomainSchema
-            )
-          },
-          layers: {
+          layer: {
             get: getLayerFactory(this.allowedPDSDomainSchema),
+            getAll: getAllLayersFactory(this.allowedPDSDomainSchema),
             addToProject: addLayersToProjectFactory(
               this.allowedPDSDomainSchema
             ),
             removeFromProject: removeLayersFromProjectFactory(
               this.allowedPDSDomainSchema
             )
+          },
+          observations: {
+            measuredTreesCluster: {
+              get: getMeasuredTreesFactory(this.allowedPDSDomainSchema),
+              addToProject: addMeasuredTreesClusterToProjectFactory(
+                this.allowedPDSDomainSchema
+              ),
+              removeFromProject: removeMeasuredTreesClusterFromProjectFactory(
+                this.allowedPDSDomainSchema
+              )
+            }
           }
         }
       },
@@ -3848,11 +4413,28 @@ var AppRouterFactory = class {
             getAllAcrossOrgs: getAllClaimActivitiesAcrossOrganizationsFactory(
               this.allowedPDSDomainSchema
             ),
-            get: getCliamActivityFactory(this.allowedPDSDomainSchema)
+            get: getCliamActivityFactory(this.allowedPDSDomainSchema),
+            getAll: getAllClaimActivitiesFactory(this.allowedPDSDomainSchema)
+          },
+          project: {
+            get: getProjectFactory(this.allowedPDSDomainSchema),
+            getAll: getAllProjectsFactory(this.allowedPDSDomainSchema),
+            createOrUpdate: createOrUpdateOrganizationInfoFactory(
+              this.allowedPDSDomainSchema
+            )
           }
         },
         location: {
           get: getCertifiedLocationFactory(this.allowedPDSDomainSchema)
+        },
+        site: {
+          get: getSiteFactory(this.allowedPDSDomainSchema),
+          getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
+          create: createSiteFactory(this.allowedPDSDomainSchema),
+          update: updateSiteFactory(this.allowedPDSDomainSchema),
+          delete: deleteSiteFactory(this.allowedPDSDomainSchema),
+          getDefault: getDefaultProjectSiteFactory(this.allowedPDSDomainSchema),
+          setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema)
         }
       }
     });

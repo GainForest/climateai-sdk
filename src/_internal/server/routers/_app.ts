@@ -4,31 +4,31 @@ import { loginFactory } from "./atproto/auth/login";
 import { resumeFactory } from "./atproto/auth/resume";
 import { logoutFactory } from "./atproto/auth/logout";
 import { getOrganizationInfoFactory } from "./atproto/gainforest/organization/info/get";
-import { getSiteFactory } from "./atproto/gainforest/organization/site/get";
-import { getDefaultProjectSiteFactory } from "./atproto/gainforest/organization/site/getDefault";
+import { getSiteFactory } from "./atproto/hypercerts/site/get";
+import { getDefaultProjectSiteFactory } from "./atproto/hypercerts/site/getDefault";
 import { getMeasuredTreesFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/get";
 import { createClaimActivityFactory } from "./atproto/hypercerts/claim/activity/create";
 import { createOrUpdateOrganizationInfoFactory } from "./atproto/gainforest/organization/info/createOrUpdate";
-import { getAllSitesFactory } from "./atproto/gainforest/organization/site/getAll";
-import { createSiteFactory } from "./atproto/gainforest/organization/site/create";
-import { updateSiteFactory } from "./atproto/gainforest/organization/site/update";
-import { setDefaultSiteFactory } from "./atproto/gainforest/organization/site/setDefault";
-import { deleteSiteFactory } from "./atproto/gainforest/organization/site/delete";
+import { getAllSitesFactory } from "./atproto/hypercerts/site/getAll";
+import { createSiteFactory } from "./atproto/hypercerts/site/create";
+import { updateSiteFactory } from "./atproto/hypercerts/site/update";
+import { setDefaultSiteFactory } from "./atproto/hypercerts/site/setDefault";
+import { deleteSiteFactory } from "./atproto/hypercerts/site/delete";
 import { getAllClaimActivitiesAcrossOrganizationsFactory } from "./atproto/hypercerts/claim/activity/getAllAcrossOrgs";
 import { getCliamActivityFactory } from "./atproto/hypercerts/claim/activity/get";
 import { getCertifiedLocationFactory } from "./atproto/hypercerts/location/get";
-import { addSitesToProjectFactory } from "./atproto/gainforest/organization/site/addToProject";
-import { removeSitesFromProjectFactory } from "./atproto/gainforest/organization/site/removeFromProject";
-import { addMeasuredTreesClusterToProjectFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/addToProject";
-import { removeMeasuredTreesClusterFromProjectFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/removeFromProject";
-import { addLayersToProjectFactory } from "./atproto/gainforest/organization/layer/addToProject";
-import { removeLayersFromProjectFactory } from "./atproto/gainforest/organization/layer/removeFromProject";
+import { addMeasuredTreesClusterToProjectFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/_addToProject";
+import { removeMeasuredTreesClusterFromProjectFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/_removeFromProject";
+import { addLayersToProjectFactory } from "./atproto/gainforest/organization/layer/_addToProject";
+import { removeLayersFromProjectFactory } from "./atproto/gainforest/organization/layer/_removeFromProject";
 import { getLayerFactory } from "./atproto/gainforest/organization/layer/get";
-import { getProjectFactory } from "./atproto/gainforest/organization/project/get";
-import { getAllProjectsFactory } from "./atproto/gainforest/organization/project/getAll";
+import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
+import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
 import z from "zod";
+import { getAllLayersFactory } from "./atproto/gainforest/organization/layer/getAll";
+import { getAllClaimActivitiesFactory } from "./atproto/hypercerts/claim/activity/getAll";
 export class AppRouterFactory<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public allowedPDSDomainSchema;
@@ -56,45 +56,26 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
               this.allowedPDSDomainSchema
             ),
           },
-          project: {
-            get: getProjectFactory(this.allowedPDSDomainSchema),
-            getAll: getAllProjectsFactory(this.allowedPDSDomainSchema),
-            createOrUpdate: createOrUpdateOrganizationInfoFactory(
-              this.allowedPDSDomainSchema
-            ),
-          },
-          site: {
-            get: getSiteFactory(this.allowedPDSDomainSchema),
-            getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
-            create: createSiteFactory(this.allowedPDSDomainSchema),
-            update: updateSiteFactory(this.allowedPDSDomainSchema),
-            delete: deleteSiteFactory(this.allowedPDSDomainSchema),
-            getDefault: getDefaultProjectSiteFactory(
-              this.allowedPDSDomainSchema
-            ),
-            setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema),
-            addToProject: addSitesToProjectFactory(this.allowedPDSDomainSchema),
-            removeFromProject: removeSitesFromProjectFactory(
-              this.allowedPDSDomainSchema
-            ),
-          },
-          measuredTreesCluster: {
-            get: getMeasuredTreesFactory(this.allowedPDSDomainSchema),
-            addToProject: addMeasuredTreesClusterToProjectFactory(
-              this.allowedPDSDomainSchema
-            ),
-            removeFromProject: removeMeasuredTreesClusterFromProjectFactory(
-              this.allowedPDSDomainSchema
-            ),
-          },
-          layers: {
+          layer: {
             get: getLayerFactory(this.allowedPDSDomainSchema),
+            getAll: getAllLayersFactory(this.allowedPDSDomainSchema),
             addToProject: addLayersToProjectFactory(
               this.allowedPDSDomainSchema
             ),
             removeFromProject: removeLayersFromProjectFactory(
               this.allowedPDSDomainSchema
             ),
+          },
+          observations: {
+            measuredTreesCluster: {
+              get: getMeasuredTreesFactory(this.allowedPDSDomainSchema),
+              addToProject: addMeasuredTreesClusterToProjectFactory(
+                this.allowedPDSDomainSchema
+              ),
+              removeFromProject: removeMeasuredTreesClusterFromProjectFactory(
+                this.allowedPDSDomainSchema
+              ),
+            },
           },
         },
       },
@@ -106,10 +87,27 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
               this.allowedPDSDomainSchema
             ),
             get: getCliamActivityFactory(this.allowedPDSDomainSchema),
+            getAll: getAllClaimActivitiesFactory(this.allowedPDSDomainSchema),
+          },
+          project: {
+            get: getProjectFactory(this.allowedPDSDomainSchema),
+            getAll: getAllProjectsFactory(this.allowedPDSDomainSchema),
+            createOrUpdate: createOrUpdateOrganizationInfoFactory(
+              this.allowedPDSDomainSchema
+            ),
           },
         },
         location: {
           get: getCertifiedLocationFactory(this.allowedPDSDomainSchema),
+        },
+        site: {
+          get: getSiteFactory(this.allowedPDSDomainSchema),
+          getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
+          create: createSiteFactory(this.allowedPDSDomainSchema),
+          update: updateSiteFactory(this.allowedPDSDomainSchema),
+          delete: deleteSiteFactory(this.allowedPDSDomainSchema),
+          getDefault: getDefaultProjectSiteFactory(this.allowedPDSDomainSchema),
+          setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema),
         },
       },
     });

@@ -15,21 +15,161 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
 function isObject(v) {
   return v != null && typeof v === "object";
 }
-function is$type($type, id24, hash) {
-  return hash === "main" ? $type === id24 : (
+function is$type($type, id42, hash) {
+  return hash === "main" ? $type === id42 : (
     // $type === `${id}#${hash}`
-    typeof $type === "string" && $type.length === id24.length + 1 + hash.length && $type.charCodeAt(id24.length) === 35 && $type.startsWith(id24) && $type.endsWith(hash)
+    typeof $type === "string" && $type.length === id42.length + 1 + hash.length && $type.charCodeAt(id42.length) === 35 && $type.startsWith(id42) && $type.endsWith(hash)
   );
 }
-function is$typed(v, id24, hash) {
-  return isObject(v) && "$type" in v && is$type(v.$type, id24, hash);
+function is$typed(v, id42, hash) {
+  return isObject(v) && "$type" in v && is$type(v.$type, id42, hash);
 }
-function maybe$typed(v, id24, hash) {
-  return isObject(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id24, hash) : true);
+function maybe$typed(v, id42, hash) {
+  return isObject(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id42, hash) : true);
 }
 
 // lex-api/lexicons.ts
 var schemaDict = {
+  AppCertifiedBadgeAward: {
+    lexicon: 1,
+    id: "app.certified.badge.award",
+    defs: {
+      main: {
+        type: "record",
+        description: "Records a badge award to a user, project, or activity claim.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["badge", "subject", "createdAt"],
+          properties: {
+            badge: {
+              type: "ref",
+              ref: "lex:app.certified.badge.definition",
+              description: "Reference to the badge definition for this award."
+            },
+            subject: {
+              type: "union",
+              description: "Entity the badge award is for (either an account DID or any specific AT Protocol record), e.g. a user, a project, or a specific activity claim.",
+              refs: [
+                "lex:app.certified.defs#did",
+                "lex:com.atproto.repo.strongRef"
+              ]
+            },
+            note: {
+              type: "string",
+              description: "Optional statement explaining the reason for this badge award."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppCertifiedBadgeDefinition: {
+    lexicon: 1,
+    id: "app.certified.badge.definition",
+    defs: {
+      main: {
+        type: "record",
+        description: "Defines a badge that can be awarded via badge award records to users, projects, or activity claims.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["title", "badgeType", "icon", "createdAt"],
+          properties: {
+            badgeType: {
+              type: "string",
+              description: "Category of the badge (e.g. endorsement, participation, affiliation)."
+            },
+            title: {
+              type: "string",
+              description: "Human-readable title of the badge."
+            },
+            icon: {
+              type: "blob",
+              description: "Icon representing the badge, stored as a blob for compact visual display.",
+              accept: [
+                "image/png",
+                "image/jpeg",
+                "image/webp",
+                "image/svg+xml"
+              ],
+              maxSize: 1048576
+            },
+            description: {
+              type: "string",
+              description: "Optional short statement describing what the badge represents."
+            },
+            allowedIssuers: {
+              type: "array",
+              description: "Optional allowlist of DIDs allowed to issue this badge. If omitted, anyone may issue it.",
+              items: {
+                type: "ref",
+                ref: "lex:app.certified.defs#did"
+              }
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppCertifiedBadgeResponse: {
+    lexicon: 1,
+    id: "app.certified.badge.response",
+    defs: {
+      main: {
+        type: "record",
+        description: "Recipient response to a badge award.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["badgeAward", "response", "createdAt"],
+          properties: {
+            badgeAward: {
+              type: "ref",
+              ref: "lex:app.certified.badge.award",
+              description: "Reference to the badge award."
+            },
+            response: {
+              type: "string",
+              enum: ["accepted", "rejected"],
+              description: "The recipient\u2019s response for the badge (accepted or rejected)."
+            },
+            weight: {
+              type: "string",
+              description: "Optional relative weight for accepted badges, assigned by the recipient."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
+  AppCertifiedDefs: {
+    lexicon: 1,
+    id: "app.certified.defs",
+    description: "Common type definitions used across certified protocols.",
+    defs: {
+      did: {
+        type: "string",
+        format: "did",
+        description: "A Decentralized Identifier (DID) string."
+      }
+    }
+  },
   AppCertifiedLocation: {
     lexicon: 1,
     id: "app.certified.location",
@@ -37,7 +177,7 @@ var schemaDict = {
       main: {
         type: "record",
         description: "A location reference",
-        key: "any",
+        key: "tid",
         record: {
           type: "object",
           required: [
@@ -208,88 +348,6 @@ var schemaDict = {
       }
     }
   },
-  AppGainforestOrganizationDraftEcocert: {
-    lexicon: 1,
-    id: "app.gainforest.organization.draft.ecocert",
-    defs: {
-      main: {
-        type: "record",
-        description: "A declaration of an unpublished ecocert for an organization",
-        key: "tid",
-        record: {
-          type: "object",
-          required: [
-            "title",
-            "coverImage",
-            "workScopes",
-            "workStartDate",
-            "workEndDate",
-            "description",
-            "shortDescription",
-            "contributors",
-            "site",
-            "createdAt"
-          ],
-          nullable: ["coverImage"],
-          properties: {
-            title: {
-              type: "string",
-              description: "The title of the ecocert"
-            },
-            coverImage: {
-              type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallImage",
-              description: "The cover image of the ecocert"
-            },
-            workScopes: {
-              type: "array",
-              description: "The work scopes of the ecocert",
-              items: {
-                type: "string",
-                description: "The work scope of the ecocert"
-              }
-            },
-            workStartDate: {
-              type: "string",
-              description: "The start date of the work",
-              format: "datetime"
-            },
-            workEndDate: {
-              type: "string",
-              description: "The end date of the work",
-              format: "datetime"
-            },
-            description: {
-              type: "string",
-              description: "The description of the ecocert in markdown"
-            },
-            shortDescription: {
-              type: "string",
-              description: "The short description of the ecocert in markdown"
-            },
-            contributors: {
-              type: "array",
-              description: "The contributors of the ecocert in markdown",
-              items: {
-                type: "string",
-                description: "The contributor of the ecocert"
-              }
-            },
-            site: {
-              type: "string",
-              format: "at-uri",
-              description: "The reference to the site record in the PDS"
-            },
-            createdAt: {
-              type: "string",
-              description: "The date and time of the creation of the record",
-              format: "datetime"
-            }
-          }
-        }
-      }
-    }
-  },
   AppGainforestOrganizationGetIndexedOrganizations: {
     lexicon: 1,
     id: "app.gainforest.organization.getIndexedOrganizations",
@@ -354,7 +412,7 @@ var schemaDict = {
             },
             longDescription: {
               type: "string",
-              description: "The long description of the organization or project in markdown",
+              description: "The long description of the organization or project in richtext",
               minLength: 50,
               maxLength: 5e3
             },
@@ -633,127 +691,6 @@ var schemaDict = {
       }
     }
   },
-  AppGainforestOrganizationProject: {
-    lexicon: 1,
-    id: "app.gainforest.organization.project",
-    defs: {
-      main: {
-        type: "record",
-        description: "A declaration of a project for an organization",
-        key: "tid",
-        record: {
-          type: "object",
-          required: [
-            "name",
-            "shortDescription",
-            "ecocerts",
-            "sites",
-            "measuredTreesClusters",
-            "layers",
-            "createdAt"
-          ],
-          properties: {
-            name: {
-              type: "string",
-              description: "The name of the site"
-            },
-            description: {
-              type: "string",
-              description: "The description of the project in markdown"
-            },
-            shortDescription: {
-              type: "string",
-              description: "The short description of the project"
-            },
-            ecocerts: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the ecocerts related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the ecocert record in the PDS"
-              }
-            },
-            layers: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the layers related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the layer record in the PDS"
-              }
-            },
-            sites: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the sites related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the site record in the PDS"
-              }
-            },
-            measuredTreesClusters: {
-              type: "array",
-              description: "An array of at-uris pointing to the records of the measured trees clusters related to the project",
-              items: {
-                type: "string",
-                format: "at-uri",
-                description: "The reference to the measured trees cluster record in the PDS"
-              }
-            },
-            createdAt: {
-              type: "string",
-              description: "The date and time of the creation of the record",
-              format: "datetime"
-            }
-          }
-        }
-      }
-    }
-  },
-  AppGainforestOrganizationSite: {
-    lexicon: 1,
-    id: "app.gainforest.organization.site",
-    defs: {
-      main: {
-        type: "record",
-        description: "A declaration of a site for an organization",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["name", "lat", "lon", "area", "shapefile", "createdAt"],
-          properties: {
-            name: {
-              type: "string",
-              description: "The name of the site"
-            },
-            lat: {
-              type: "string",
-              description: "The latitude of the centerpoint of the site"
-            },
-            lon: {
-              type: "string",
-              description: "The longitude of the centerpoint of the site"
-            },
-            area: {
-              type: "string",
-              description: "The area of the site in hectares"
-            },
-            shapefile: {
-              type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallBlob",
-              description: "A blob pointing to a geoJSON file containing the site boundaries"
-            },
-            createdAt: {
-              type: "string",
-              description: "The date and time of the creation of the record",
-              format: "datetime"
-            }
-          }
-        }
-      }
-    }
-  },
   ComAtprotoRepoStrongRef: {
     lexicon: 1,
     id: "com.atproto.repo.strongRef",
@@ -795,7 +732,7 @@ var schemaDict = {
           properties: {
             title: {
               type: "string",
-              description: "Title of the hypercert",
+              description: "Title of the hypercert.",
               maxLength: 256
             },
             shortDescription: {
@@ -816,7 +753,7 @@ var schemaDict = {
                 "lex:org.hypercerts.defs#uri",
                 "lex:org.hypercerts.defs#smallImage"
               ],
-              description: "The hypercert visual representation as a URI or image blob"
+              description: "The hypercert visual representation as a URI or image blob."
             },
             workScope: {
               type: "ref",
@@ -834,7 +771,7 @@ var schemaDict = {
             },
             contributions: {
               type: "array",
-              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution",
+              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution.",
               items: {
                 type: "ref",
                 ref: "lex:com.atproto.repo.strongRef"
@@ -843,12 +780,20 @@ var schemaDict = {
             rights: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights"
+              description: "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights."
             },
-            location: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the location where the work for done hypercert was located. The record referenced must conform with the lexicon app.certified.location"
+            locations: {
+              type: "array",
+              description: "An array of strong references to the location where activity was performed. The record referenced must conform with the lexicon app.certified.location.",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              }
+            },
+            project: {
+              type: "string",
+              format: "at-uri",
+              description: "A reference (AT-URI) to the project record that this activity is part of. The record referenced must conform with the lexicon org.hypercerts.claim.project. This activity must also be referenced by the project, establishing a bidirectional link."
             },
             createdAt: {
               type: "string",
@@ -860,9 +805,9 @@ var schemaDict = {
       },
       workScope: {
         type: "object",
-        description: "Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply.",
+        description: "Logical scope of the work using label-based conditions. All labels in `withinAllOf` must apply; at least one label in `withinAnyOf` must apply if provided; no label in `withinNoneOf` may apply.",
         properties: {
-          allOf: {
+          withinAllOf: {
             type: "array",
             description: "Labels that MUST all hold for the scope to apply.",
             items: {
@@ -870,7 +815,7 @@ var schemaDict = {
             },
             maxLength: 100
           },
-          anyOf: {
+          withinAnyOf: {
             type: "array",
             description: "Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition.",
             items: {
@@ -878,13 +823,28 @@ var schemaDict = {
             },
             maxLength: 100
           },
-          noneOf: {
+          withinNoneOf: {
             type: "array",
             description: "Labels that MUST NOT hold for the scope to apply.",
             items: {
               type: "string"
             },
             maxLength: 100
+          }
+        }
+      },
+      activityWeight: {
+        type: "object",
+        required: ["activity", "weight"],
+        properties: {
+          activity: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef",
+            description: "A strong reference to a hypercert activity record. This activity must conform to the lexicon org.hypercerts.claim.activity"
+          },
+          weight: {
+            type: "string",
+            description: "The relative weight/importance of this hypercert activity (stored as a string to avoid float precision issues). Weights can be any positive numeric values and do not need to sum to a specific total; normalization can be performed by the consuming application as needed."
           }
         }
       }
@@ -900,7 +860,7 @@ var schemaDict = {
         key: "tid",
         record: {
           type: "object",
-          required: ["title", "claims", "createdAt"],
+          required: ["title", "activities", "createdAt"],
           properties: {
             title: {
               type: "string",
@@ -914,20 +874,24 @@ var schemaDict = {
               maxGraphemes: 300,
               description: "A short description of this collection"
             },
-            coverPhoto: {
-              type: "union",
-              refs: [
-                "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallBlob"
-              ],
-              description: "The cover photo of this collection (either in URI format or in a blob)."
+            avatar: {
+              type: "blob",
+              description: "Primary avatar image representing this collection across apps and views; typically a square image.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
             },
-            claims: {
+            coverPhoto: {
+              type: "blob",
+              description: "The cover photo of this collection.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
+            },
+            activities: {
               type: "array",
-              description: "Array of claims with their associated weights in this collection",
+              description: "Array of activities with their associated weights in this collection",
               items: {
                 type: "ref",
-                ref: "lex:org.hypercerts.claim.collection#claimItem"
+                ref: "lex:org.hypercerts.claim.activity#activityWeight"
               }
             },
             createdAt: {
@@ -935,21 +899,6 @@ var schemaDict = {
               format: "datetime",
               description: "Client-declared timestamp when this record was originally created"
             }
-          }
-        }
-      },
-      claimItem: {
-        type: "object",
-        required: ["claim", "weight"],
-        properties: {
-          claim: {
-            type: "ref",
-            ref: "lex:com.atproto.repo.strongRef",
-            description: "A strong reference to a hypercert claim record. This claim must conform to the lexicon org.hypercerts.claim.activity"
-          },
-          weight: {
-            type: "string",
-            description: "The weight/importance of this hypercert claim in the collection (a percentage from 0-100, stored as a string to avoid float precision issues). The total claim weights should add up to 100."
           }
         }
       }
@@ -962,7 +911,7 @@ var schemaDict = {
       main: {
         type: "record",
         description: "A contribution made toward a hypercert's impact.",
-        key: "any",
+        key: "tid",
         record: {
           type: "object",
           required: ["contributors", "createdAt"],
@@ -1009,29 +958,48 @@ var schemaDict = {
     lexicon: 1,
     id: "org.hypercerts.claim.evaluation",
     defs: {
+      score: {
+        type: "object",
+        description: "Overall score for an evaluation on a numeric scale.",
+        required: ["min", "max", "value"],
+        properties: {
+          min: {
+            type: "integer",
+            description: "Minimum value of the scale, e.g. 0 or 1."
+          },
+          max: {
+            type: "integer",
+            description: "Maximum value of the scale, e.g. 5 or 10."
+          },
+          value: {
+            type: "integer",
+            description: "Score within the inclusive range [min, max]."
+          }
+        }
+      },
       main: {
         type: "record",
-        description: "An evaluation of a hypercert or other claim",
+        description: "An evaluation of a hypercert record (e.g. an activity and its impact).",
         key: "tid",
         record: {
           type: "object",
-          required: ["subject", "evaluators", "summary", "createdAt"],
+          required: ["evaluators", "summary", "createdAt"],
           properties: {
             subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the evaluated claim. (e.g measurement, hypercert, contribution, etc)"
+              description: "A strong reference to what is being evaluated. (e.g activity, measurement, contribution, etc.)"
             },
             evaluators: {
               type: "array",
               description: "DIDs of the evaluators",
               items: {
-                type: "string",
-                format: "did"
+                type: "ref",
+                ref: "lex:app.certified.defs#did"
               },
-              maxLength: 100
+              maxLength: 1e3
             },
-            evaluations: {
+            content: {
               type: "array",
               description: "Evaluation data (URIs or blobs) containing detailed reports or methodology",
               items: {
@@ -1043,11 +1011,25 @@ var schemaDict = {
               },
               maxLength: 100
             },
+            measurements: {
+              type: "array",
+              description: "Optional references to the measurements that contributed to this evaluation. The record(s) referenced must conform with the lexicon org.hypercerts.claim.measurement ",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              },
+              maxLength: 100
+            },
             summary: {
               type: "string",
               description: "Brief evaluation summary",
               maxLength: 5e3,
               maxGraphemes: 1e3
+            },
+            score: {
+              type: "ref",
+              ref: "lex:org.hypercerts.claim.evaluation#score",
+              description: "Optional overall score for this evaluation on a numeric scale."
             },
             location: {
               type: "ref",
@@ -1070,16 +1052,16 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A piece of evidence supporting a hypercert claim",
-        key: "any",
+        description: "A piece of evidence related to a hypercert record (e.g. an activity, project, claim, or evaluation). Evidence may support, clarify, or challenge the referenced subject.",
+        key: "tid",
         record: {
           type: "object",
           required: ["content", "title", "createdAt"],
           properties: {
-            activity: {
+            subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the activity this evidence is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+              description: "A strong reference to the record this evidence relates to (e.g. an activity, project, claim, or evaluation)."
             },
             content: {
               type: "union",
@@ -1087,29 +1069,34 @@ var schemaDict = {
                 "lex:org.hypercerts.defs#uri",
                 "lex:org.hypercerts.defs#smallBlob"
               ],
-              description: "A piece of evidence (URI or blobs) supporting a hypercert claim"
+              description: "A piece of evidence (URI or blob) related to the subject record; it may support, clarify, or challenge a hypercert claim."
             },
             title: {
               type: "string",
               maxLength: 256,
-              description: "Title to describe the nature of the evidence"
+              description: "Title to describe the nature of the evidence."
             },
             shortDescription: {
               type: "string",
               maxLength: 3e3,
               maxGraphemes: 300,
-              description: "Short description explaining what this evidence demonstrates or proves"
+              description: "Short description explaining what this evidence shows."
             },
             description: {
               type: "string",
-              description: "Longer description describing the impact claim evidence.",
+              description: "Longer description describing the evidence in more detail.",
               maxLength: 3e4,
               maxGraphemes: 3e3
+            },
+            relationType: {
+              type: "string",
+              description: "How this evidence relates to the subject.",
+              knownValues: ["supports", "challenges", "clarifies"]
             },
             createdAt: {
               type: "string",
               format: "datetime",
-              description: "Client-declared timestamp when this hypercert claim was originally created"
+              description: "Client-declared timestamp when this record was originally created"
             }
           }
         }
@@ -1122,23 +1109,23 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "External measurement data supporting a hypercert claim",
+        description: "Measurement data related to a hypercert record (e.g. an activity and its impact).",
         key: "tid",
         record: {
           type: "object",
-          required: ["activity", "measurers", "metric", "value", "createdAt"],
+          required: ["measurers", "metric", "value", "createdAt"],
           properties: {
-            activity: {
+            subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the activity that this measurement is for. The record referenced must conform with the lexicon org.hypercerts.claim.activity"
+              description: "A strong reference to the record this measurement refers to (e.g. an activity, project, or claim)."
             },
             measurers: {
               type: "array",
               description: "DIDs of the entity (or entities) that measured this data",
               items: {
-                type: "string",
-                format: "did"
+                type: "ref",
+                ref: "lex:app.certified.defs#did"
               },
               maxLength: 100
             },
@@ -1152,19 +1139,19 @@ var schemaDict = {
               description: "The measured value",
               maxLength: 500
             },
-            measurementMethodType: {
+            methodType: {
               type: "string",
               description: "Short identifier for the measurement methodology",
               maxLength: 30
             },
-            measurementMethodURI: {
+            methodURI: {
               type: "string",
               format: "uri",
               description: "URI to methodology documentation, standard protocol, or measurement procedure"
             },
             evidenceURI: {
               type: "array",
-              description: "URIs to supporting evidence or data",
+              description: "URIs to related evidence or underlying data (e.g. org.hypercerts.claim.evidence records or raw datasets)",
               items: {
                 type: "string",
                 format: "uri"
@@ -1186,6 +1173,70 @@ var schemaDict = {
       }
     }
   },
+  OrgHypercertsClaimProject: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.project",
+    defs: {
+      main: {
+        type: "record",
+        description: "A project that can include multiple activities, each of which may be linked to at most one project.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["title", "shortDescription", "createdAt"],
+          properties: {
+            title: {
+              type: "string",
+              description: "Title of this project",
+              maxLength: 800,
+              maxGraphemes: 80
+            },
+            shortDescription: {
+              type: "string",
+              maxLength: 3e3,
+              maxGraphemes: 300,
+              description: "Short summary of this project, suitable for previews and list views."
+            },
+            description: {
+              type: "ref",
+              ref: "lex:pub.leaflet.pages.linearDocument#main",
+              description: "Rich-text description of this project, represented as a Leaflet linear document."
+            },
+            avatar: {
+              type: "blob",
+              description: "Primary avatar image representing this project across apps and views; typically a square logo or project identity image.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
+            },
+            coverPhoto: {
+              type: "blob",
+              description: "The cover photo of this project.",
+              accept: ["image/png", "image/jpeg"],
+              maxSize: 1e6
+            },
+            activities: {
+              type: "array",
+              description: "Array of activities with their associated weights in this project",
+              items: {
+                type: "ref",
+                ref: "lex:org.hypercerts.claim.activity#activityWeight"
+              }
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to a location record describing where the work for this project took place. The referenced record must conform to the app.certified.location lexicon."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            }
+          }
+        }
+      }
+    }
+  },
   OrgHypercertsClaimRights: {
     lexicon: 1,
     id: "org.hypercerts.claim.rights",
@@ -1193,7 +1244,7 @@ var schemaDict = {
       main: {
         type: "record",
         description: "Describes the rights that a contributor and/or an owner has, such as whether the hypercert can be sold, transferred, and under what conditions.",
-        key: "any",
+        key: "tid",
         record: {
           type: "object",
           required: [
@@ -1305,22 +1356,626 @@ var schemaDict = {
         }
       }
     }
+  },
+  OrgHypercertsFundingReceipt: {
+    lexicon: 1,
+    id: "org.hypercerts.funding.receipt",
+    defs: {
+      main: {
+        type: "record",
+        description: "Records a funding receipt for a payment from one user to another user. It may be recorded by the recipient, by the sender, or by a third party. The sender may remain anonymous.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["from", "to", "amount", "currency", "createdAt"],
+          properties: {
+            from: {
+              type: "ref",
+              ref: "lex:app.certified.defs#did",
+              description: "DID of the sender who transferred the funds. Leave empty if sender wants to stay anonymous."
+            },
+            to: {
+              type: "string",
+              description: "The recipient of the funds. Can be identified by DID or a clear-text name."
+            },
+            amount: {
+              type: "string",
+              description: "Amount of funding received."
+            },
+            currency: {
+              type: "string",
+              description: "Currency of the payment (e.g. EUR, USD, ETH)."
+            },
+            paymentRail: {
+              type: "string",
+              description: "How the funds were transferred (e.g. bank_transfer, credit_card, onchain, cash, check, payment_processor)."
+            },
+            paymentNetwork: {
+              type: "string",
+              description: "Optional network within the payment rail (e.g. arbitrum, ethereum, sepa, visa, paypal)."
+            },
+            transactionId: {
+              type: "string",
+              description: "Identifier of the underlying payment transaction (e.g. bank reference, onchain transaction hash, or processor-specific ID). Use paymentNetwork to specify the network where applicable."
+            },
+            for: {
+              type: "string",
+              format: "at-uri",
+              description: "Optional reference to the activity, project, or organization this funding relates to."
+            },
+            notes: {
+              type: "string",
+              description: "Optional notes or additional context for this funding receipt.",
+              maxLength: 500
+            },
+            occurredAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp when the payment occurred."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this receipt record was created."
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksBlockquote: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.blockquote",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          plaintext: {
+            type: "string"
+          },
+          facets: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.richtext.facet"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksBskyPost: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.bskyPost",
+    defs: {
+      main: {
+        type: "object",
+        required: ["postRef"],
+        properties: {
+          postRef: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksButton: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.button",
+    defs: {
+      main: {
+        type: "object",
+        required: ["text", "url"],
+        properties: {
+          text: {
+            type: "string"
+          },
+          url: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksCode: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.code",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          plaintext: {
+            type: "string"
+          },
+          language: {
+            type: "string"
+          },
+          syntaxHighlightingTheme: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksHeader: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.header",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          level: {
+            type: "integer",
+            minimum: 1,
+            maximum: 6
+          },
+          plaintext: {
+            type: "string"
+          },
+          facets: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.richtext.facet"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksHorizontalRule: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.horizontalRule",
+    defs: {
+      main: {
+        type: "object",
+        required: [],
+        properties: {}
+      }
+    }
+  },
+  PubLeafletBlocksIframe: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.iframe",
+    defs: {
+      main: {
+        type: "object",
+        required: ["url"],
+        properties: {
+          url: {
+            type: "string",
+            format: "uri"
+          },
+          height: {
+            type: "integer",
+            minimum: 16,
+            maximum: 1600
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksImage: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.image",
+    defs: {
+      main: {
+        type: "object",
+        required: ["image", "aspectRatio"],
+        properties: {
+          image: {
+            type: "blob",
+            accept: ["image/*"],
+            maxSize: 1e6
+          },
+          alt: {
+            type: "string",
+            description: "Alt text description of the image, for accessibility."
+          },
+          aspectRatio: {
+            type: "ref",
+            ref: "lex:pub.leaflet.blocks.image#aspectRatio"
+          }
+        }
+      },
+      aspectRatio: {
+        type: "object",
+        required: ["width", "height"],
+        properties: {
+          width: {
+            type: "integer"
+          },
+          height: {
+            type: "integer"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksMath: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.math",
+    defs: {
+      main: {
+        type: "object",
+        required: ["tex"],
+        properties: {
+          tex: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksPage: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.page",
+    defs: {
+      main: {
+        type: "object",
+        required: ["id"],
+        properties: {
+          id: {
+            type: "string"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksPoll: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.poll",
+    defs: {
+      main: {
+        type: "object",
+        required: ["pollRef"],
+        properties: {
+          pollRef: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksText: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.text",
+    defs: {
+      main: {
+        type: "object",
+        required: ["plaintext"],
+        properties: {
+          plaintext: {
+            type: "string"
+          },
+          textSize: {
+            type: "string",
+            enum: ["default", "small", "large"]
+          },
+          facets: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.richtext.facet"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksUnorderedList: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.unorderedList",
+    defs: {
+      main: {
+        type: "object",
+        required: ["children"],
+        properties: {
+          children: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.blocks.unorderedList#listItem"
+            }
+          }
+        }
+      },
+      listItem: {
+        type: "object",
+        required: ["content"],
+        properties: {
+          content: {
+            type: "union",
+            refs: [
+              "lex:pub.leaflet.blocks.text",
+              "lex:pub.leaflet.blocks.header",
+              "lex:pub.leaflet.blocks.image"
+            ]
+          },
+          children: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.blocks.unorderedList#listItem"
+            }
+          }
+        }
+      }
+    }
+  },
+  PubLeafletBlocksWebsite: {
+    lexicon: 1,
+    id: "pub.leaflet.blocks.website",
+    defs: {
+      main: {
+        type: "object",
+        required: ["src"],
+        properties: {
+          previewImage: {
+            type: "blob",
+            accept: ["image/*"],
+            maxSize: 1e6
+          },
+          title: {
+            type: "string"
+          },
+          description: {
+            type: "string"
+          },
+          src: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletPagesLinearDocument: {
+    lexicon: 1,
+    id: "pub.leaflet.pages.linearDocument",
+    defs: {
+      main: {
+        type: "object",
+        required: ["blocks"],
+        properties: {
+          id: {
+            type: "string"
+          },
+          blocks: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:pub.leaflet.pages.linearDocument#block"
+            }
+          }
+        }
+      },
+      block: {
+        type: "object",
+        required: ["block"],
+        properties: {
+          block: {
+            type: "union",
+            refs: [
+              "lex:pub.leaflet.blocks.iframe",
+              "lex:pub.leaflet.blocks.text",
+              "lex:pub.leaflet.blocks.blockquote",
+              "lex:pub.leaflet.blocks.header",
+              "lex:pub.leaflet.blocks.image",
+              "lex:pub.leaflet.blocks.unorderedList",
+              "lex:pub.leaflet.blocks.website",
+              "lex:pub.leaflet.blocks.math",
+              "lex:pub.leaflet.blocks.code",
+              "lex:pub.leaflet.blocks.horizontalRule",
+              "lex:pub.leaflet.blocks.bskyPost",
+              "lex:pub.leaflet.blocks.page",
+              "lex:pub.leaflet.blocks.poll",
+              "lex:pub.leaflet.blocks.button"
+            ]
+          },
+          alignment: {
+            type: "string",
+            knownValues: [
+              "lex:pub.leaflet.pages.linearDocument#textAlignLeft",
+              "lex:pub.leaflet.pages.linearDocument#textAlignCenter",
+              "lex:pub.leaflet.pages.linearDocument#textAlignRight",
+              "lex:pub.leaflet.pages.linearDocument#textAlignJustify"
+            ]
+          }
+        }
+      },
+      textAlignLeft: {
+        type: "token"
+      },
+      textAlignCenter: {
+        type: "token"
+      },
+      textAlignRight: {
+        type: "token"
+      },
+      textAlignJustify: {
+        type: "token"
+      },
+      quote: {
+        type: "object",
+        required: ["start", "end"],
+        properties: {
+          start: {
+            type: "ref",
+            ref: "lex:pub.leaflet.pages.linearDocument#position"
+          },
+          end: {
+            type: "ref",
+            ref: "lex:pub.leaflet.pages.linearDocument#position"
+          }
+        }
+      },
+      position: {
+        type: "object",
+        required: ["block", "offset"],
+        properties: {
+          block: {
+            type: "array",
+            items: {
+              type: "integer"
+            }
+          },
+          offset: {
+            type: "integer"
+          }
+        }
+      }
+    }
+  },
+  PubLeafletRichtextFacet: {
+    lexicon: 1,
+    id: "pub.leaflet.richtext.facet",
+    defs: {
+      main: {
+        type: "object",
+        description: "Annotation of a sub-string within rich text.",
+        required: ["index", "features"],
+        properties: {
+          index: {
+            type: "ref",
+            ref: "lex:pub.leaflet.richtext.facet#byteSlice"
+          },
+          features: {
+            type: "array",
+            items: {
+              type: "union",
+              refs: [
+                "lex:pub.leaflet.richtext.facet#link",
+                "lex:pub.leaflet.richtext.facet#didMention",
+                "lex:pub.leaflet.richtext.facet#atMention",
+                "lex:pub.leaflet.richtext.facet#code",
+                "lex:pub.leaflet.richtext.facet#highlight",
+                "lex:pub.leaflet.richtext.facet#underline",
+                "lex:pub.leaflet.richtext.facet#strikethrough",
+                "lex:pub.leaflet.richtext.facet#id",
+                "lex:pub.leaflet.richtext.facet#bold",
+                "lex:pub.leaflet.richtext.facet#italic"
+              ]
+            }
+          }
+        }
+      },
+      byteSlice: {
+        type: "object",
+        description: "Specifies the sub-string range a facet feature applies to. Start index is inclusive, end index is exclusive. Indices are zero-indexed, counting bytes of the UTF-8 encoded text. NOTE: some languages, like Javascript, use UTF-16 or Unicode codepoints for string slice indexing; in these languages, convert to byte arrays before working with facets.",
+        required: ["byteStart", "byteEnd"],
+        properties: {
+          byteStart: {
+            type: "integer",
+            minimum: 0
+          },
+          byteEnd: {
+            type: "integer",
+            minimum: 0
+          }
+        }
+      },
+      link: {
+        type: "object",
+        description: "Facet feature for a URL. The text URL may have been simplified or truncated, but the facet reference should be a complete URL.",
+        required: ["uri"],
+        properties: {
+          uri: {
+            type: "string"
+          }
+        }
+      },
+      didMention: {
+        type: "object",
+        description: "Facet feature for mentioning a did.",
+        required: ["did"],
+        properties: {
+          did: {
+            type: "string",
+            format: "did"
+          }
+        }
+      },
+      atMention: {
+        type: "object",
+        description: "Facet feature for mentioning an AT URI.",
+        required: ["atURI"],
+        properties: {
+          atURI: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      },
+      code: {
+        type: "object",
+        description: "Facet feature for inline code.",
+        required: [],
+        properties: {}
+      },
+      highlight: {
+        type: "object",
+        description: "Facet feature for highlighted text.",
+        required: [],
+        properties: {}
+      },
+      underline: {
+        type: "object",
+        description: "Facet feature for underline markup",
+        required: [],
+        properties: {}
+      },
+      strikethrough: {
+        type: "object",
+        description: "Facet feature for strikethrough markup",
+        required: [],
+        properties: {}
+      },
+      id: {
+        type: "object",
+        description: "Facet feature for an identifier. Used for linking to a segment",
+        required: [],
+        properties: {
+          id: {
+            type: "string"
+          }
+        }
+      },
+      bold: {
+        type: "object",
+        description: "Facet feature for bold text",
+        required: [],
+        properties: {}
+      },
+      italic: {
+        type: "object",
+        description: "Facet feature for italic text",
+        required: [],
+        properties: {}
+      }
+    }
   }
 };
 var schemas = Object.values(schemaDict);
 var lexicons = new lexicon.Lexicons(schemas);
-function validate(v, id24, hash, requiredType) {
-  return (requiredType ? is$typed : maybe$typed)(v, id24, hash) ? lexicons.validate(`${id24}#${hash}`, v) : {
+function validate(v, id42, hash, requiredType) {
+  return (requiredType ? is$typed : maybe$typed)(v, id42, hash) ? lexicons.validate(`${id42}#${hash}`, v) : {
     success: false,
     error: new lexicon.ValidationError(
-      `Must be an object with "${hash === "main" ? id24 : `${id24}#${hash}`}" $type property`
+      `Must be an object with "${hash === "main" ? id42 : `${id42}#${hash}`}" $type property`
     )
   };
 }
 
-// lex-api/types/app/certified/location.ts
-var location_exports = {};
-__export(location_exports, {
+// lex-api/types/app/certified/badge/award.ts
+var award_exports = {};
+__export(award_exports, {
   isMain: () => isMain,
   isRecord: () => isMain,
   validateMain: () => validateMain,
@@ -1328,7 +1983,7 @@ __export(location_exports, {
 });
 var is$typed2 = is$typed;
 var validate2 = validate;
-var id = "app.certified.location";
+var id = "app.certified.badge.award";
 var hashMain = "main";
 function isMain(v) {
   return is$typed2(v, id, hashMain);
@@ -1337,9 +1992,69 @@ function validateMain(v) {
   return validate2(v, id, hashMain, true);
 }
 
-// lex-api/types/app/gainforest/common/defs.ts
+// lex-api/types/app/certified/badge/definition.ts
+var definition_exports = {};
+__export(definition_exports, {
+  isMain: () => isMain2,
+  isRecord: () => isMain2,
+  validateMain: () => validateMain2,
+  validateRecord: () => validateMain2
+});
+var is$typed3 = is$typed;
+var validate3 = validate;
+var id2 = "app.certified.badge.definition";
+var hashMain2 = "main";
+function isMain2(v) {
+  return is$typed3(v, id2, hashMain2);
+}
+function validateMain2(v) {
+  return validate3(v, id2, hashMain2, true);
+}
+
+// lex-api/types/app/certified/badge/response.ts
+var response_exports = {};
+__export(response_exports, {
+  isMain: () => isMain3,
+  isRecord: () => isMain3,
+  validateMain: () => validateMain3,
+  validateRecord: () => validateMain3
+});
+var is$typed4 = is$typed;
+var validate4 = validate;
+var id3 = "app.certified.badge.response";
+var hashMain3 = "main";
+function isMain3(v) {
+  return is$typed4(v, id3, hashMain3);
+}
+function validateMain3(v) {
+  return validate4(v, id3, hashMain3, true);
+}
+
+// lex-api/types/app/certified/defs.ts
 var defs_exports = {};
-__export(defs_exports, {
+
+// lex-api/types/app/certified/location.ts
+var location_exports = {};
+__export(location_exports, {
+  isMain: () => isMain4,
+  isRecord: () => isMain4,
+  validateMain: () => validateMain4,
+  validateRecord: () => validateMain4
+});
+var is$typed5 = is$typed;
+var validate5 = validate;
+var id4 = "app.certified.location";
+var hashMain4 = "main";
+function isMain4(v) {
+  return is$typed5(v, id4, hashMain4);
+}
+function validateMain4(v) {
+  return validate5(v, id4, hashMain4, true);
+}
+
+// lex-api/types/app/gainforest/common/defs.ts
+var defs_exports2 = {};
+__export(defs_exports2, {
   isIndexedOrganization: () => isIndexedOrganization,
   isLargeBlob: () => isLargeBlob,
   isLargeImage: () => isLargeImage,
@@ -1353,88 +2068,69 @@ __export(defs_exports, {
   validateSmallImage: () => validateSmallImage,
   validateUri: () => validateUri
 });
-var is$typed3 = is$typed;
-var validate3 = validate;
-var id2 = "app.gainforest.common.defs";
+var is$typed6 = is$typed;
+var validate6 = validate;
+var id5 = "app.gainforest.common.defs";
 var hashUri = "uri";
 function isUri(v) {
-  return is$typed3(v, id2, hashUri);
+  return is$typed6(v, id5, hashUri);
 }
 function validateUri(v) {
-  return validate3(v, id2, hashUri);
+  return validate6(v, id5, hashUri);
 }
 var hashSmallBlob = "smallBlob";
 function isSmallBlob(v) {
-  return is$typed3(v, id2, hashSmallBlob);
+  return is$typed6(v, id5, hashSmallBlob);
 }
 function validateSmallBlob(v) {
-  return validate3(v, id2, hashSmallBlob);
+  return validate6(v, id5, hashSmallBlob);
 }
 var hashLargeBlob = "largeBlob";
 function isLargeBlob(v) {
-  return is$typed3(v, id2, hashLargeBlob);
+  return is$typed6(v, id5, hashLargeBlob);
 }
 function validateLargeBlob(v) {
-  return validate3(v, id2, hashLargeBlob);
+  return validate6(v, id5, hashLargeBlob);
 }
 var hashSmallImage = "smallImage";
 function isSmallImage(v) {
-  return is$typed3(v, id2, hashSmallImage);
+  return is$typed6(v, id5, hashSmallImage);
 }
 function validateSmallImage(v) {
-  return validate3(v, id2, hashSmallImage);
+  return validate6(v, id5, hashSmallImage);
 }
 var hashLargeImage = "largeImage";
 function isLargeImage(v) {
-  return is$typed3(v, id2, hashLargeImage);
+  return is$typed6(v, id5, hashLargeImage);
 }
 function validateLargeImage(v) {
-  return validate3(v, id2, hashLargeImage);
+  return validate6(v, id5, hashLargeImage);
 }
 var hashIndexedOrganization = "indexedOrganization";
 function isIndexedOrganization(v) {
-  return is$typed3(v, id2, hashIndexedOrganization);
+  return is$typed6(v, id5, hashIndexedOrganization);
 }
 function validateIndexedOrganization(v) {
-  return validate3(v, id2, hashIndexedOrganization);
+  return validate6(v, id5, hashIndexedOrganization);
 }
 
 // lex-api/types/app/gainforest/organization/defaultSite.ts
 var defaultSite_exports = {};
 __export(defaultSite_exports, {
-  isMain: () => isMain2,
-  isRecord: () => isMain2,
-  validateMain: () => validateMain2,
-  validateRecord: () => validateMain2
+  isMain: () => isMain5,
+  isRecord: () => isMain5,
+  validateMain: () => validateMain5,
+  validateRecord: () => validateMain5
 });
-var is$typed4 = is$typed;
-var validate4 = validate;
-var id3 = "app.gainforest.organization.defaultSite";
-var hashMain2 = "main";
-function isMain2(v) {
-  return is$typed4(v, id3, hashMain2);
+var is$typed7 = is$typed;
+var validate7 = validate;
+var id6 = "app.gainforest.organization.defaultSite";
+var hashMain5 = "main";
+function isMain5(v) {
+  return is$typed7(v, id6, hashMain5);
 }
-function validateMain2(v) {
-  return validate4(v, id3, hashMain2, true);
-}
-
-// lex-api/types/app/gainforest/organization/draft/ecocert.ts
-var ecocert_exports = {};
-__export(ecocert_exports, {
-  isMain: () => isMain3,
-  isRecord: () => isMain3,
-  validateMain: () => validateMain3,
-  validateRecord: () => validateMain3
-});
-var is$typed5 = is$typed;
-var validate5 = validate;
-var id4 = "app.gainforest.organization.draft.ecocert";
-var hashMain3 = "main";
-function isMain3(v) {
-  return is$typed5(v, id4, hashMain3);
-}
-function validateMain3(v) {
-  return validate5(v, id4, hashMain3, true);
+function validateMain5(v) {
+  return validate7(v, id6, hashMain5, true);
 }
 
 // lex-api/types/app/gainforest/organization/getIndexedOrganizations.ts
@@ -1449,44 +2145,6 @@ function toKnownErr(e) {
 // lex-api/types/app/gainforest/organization/info.ts
 var info_exports = {};
 __export(info_exports, {
-  isMain: () => isMain4,
-  isRecord: () => isMain4,
-  validateMain: () => validateMain4,
-  validateRecord: () => validateMain4
-});
-var is$typed6 = is$typed;
-var validate6 = validate;
-var id5 = "app.gainforest.organization.info";
-var hashMain4 = "main";
-function isMain4(v) {
-  return is$typed6(v, id5, hashMain4);
-}
-function validateMain4(v) {
-  return validate6(v, id5, hashMain4, true);
-}
-
-// lex-api/types/app/gainforest/organization/layer.ts
-var layer_exports = {};
-__export(layer_exports, {
-  isMain: () => isMain5,
-  isRecord: () => isMain5,
-  validateMain: () => validateMain5,
-  validateRecord: () => validateMain5
-});
-var is$typed7 = is$typed;
-var validate7 = validate;
-var id6 = "app.gainforest.organization.layer";
-var hashMain5 = "main";
-function isMain5(v) {
-  return is$typed7(v, id6, hashMain5);
-}
-function validateMain5(v) {
-  return validate7(v, id6, hashMain5, true);
-}
-
-// lex-api/types/app/gainforest/organization/observations/dendogram.ts
-var dendogram_exports = {};
-__export(dendogram_exports, {
   isMain: () => isMain6,
   isRecord: () => isMain6,
   validateMain: () => validateMain6,
@@ -1494,7 +2152,7 @@ __export(dendogram_exports, {
 });
 var is$typed8 = is$typed;
 var validate8 = validate;
-var id7 = "app.gainforest.organization.observations.dendogram";
+var id7 = "app.gainforest.organization.info";
 var hashMain6 = "main";
 function isMain6(v) {
   return is$typed8(v, id7, hashMain6);
@@ -1503,9 +2161,9 @@ function validateMain6(v) {
   return validate8(v, id7, hashMain6, true);
 }
 
-// lex-api/types/app/gainforest/organization/observations/fauna.ts
-var fauna_exports = {};
-__export(fauna_exports, {
+// lex-api/types/app/gainforest/organization/layer.ts
+var layer_exports = {};
+__export(layer_exports, {
   isMain: () => isMain7,
   isRecord: () => isMain7,
   validateMain: () => validateMain7,
@@ -1513,7 +2171,7 @@ __export(fauna_exports, {
 });
 var is$typed9 = is$typed;
 var validate9 = validate;
-var id8 = "app.gainforest.organization.observations.fauna";
+var id8 = "app.gainforest.organization.layer";
 var hashMain7 = "main";
 function isMain7(v) {
   return is$typed9(v, id8, hashMain7);
@@ -1522,9 +2180,9 @@ function validateMain7(v) {
   return validate9(v, id8, hashMain7, true);
 }
 
-// lex-api/types/app/gainforest/organization/observations/flora.ts
-var flora_exports = {};
-__export(flora_exports, {
+// lex-api/types/app/gainforest/organization/observations/dendogram.ts
+var dendogram_exports = {};
+__export(dendogram_exports, {
   isMain: () => isMain8,
   isRecord: () => isMain8,
   validateMain: () => validateMain8,
@@ -1532,7 +2190,7 @@ __export(flora_exports, {
 });
 var is$typed10 = is$typed;
 var validate10 = validate;
-var id9 = "app.gainforest.organization.observations.flora";
+var id9 = "app.gainforest.organization.observations.dendogram";
 var hashMain8 = "main";
 function isMain8(v) {
   return is$typed10(v, id9, hashMain8);
@@ -1541,9 +2199,9 @@ function validateMain8(v) {
   return validate10(v, id9, hashMain8, true);
 }
 
-// lex-api/types/app/gainforest/organization/observations/measuredTreesCluster.ts
-var measuredTreesCluster_exports = {};
-__export(measuredTreesCluster_exports, {
+// lex-api/types/app/gainforest/organization/observations/fauna.ts
+var fauna_exports = {};
+__export(fauna_exports, {
   isMain: () => isMain9,
   isRecord: () => isMain9,
   validateMain: () => validateMain9,
@@ -1551,7 +2209,7 @@ __export(measuredTreesCluster_exports, {
 });
 var is$typed11 = is$typed;
 var validate11 = validate;
-var id10 = "app.gainforest.organization.observations.measuredTreesCluster";
+var id10 = "app.gainforest.organization.observations.fauna";
 var hashMain9 = "main";
 function isMain9(v) {
   return is$typed11(v, id10, hashMain9);
@@ -1560,9 +2218,9 @@ function validateMain9(v) {
   return validate11(v, id10, hashMain9, true);
 }
 
-// lex-api/types/app/gainforest/organization/predictions/fauna.ts
-var fauna_exports2 = {};
-__export(fauna_exports2, {
+// lex-api/types/app/gainforest/organization/observations/flora.ts
+var flora_exports = {};
+__export(flora_exports, {
   isMain: () => isMain10,
   isRecord: () => isMain10,
   validateMain: () => validateMain10,
@@ -1570,7 +2228,7 @@ __export(fauna_exports2, {
 });
 var is$typed12 = is$typed;
 var validate12 = validate;
-var id11 = "app.gainforest.organization.predictions.fauna";
+var id11 = "app.gainforest.organization.observations.flora";
 var hashMain10 = "main";
 function isMain10(v) {
   return is$typed12(v, id11, hashMain10);
@@ -1579,9 +2237,9 @@ function validateMain10(v) {
   return validate12(v, id11, hashMain10, true);
 }
 
-// lex-api/types/app/gainforest/organization/predictions/flora.ts
-var flora_exports2 = {};
-__export(flora_exports2, {
+// lex-api/types/app/gainforest/organization/observations/measuredTreesCluster.ts
+var measuredTreesCluster_exports = {};
+__export(measuredTreesCluster_exports, {
   isMain: () => isMain11,
   isRecord: () => isMain11,
   validateMain: () => validateMain11,
@@ -1589,7 +2247,7 @@ __export(flora_exports2, {
 });
 var is$typed13 = is$typed;
 var validate13 = validate;
-var id12 = "app.gainforest.organization.predictions.flora";
+var id12 = "app.gainforest.organization.observations.measuredTreesCluster";
 var hashMain11 = "main";
 function isMain11(v) {
   return is$typed13(v, id12, hashMain11);
@@ -1598,9 +2256,9 @@ function validateMain11(v) {
   return validate13(v, id12, hashMain11, true);
 }
 
-// lex-api/types/app/gainforest/organization/project.ts
-var project_exports = {};
-__export(project_exports, {
+// lex-api/types/app/gainforest/organization/predictions/fauna.ts
+var fauna_exports2 = {};
+__export(fauna_exports2, {
   isMain: () => isMain12,
   isRecord: () => isMain12,
   validateMain: () => validateMain12,
@@ -1608,7 +2266,7 @@ __export(project_exports, {
 });
 var is$typed14 = is$typed;
 var validate14 = validate;
-var id13 = "app.gainforest.organization.project";
+var id13 = "app.gainforest.organization.predictions.fauna";
 var hashMain12 = "main";
 function isMain12(v) {
   return is$typed14(v, id13, hashMain12);
@@ -1617,9 +2275,9 @@ function validateMain12(v) {
   return validate14(v, id13, hashMain12, true);
 }
 
-// lex-api/types/app/gainforest/organization/site.ts
-var site_exports = {};
-__export(site_exports, {
+// lex-api/types/app/gainforest/organization/predictions/flora.ts
+var flora_exports2 = {};
+__export(flora_exports2, {
   isMain: () => isMain13,
   isRecord: () => isMain13,
   validateMain: () => validateMain13,
@@ -1627,7 +2285,7 @@ __export(site_exports, {
 });
 var is$typed15 = is$typed;
 var validate15 = validate;
-var id14 = "app.gainforest.organization.site";
+var id14 = "app.gainforest.organization.predictions.flora";
 var hashMain13 = "main";
 function isMain13(v) {
   return is$typed15(v, id14, hashMain13);
@@ -1656,9 +2314,11 @@ function validateMain14(v) {
 // lex-api/types/org/hypercerts/claim/activity.ts
 var activity_exports = {};
 __export(activity_exports, {
+  isActivityWeight: () => isActivityWeight,
   isMain: () => isMain15,
   isRecord: () => isMain15,
   isWorkScope: () => isWorkScope,
+  validateActivityWeight: () => validateActivityWeight,
   validateMain: () => validateMain15,
   validateRecord: () => validateMain15,
   validateWorkScope: () => validateWorkScope
@@ -1680,14 +2340,19 @@ function isWorkScope(v) {
 function validateWorkScope(v) {
   return validate17(v, id16, hashWorkScope);
 }
+var hashActivityWeight = "activityWeight";
+function isActivityWeight(v) {
+  return is$typed17(v, id16, hashActivityWeight);
+}
+function validateActivityWeight(v) {
+  return validate17(v, id16, hashActivityWeight);
+}
 
 // lex-api/types/org/hypercerts/claim/collection.ts
 var collection_exports = {};
 __export(collection_exports, {
-  isClaimItem: () => isClaimItem,
   isMain: () => isMain16,
   isRecord: () => isMain16,
-  validateClaimItem: () => validateClaimItem,
   validateMain: () => validateMain16,
   validateRecord: () => validateMain16
 });
@@ -1700,13 +2365,6 @@ function isMain16(v) {
 }
 function validateMain16(v) {
   return validate18(v, id17, hashMain16, true);
-}
-var hashClaimItem = "claimItem";
-function isClaimItem(v) {
-  return is$typed18(v, id17, hashClaimItem);
-}
-function validateClaimItem(v) {
-  return validate18(v, id17, hashClaimItem);
 }
 
 // lex-api/types/org/hypercerts/claim/contribution.ts
@@ -1733,12 +2391,21 @@ var evaluation_exports = {};
 __export(evaluation_exports, {
   isMain: () => isMain18,
   isRecord: () => isMain18,
+  isScore: () => isScore,
   validateMain: () => validateMain18,
-  validateRecord: () => validateMain18
+  validateRecord: () => validateMain18,
+  validateScore: () => validateScore
 });
 var is$typed20 = is$typed;
 var validate20 = validate;
 var id19 = "org.hypercerts.claim.evaluation";
+var hashScore = "score";
+function isScore(v) {
+  return is$typed20(v, id19, hashScore);
+}
+function validateScore(v) {
+  return validate20(v, id19, hashScore);
+}
 var hashMain18 = "main";
 function isMain18(v) {
   return is$typed20(v, id19, hashMain18);
@@ -1785,9 +2452,9 @@ function validateMain20(v) {
   return validate22(v, id21, hashMain20, true);
 }
 
-// lex-api/types/org/hypercerts/claim/rights.ts
-var rights_exports = {};
-__export(rights_exports, {
+// lex-api/types/org/hypercerts/claim/project.ts
+var project_exports = {};
+__export(project_exports, {
   isMain: () => isMain21,
   isRecord: () => isMain21,
   validateMain: () => validateMain21,
@@ -1795,7 +2462,7 @@ __export(rights_exports, {
 });
 var is$typed23 = is$typed;
 var validate23 = validate;
-var id22 = "org.hypercerts.claim.rights";
+var id22 = "org.hypercerts.claim.project";
 var hashMain21 = "main";
 function isMain21(v) {
   return is$typed23(v, id22, hashMain21);
@@ -1804,9 +2471,28 @@ function validateMain21(v) {
   return validate23(v, id22, hashMain21, true);
 }
 
+// lex-api/types/org/hypercerts/claim/rights.ts
+var rights_exports = {};
+__export(rights_exports, {
+  isMain: () => isMain22,
+  isRecord: () => isMain22,
+  validateMain: () => validateMain22,
+  validateRecord: () => validateMain22
+});
+var is$typed24 = is$typed;
+var validate24 = validate;
+var id23 = "org.hypercerts.claim.rights";
+var hashMain22 = "main";
+function isMain22(v) {
+  return is$typed24(v, id23, hashMain22);
+}
+function validateMain22(v) {
+  return validate24(v, id23, hashMain22, true);
+}
+
 // lex-api/types/org/hypercerts/defs.ts
-var defs_exports2 = {};
-__export(defs_exports2, {
+var defs_exports3 = {};
+__export(defs_exports3, {
   isLargeBlob: () => isLargeBlob2,
   isLargeImage: () => isLargeImage2,
   isSmallBlob: () => isSmallBlob2,
@@ -1818,55 +2504,506 @@ __export(defs_exports2, {
   validateSmallImage: () => validateSmallImage2,
   validateUri: () => validateUri2
 });
-var is$typed24 = is$typed;
-var validate24 = validate;
-var id23 = "org.hypercerts.defs";
+var is$typed25 = is$typed;
+var validate25 = validate;
+var id24 = "org.hypercerts.defs";
 var hashUri2 = "uri";
 function isUri2(v) {
-  return is$typed24(v, id23, hashUri2);
+  return is$typed25(v, id24, hashUri2);
 }
 function validateUri2(v) {
-  return validate24(v, id23, hashUri2);
+  return validate25(v, id24, hashUri2);
 }
 var hashSmallBlob2 = "smallBlob";
 function isSmallBlob2(v) {
-  return is$typed24(v, id23, hashSmallBlob2);
+  return is$typed25(v, id24, hashSmallBlob2);
 }
 function validateSmallBlob2(v) {
-  return validate24(v, id23, hashSmallBlob2);
+  return validate25(v, id24, hashSmallBlob2);
 }
 var hashLargeBlob2 = "largeBlob";
 function isLargeBlob2(v) {
-  return is$typed24(v, id23, hashLargeBlob2);
+  return is$typed25(v, id24, hashLargeBlob2);
 }
 function validateLargeBlob2(v) {
-  return validate24(v, id23, hashLargeBlob2);
+  return validate25(v, id24, hashLargeBlob2);
 }
 var hashSmallImage2 = "smallImage";
 function isSmallImage2(v) {
-  return is$typed24(v, id23, hashSmallImage2);
+  return is$typed25(v, id24, hashSmallImage2);
 }
 function validateSmallImage2(v) {
-  return validate24(v, id23, hashSmallImage2);
+  return validate25(v, id24, hashSmallImage2);
 }
 var hashLargeImage2 = "largeImage";
 function isLargeImage2(v) {
-  return is$typed24(v, id23, hashLargeImage2);
+  return is$typed25(v, id24, hashLargeImage2);
 }
 function validateLargeImage2(v) {
-  return validate24(v, id23, hashLargeImage2);
+  return validate25(v, id24, hashLargeImage2);
+}
+
+// lex-api/types/org/hypercerts/funding/receipt.ts
+var receipt_exports = {};
+__export(receipt_exports, {
+  isMain: () => isMain23,
+  isRecord: () => isMain23,
+  validateMain: () => validateMain23,
+  validateRecord: () => validateMain23
+});
+var is$typed26 = is$typed;
+var validate26 = validate;
+var id25 = "org.hypercerts.funding.receipt";
+var hashMain23 = "main";
+function isMain23(v) {
+  return is$typed26(v, id25, hashMain23);
+}
+function validateMain23(v) {
+  return validate26(v, id25, hashMain23, true);
+}
+
+// lex-api/types/pub/leaflet/blocks/blockquote.ts
+var blockquote_exports = {};
+__export(blockquote_exports, {
+  isMain: () => isMain24,
+  validateMain: () => validateMain24
+});
+var is$typed27 = is$typed;
+var validate27 = validate;
+var id26 = "pub.leaflet.blocks.blockquote";
+var hashMain24 = "main";
+function isMain24(v) {
+  return is$typed27(v, id26, hashMain24);
+}
+function validateMain24(v) {
+  return validate27(v, id26, hashMain24);
+}
+
+// lex-api/types/pub/leaflet/blocks/bskyPost.ts
+var bskyPost_exports = {};
+__export(bskyPost_exports, {
+  isMain: () => isMain25,
+  validateMain: () => validateMain25
+});
+var is$typed28 = is$typed;
+var validate28 = validate;
+var id27 = "pub.leaflet.blocks.bskyPost";
+var hashMain25 = "main";
+function isMain25(v) {
+  return is$typed28(v, id27, hashMain25);
+}
+function validateMain25(v) {
+  return validate28(v, id27, hashMain25);
+}
+
+// lex-api/types/pub/leaflet/blocks/button.ts
+var button_exports = {};
+__export(button_exports, {
+  isMain: () => isMain26,
+  validateMain: () => validateMain26
+});
+var is$typed29 = is$typed;
+var validate29 = validate;
+var id28 = "pub.leaflet.blocks.button";
+var hashMain26 = "main";
+function isMain26(v) {
+  return is$typed29(v, id28, hashMain26);
+}
+function validateMain26(v) {
+  return validate29(v, id28, hashMain26);
+}
+
+// lex-api/types/pub/leaflet/blocks/code.ts
+var code_exports = {};
+__export(code_exports, {
+  isMain: () => isMain27,
+  validateMain: () => validateMain27
+});
+var is$typed30 = is$typed;
+var validate30 = validate;
+var id29 = "pub.leaflet.blocks.code";
+var hashMain27 = "main";
+function isMain27(v) {
+  return is$typed30(v, id29, hashMain27);
+}
+function validateMain27(v) {
+  return validate30(v, id29, hashMain27);
+}
+
+// lex-api/types/pub/leaflet/blocks/header.ts
+var header_exports = {};
+__export(header_exports, {
+  isMain: () => isMain28,
+  validateMain: () => validateMain28
+});
+var is$typed31 = is$typed;
+var validate31 = validate;
+var id30 = "pub.leaflet.blocks.header";
+var hashMain28 = "main";
+function isMain28(v) {
+  return is$typed31(v, id30, hashMain28);
+}
+function validateMain28(v) {
+  return validate31(v, id30, hashMain28);
+}
+
+// lex-api/types/pub/leaflet/blocks/horizontalRule.ts
+var horizontalRule_exports = {};
+__export(horizontalRule_exports, {
+  isMain: () => isMain29,
+  validateMain: () => validateMain29
+});
+var is$typed32 = is$typed;
+var validate32 = validate;
+var id31 = "pub.leaflet.blocks.horizontalRule";
+var hashMain29 = "main";
+function isMain29(v) {
+  return is$typed32(v, id31, hashMain29);
+}
+function validateMain29(v) {
+  return validate32(v, id31, hashMain29);
+}
+
+// lex-api/types/pub/leaflet/blocks/iframe.ts
+var iframe_exports = {};
+__export(iframe_exports, {
+  isMain: () => isMain30,
+  validateMain: () => validateMain30
+});
+var is$typed33 = is$typed;
+var validate33 = validate;
+var id32 = "pub.leaflet.blocks.iframe";
+var hashMain30 = "main";
+function isMain30(v) {
+  return is$typed33(v, id32, hashMain30);
+}
+function validateMain30(v) {
+  return validate33(v, id32, hashMain30);
+}
+
+// lex-api/types/pub/leaflet/blocks/image.ts
+var image_exports = {};
+__export(image_exports, {
+  isAspectRatio: () => isAspectRatio,
+  isMain: () => isMain31,
+  validateAspectRatio: () => validateAspectRatio,
+  validateMain: () => validateMain31
+});
+var is$typed34 = is$typed;
+var validate34 = validate;
+var id33 = "pub.leaflet.blocks.image";
+var hashMain31 = "main";
+function isMain31(v) {
+  return is$typed34(v, id33, hashMain31);
+}
+function validateMain31(v) {
+  return validate34(v, id33, hashMain31);
+}
+var hashAspectRatio = "aspectRatio";
+function isAspectRatio(v) {
+  return is$typed34(v, id33, hashAspectRatio);
+}
+function validateAspectRatio(v) {
+  return validate34(v, id33, hashAspectRatio);
+}
+
+// lex-api/types/pub/leaflet/blocks/math.ts
+var math_exports = {};
+__export(math_exports, {
+  isMain: () => isMain32,
+  validateMain: () => validateMain32
+});
+var is$typed35 = is$typed;
+var validate35 = validate;
+var id34 = "pub.leaflet.blocks.math";
+var hashMain32 = "main";
+function isMain32(v) {
+  return is$typed35(v, id34, hashMain32);
+}
+function validateMain32(v) {
+  return validate35(v, id34, hashMain32);
+}
+
+// lex-api/types/pub/leaflet/blocks/page.ts
+var page_exports = {};
+__export(page_exports, {
+  isMain: () => isMain33,
+  validateMain: () => validateMain33
+});
+var is$typed36 = is$typed;
+var validate36 = validate;
+var id35 = "pub.leaflet.blocks.page";
+var hashMain33 = "main";
+function isMain33(v) {
+  return is$typed36(v, id35, hashMain33);
+}
+function validateMain33(v) {
+  return validate36(v, id35, hashMain33);
+}
+
+// lex-api/types/pub/leaflet/blocks/poll.ts
+var poll_exports = {};
+__export(poll_exports, {
+  isMain: () => isMain34,
+  validateMain: () => validateMain34
+});
+var is$typed37 = is$typed;
+var validate37 = validate;
+var id36 = "pub.leaflet.blocks.poll";
+var hashMain34 = "main";
+function isMain34(v) {
+  return is$typed37(v, id36, hashMain34);
+}
+function validateMain34(v) {
+  return validate37(v, id36, hashMain34);
+}
+
+// lex-api/types/pub/leaflet/blocks/text.ts
+var text_exports = {};
+__export(text_exports, {
+  isMain: () => isMain35,
+  validateMain: () => validateMain35
+});
+var is$typed38 = is$typed;
+var validate38 = validate;
+var id37 = "pub.leaflet.blocks.text";
+var hashMain35 = "main";
+function isMain35(v) {
+  return is$typed38(v, id37, hashMain35);
+}
+function validateMain35(v) {
+  return validate38(v, id37, hashMain35);
+}
+
+// lex-api/types/pub/leaflet/blocks/unorderedList.ts
+var unorderedList_exports = {};
+__export(unorderedList_exports, {
+  isListItem: () => isListItem,
+  isMain: () => isMain36,
+  validateListItem: () => validateListItem,
+  validateMain: () => validateMain36
+});
+var is$typed39 = is$typed;
+var validate39 = validate;
+var id38 = "pub.leaflet.blocks.unorderedList";
+var hashMain36 = "main";
+function isMain36(v) {
+  return is$typed39(v, id38, hashMain36);
+}
+function validateMain36(v) {
+  return validate39(v, id38, hashMain36);
+}
+var hashListItem = "listItem";
+function isListItem(v) {
+  return is$typed39(v, id38, hashListItem);
+}
+function validateListItem(v) {
+  return validate39(v, id38, hashListItem);
+}
+
+// lex-api/types/pub/leaflet/blocks/website.ts
+var website_exports = {};
+__export(website_exports, {
+  isMain: () => isMain37,
+  validateMain: () => validateMain37
+});
+var is$typed40 = is$typed;
+var validate40 = validate;
+var id39 = "pub.leaflet.blocks.website";
+var hashMain37 = "main";
+function isMain37(v) {
+  return is$typed40(v, id39, hashMain37);
+}
+function validateMain37(v) {
+  return validate40(v, id39, hashMain37);
+}
+
+// lex-api/types/pub/leaflet/pages/linearDocument.ts
+var linearDocument_exports = {};
+__export(linearDocument_exports, {
+  TEXTALIGNCENTER: () => TEXTALIGNCENTER,
+  TEXTALIGNJUSTIFY: () => TEXTALIGNJUSTIFY,
+  TEXTALIGNLEFT: () => TEXTALIGNLEFT,
+  TEXTALIGNRIGHT: () => TEXTALIGNRIGHT,
+  isBlock: () => isBlock,
+  isMain: () => isMain38,
+  isPosition: () => isPosition,
+  isQuote: () => isQuote,
+  validateBlock: () => validateBlock,
+  validateMain: () => validateMain38,
+  validatePosition: () => validatePosition,
+  validateQuote: () => validateQuote
+});
+var is$typed41 = is$typed;
+var validate41 = validate;
+var id40 = "pub.leaflet.pages.linearDocument";
+var hashMain38 = "main";
+function isMain38(v) {
+  return is$typed41(v, id40, hashMain38);
+}
+function validateMain38(v) {
+  return validate41(v, id40, hashMain38);
+}
+var hashBlock = "block";
+function isBlock(v) {
+  return is$typed41(v, id40, hashBlock);
+}
+function validateBlock(v) {
+  return validate41(v, id40, hashBlock);
+}
+var TEXTALIGNLEFT = `${id40}#textAlignLeft`;
+var TEXTALIGNCENTER = `${id40}#textAlignCenter`;
+var TEXTALIGNRIGHT = `${id40}#textAlignRight`;
+var TEXTALIGNJUSTIFY = `${id40}#textAlignJustify`;
+var hashQuote = "quote";
+function isQuote(v) {
+  return is$typed41(v, id40, hashQuote);
+}
+function validateQuote(v) {
+  return validate41(v, id40, hashQuote);
+}
+var hashPosition = "position";
+function isPosition(v) {
+  return is$typed41(v, id40, hashPosition);
+}
+function validatePosition(v) {
+  return validate41(v, id40, hashPosition);
+}
+
+// lex-api/types/pub/leaflet/richtext/facet.ts
+var facet_exports = {};
+__export(facet_exports, {
+  isAtMention: () => isAtMention,
+  isBold: () => isBold,
+  isByteSlice: () => isByteSlice,
+  isCode: () => isCode,
+  isDidMention: () => isDidMention,
+  isHighlight: () => isHighlight,
+  isId: () => isId,
+  isItalic: () => isItalic,
+  isLink: () => isLink,
+  isMain: () => isMain39,
+  isStrikethrough: () => isStrikethrough,
+  isUnderline: () => isUnderline,
+  validateAtMention: () => validateAtMention,
+  validateBold: () => validateBold,
+  validateByteSlice: () => validateByteSlice,
+  validateCode: () => validateCode,
+  validateDidMention: () => validateDidMention,
+  validateHighlight: () => validateHighlight,
+  validateId: () => validateId,
+  validateItalic: () => validateItalic,
+  validateLink: () => validateLink,
+  validateMain: () => validateMain39,
+  validateStrikethrough: () => validateStrikethrough,
+  validateUnderline: () => validateUnderline
+});
+var is$typed42 = is$typed;
+var validate42 = validate;
+var id41 = "pub.leaflet.richtext.facet";
+var hashMain39 = "main";
+function isMain39(v) {
+  return is$typed42(v, id41, hashMain39);
+}
+function validateMain39(v) {
+  return validate42(v, id41, hashMain39);
+}
+var hashByteSlice = "byteSlice";
+function isByteSlice(v) {
+  return is$typed42(v, id41, hashByteSlice);
+}
+function validateByteSlice(v) {
+  return validate42(v, id41, hashByteSlice);
+}
+var hashLink = "link";
+function isLink(v) {
+  return is$typed42(v, id41, hashLink);
+}
+function validateLink(v) {
+  return validate42(v, id41, hashLink);
+}
+var hashDidMention = "didMention";
+function isDidMention(v) {
+  return is$typed42(v, id41, hashDidMention);
+}
+function validateDidMention(v) {
+  return validate42(v, id41, hashDidMention);
+}
+var hashAtMention = "atMention";
+function isAtMention(v) {
+  return is$typed42(v, id41, hashAtMention);
+}
+function validateAtMention(v) {
+  return validate42(v, id41, hashAtMention);
+}
+var hashCode = "code";
+function isCode(v) {
+  return is$typed42(v, id41, hashCode);
+}
+function validateCode(v) {
+  return validate42(v, id41, hashCode);
+}
+var hashHighlight = "highlight";
+function isHighlight(v) {
+  return is$typed42(v, id41, hashHighlight);
+}
+function validateHighlight(v) {
+  return validate42(v, id41, hashHighlight);
+}
+var hashUnderline = "underline";
+function isUnderline(v) {
+  return is$typed42(v, id41, hashUnderline);
+}
+function validateUnderline(v) {
+  return validate42(v, id41, hashUnderline);
+}
+var hashStrikethrough = "strikethrough";
+function isStrikethrough(v) {
+  return is$typed42(v, id41, hashStrikethrough);
+}
+function validateStrikethrough(v) {
+  return validate42(v, id41, hashStrikethrough);
+}
+var hashId = "id";
+function isId(v) {
+  return is$typed42(v, id41, hashId);
+}
+function validateId(v) {
+  return validate42(v, id41, hashId);
+}
+var hashBold = "bold";
+function isBold(v) {
+  return is$typed42(v, id41, hashBold);
+}
+function validateBold(v) {
+  return validate42(v, id41, hashBold);
+}
+var hashItalic = "italic";
+function isItalic(v) {
+  return is$typed42(v, id41, hashItalic);
+}
+function validateItalic(v) {
+  return validate42(v, id41, hashItalic);
 }
 
 // lex-api/index.ts
+var PUB_LEAFLET_PAGES = {
+  LinearDocumentTextAlignLeft: "pub.leaflet.pages.linearDocument#textAlignLeft",
+  LinearDocumentTextAlignCenter: "pub.leaflet.pages.linearDocument#textAlignCenter",
+  LinearDocumentTextAlignRight: "pub.leaflet.pages.linearDocument#textAlignRight",
+  LinearDocumentTextAlignJustify: "pub.leaflet.pages.linearDocument#textAlignJustify"
+};
 var AtpBaseClient = class extends xrpc.XrpcClient {
   constructor(options) {
     super(options, schemas);
     __publicField(this, "app");
     __publicField(this, "com");
     __publicField(this, "org");
+    __publicField(this, "pub");
     this.app = new AppNS(this);
     this.com = new ComNS(this);
     this.org = new OrgNS(this);
+    this.pub = new PubNS(this);
   }
   /** @deprecated use `this` instead */
   get xrpc() {
@@ -1887,8 +3024,166 @@ var AppCertifiedNS = class {
   constructor(client) {
     __publicField(this, "_client");
     __publicField(this, "location");
+    __publicField(this, "badge");
     this._client = client;
+    this.badge = new AppCertifiedBadgeNS(client);
     this.location = new AppCertifiedLocationRecord(client);
+  }
+};
+var AppCertifiedBadgeNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    __publicField(this, "award");
+    __publicField(this, "definition");
+    __publicField(this, "response");
+    this._client = client;
+    this.award = new AppCertifiedBadgeAwardRecord(client);
+    this.definition = new AppCertifiedBadgeDefinitionRecord(client);
+    this.response = new AppCertifiedBadgeResponseRecord(client);
+  }
+};
+var AppCertifiedBadgeAwardRecord = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+  async list(params) {
+    const res = await this._client.call("com.atproto.repo.listRecords", {
+      collection: "app.certified.badge.award",
+      ...params
+    });
+    return res.data;
+  }
+  async get(params) {
+    const res = await this._client.call("com.atproto.repo.getRecord", {
+      collection: "app.certified.badge.award",
+      ...params
+    });
+    return res.data;
+  }
+  async create(params, record, headers) {
+    const collection = "app.certified.badge.award";
+    const res = await this._client.call(
+      "com.atproto.repo.createRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async put(params, record, headers) {
+    const collection = "app.certified.badge.award";
+    const res = await this._client.call(
+      "com.atproto.repo.putRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async delete(params, headers) {
+    await this._client.call(
+      "com.atproto.repo.deleteRecord",
+      void 0,
+      { collection: "app.certified.badge.award", ...params },
+      { headers }
+    );
+  }
+};
+var AppCertifiedBadgeDefinitionRecord = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+  async list(params) {
+    const res = await this._client.call("com.atproto.repo.listRecords", {
+      collection: "app.certified.badge.definition",
+      ...params
+    });
+    return res.data;
+  }
+  async get(params) {
+    const res = await this._client.call("com.atproto.repo.getRecord", {
+      collection: "app.certified.badge.definition",
+      ...params
+    });
+    return res.data;
+  }
+  async create(params, record, headers) {
+    const collection = "app.certified.badge.definition";
+    const res = await this._client.call(
+      "com.atproto.repo.createRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async put(params, record, headers) {
+    const collection = "app.certified.badge.definition";
+    const res = await this._client.call(
+      "com.atproto.repo.putRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async delete(params, headers) {
+    await this._client.call(
+      "com.atproto.repo.deleteRecord",
+      void 0,
+      { collection: "app.certified.badge.definition", ...params },
+      { headers }
+    );
+  }
+};
+var AppCertifiedBadgeResponseRecord = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+  async list(params) {
+    const res = await this._client.call("com.atproto.repo.listRecords", {
+      collection: "app.certified.badge.response",
+      ...params
+    });
+    return res.data;
+  }
+  async get(params) {
+    const res = await this._client.call("com.atproto.repo.getRecord", {
+      collection: "app.certified.badge.response",
+      ...params
+    });
+    return res.data;
+  }
+  async create(params, record, headers) {
+    const collection = "app.certified.badge.response";
+    const res = await this._client.call(
+      "com.atproto.repo.createRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async put(params, record, headers) {
+    const collection = "app.certified.badge.response";
+    const res = await this._client.call(
+      "com.atproto.repo.putRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async delete(params, headers) {
+    await this._client.call(
+      "com.atproto.repo.deleteRecord",
+      void 0,
+      { collection: "app.certified.badge.response", ...params },
+      { headers }
+    );
   }
 };
 var AppCertifiedLocationRecord = class {
@@ -1953,20 +3248,14 @@ var AppGainforestOrganizationNS = class {
     __publicField(this, "defaultSite");
     __publicField(this, "info");
     __publicField(this, "layer");
-    __publicField(this, "project");
-    __publicField(this, "site");
-    __publicField(this, "draft");
     __publicField(this, "observations");
     __publicField(this, "predictions");
     this._client = client;
-    this.draft = new AppGainforestOrganizationDraftNS(client);
     this.observations = new AppGainforestOrganizationObservationsNS(client);
     this.predictions = new AppGainforestOrganizationPredictionsNS(client);
     this.defaultSite = new AppGainforestOrganizationDefaultSiteRecord(client);
     this.info = new AppGainforestOrganizationInfoRecord(client);
     this.layer = new AppGainforestOrganizationLayerRecord(client);
-    this.project = new AppGainforestOrganizationProjectRecord(client);
-    this.site = new AppGainforestOrganizationSiteRecord(client);
   }
   getIndexedOrganizations(params, opts) {
     return this._client.call(
@@ -1974,62 +3263,6 @@ var AppGainforestOrganizationNS = class {
       params,
       void 0,
       opts
-    );
-  }
-};
-var AppGainforestOrganizationDraftNS = class {
-  constructor(client) {
-    __publicField(this, "_client");
-    __publicField(this, "ecocert");
-    this._client = client;
-    this.ecocert = new AppGainforestOrganizationDraftEcocertRecord(client);
-  }
-};
-var AppGainforestOrganizationDraftEcocertRecord = class {
-  constructor(client) {
-    __publicField(this, "_client");
-    this._client = client;
-  }
-  async list(params) {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.draft.ecocert",
-      ...params
-    });
-    return res.data;
-  }
-  async get(params) {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.draft.ecocert",
-      ...params
-    });
-    return res.data;
-  }
-  async create(params, record, headers) {
-    const collection = "app.gainforest.organization.draft.ecocert";
-    const res = await this._client.call(
-      "com.atproto.repo.createRecord",
-      void 0,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
-  }
-  async put(params, record, headers) {
-    const collection = "app.gainforest.organization.draft.ecocert";
-    const res = await this._client.call(
-      "com.atproto.repo.putRecord",
-      void 0,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
-  }
-  async delete(params, headers) {
-    await this._client.call(
-      "com.atproto.repo.deleteRecord",
-      void 0,
-      { collection: "app.gainforest.organization.draft.ecocert", ...params },
-      { headers }
     );
   }
 };
@@ -2526,102 +3759,6 @@ var AppGainforestOrganizationLayerRecord = class {
     );
   }
 };
-var AppGainforestOrganizationProjectRecord = class {
-  constructor(client) {
-    __publicField(this, "_client");
-    this._client = client;
-  }
-  async list(params) {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.project",
-      ...params
-    });
-    return res.data;
-  }
-  async get(params) {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.project",
-      ...params
-    });
-    return res.data;
-  }
-  async create(params, record, headers) {
-    const collection = "app.gainforest.organization.project";
-    const res = await this._client.call(
-      "com.atproto.repo.createRecord",
-      void 0,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
-  }
-  async put(params, record, headers) {
-    const collection = "app.gainforest.organization.project";
-    const res = await this._client.call(
-      "com.atproto.repo.putRecord",
-      void 0,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
-  }
-  async delete(params, headers) {
-    await this._client.call(
-      "com.atproto.repo.deleteRecord",
-      void 0,
-      { collection: "app.gainforest.organization.project", ...params },
-      { headers }
-    );
-  }
-};
-var AppGainforestOrganizationSiteRecord = class {
-  constructor(client) {
-    __publicField(this, "_client");
-    this._client = client;
-  }
-  async list(params) {
-    const res = await this._client.call("com.atproto.repo.listRecords", {
-      collection: "app.gainforest.organization.site",
-      ...params
-    });
-    return res.data;
-  }
-  async get(params) {
-    const res = await this._client.call("com.atproto.repo.getRecord", {
-      collection: "app.gainforest.organization.site",
-      ...params
-    });
-    return res.data;
-  }
-  async create(params, record, headers) {
-    const collection = "app.gainforest.organization.site";
-    const res = await this._client.call(
-      "com.atproto.repo.createRecord",
-      void 0,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
-  }
-  async put(params, record, headers) {
-    const collection = "app.gainforest.organization.site";
-    const res = await this._client.call(
-      "com.atproto.repo.putRecord",
-      void 0,
-      { collection, ...params, record: { ...record, $type: collection } },
-      { encoding: "application/json", headers }
-    );
-    return res.data;
-  }
-  async delete(params, headers) {
-    await this._client.call(
-      "com.atproto.repo.deleteRecord",
-      void 0,
-      { collection: "app.gainforest.organization.site", ...params },
-      { headers }
-    );
-  }
-};
 var ComNS = class {
   constructor(client) {
     __publicField(this, "_client");
@@ -2656,8 +3793,10 @@ var OrgHypercertsNS = class {
   constructor(client) {
     __publicField(this, "_client");
     __publicField(this, "claim");
+    __publicField(this, "funding");
     this._client = client;
     this.claim = new OrgHypercertsClaimNS(client);
+    this.funding = new OrgHypercertsFundingNS(client);
   }
 };
 var OrgHypercertsClaimNS = class {
@@ -2669,6 +3808,7 @@ var OrgHypercertsClaimNS = class {
     __publicField(this, "evaluation");
     __publicField(this, "evidence");
     __publicField(this, "measurement");
+    __publicField(this, "project");
     __publicField(this, "rights");
     this._client = client;
     this.activity = new OrgHypercertsClaimActivityRecord(client);
@@ -2677,6 +3817,7 @@ var OrgHypercertsClaimNS = class {
     this.evaluation = new OrgHypercertsClaimEvaluationRecord(client);
     this.evidence = new OrgHypercertsClaimEvidenceRecord(client);
     this.measurement = new OrgHypercertsClaimMeasurementRecord(client);
+    this.project = new OrgHypercertsClaimProjectRecord(client);
     this.rights = new OrgHypercertsClaimRightsRecord(client);
   }
 };
@@ -2968,6 +4109,54 @@ var OrgHypercertsClaimMeasurementRecord = class {
     );
   }
 };
+var OrgHypercertsClaimProjectRecord = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+  async list(params) {
+    const res = await this._client.call("com.atproto.repo.listRecords", {
+      collection: "org.hypercerts.claim.project",
+      ...params
+    });
+    return res.data;
+  }
+  async get(params) {
+    const res = await this._client.call("com.atproto.repo.getRecord", {
+      collection: "org.hypercerts.claim.project",
+      ...params
+    });
+    return res.data;
+  }
+  async create(params, record, headers) {
+    const collection = "org.hypercerts.claim.project";
+    const res = await this._client.call(
+      "com.atproto.repo.createRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async put(params, record, headers) {
+    const collection = "org.hypercerts.claim.project";
+    const res = await this._client.call(
+      "com.atproto.repo.putRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async delete(params, headers) {
+    await this._client.call(
+      "com.atproto.repo.deleteRecord",
+      void 0,
+      { collection: "org.hypercerts.claim.project", ...params },
+      { headers }
+    );
+  }
+};
 var OrgHypercertsClaimRightsRecord = class {
   constructor(client) {
     __publicField(this, "_client");
@@ -3016,17 +4205,116 @@ var OrgHypercertsClaimRightsRecord = class {
     );
   }
 };
+var OrgHypercertsFundingNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    __publicField(this, "receipt");
+    this._client = client;
+    this.receipt = new OrgHypercertsFundingReceiptRecord(client);
+  }
+};
+var OrgHypercertsFundingReceiptRecord = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+  async list(params) {
+    const res = await this._client.call("com.atproto.repo.listRecords", {
+      collection: "org.hypercerts.funding.receipt",
+      ...params
+    });
+    return res.data;
+  }
+  async get(params) {
+    const res = await this._client.call("com.atproto.repo.getRecord", {
+      collection: "org.hypercerts.funding.receipt",
+      ...params
+    });
+    return res.data;
+  }
+  async create(params, record, headers) {
+    const collection = "org.hypercerts.funding.receipt";
+    const res = await this._client.call(
+      "com.atproto.repo.createRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async put(params, record, headers) {
+    const collection = "org.hypercerts.funding.receipt";
+    const res = await this._client.call(
+      "com.atproto.repo.putRecord",
+      void 0,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: "application/json", headers }
+    );
+    return res.data;
+  }
+  async delete(params, headers) {
+    await this._client.call(
+      "com.atproto.repo.deleteRecord",
+      void 0,
+      { collection: "org.hypercerts.funding.receipt", ...params },
+      { headers }
+    );
+  }
+};
+var PubNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    __publicField(this, "leaflet");
+    this._client = client;
+    this.leaflet = new PubLeafletNS(client);
+  }
+};
+var PubLeafletNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    __publicField(this, "blocks");
+    __publicField(this, "pages");
+    __publicField(this, "richtext");
+    this._client = client;
+    this.blocks = new PubLeafletBlocksNS(client);
+    this.pages = new PubLeafletPagesNS(client);
+    this.richtext = new PubLeafletRichtextNS(client);
+  }
+};
+var PubLeafletBlocksNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+};
+var PubLeafletPagesNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+};
+var PubLeafletRichtextNS = class {
+  constructor(client) {
+    __publicField(this, "_client");
+    this._client = client;
+  }
+};
 
+exports.AppCertifiedBadgeAward = award_exports;
+exports.AppCertifiedBadgeAwardRecord = AppCertifiedBadgeAwardRecord;
+exports.AppCertifiedBadgeDefinition = definition_exports;
+exports.AppCertifiedBadgeDefinitionRecord = AppCertifiedBadgeDefinitionRecord;
+exports.AppCertifiedBadgeNS = AppCertifiedBadgeNS;
+exports.AppCertifiedBadgeResponse = response_exports;
+exports.AppCertifiedBadgeResponseRecord = AppCertifiedBadgeResponseRecord;
+exports.AppCertifiedDefs = defs_exports;
 exports.AppCertifiedLocation = location_exports;
 exports.AppCertifiedLocationRecord = AppCertifiedLocationRecord;
 exports.AppCertifiedNS = AppCertifiedNS;
-exports.AppGainforestCommonDefs = defs_exports;
+exports.AppGainforestCommonDefs = defs_exports2;
 exports.AppGainforestNS = AppGainforestNS;
 exports.AppGainforestOrganizationDefaultSite = defaultSite_exports;
 exports.AppGainforestOrganizationDefaultSiteRecord = AppGainforestOrganizationDefaultSiteRecord;
-exports.AppGainforestOrganizationDraftEcocert = ecocert_exports;
-exports.AppGainforestOrganizationDraftEcocertRecord = AppGainforestOrganizationDraftEcocertRecord;
-exports.AppGainforestOrganizationDraftNS = AppGainforestOrganizationDraftNS;
 exports.AppGainforestOrganizationGetIndexedOrganizations = getIndexedOrganizations_exports;
 exports.AppGainforestOrganizationInfo = info_exports;
 exports.AppGainforestOrganizationInfoRecord = AppGainforestOrganizationInfoRecord;
@@ -3047,10 +4335,6 @@ exports.AppGainforestOrganizationPredictionsFaunaRecord = AppGainforestOrganizat
 exports.AppGainforestOrganizationPredictionsFlora = flora_exports2;
 exports.AppGainforestOrganizationPredictionsFloraRecord = AppGainforestOrganizationPredictionsFloraRecord;
 exports.AppGainforestOrganizationPredictionsNS = AppGainforestOrganizationPredictionsNS;
-exports.AppGainforestOrganizationProject = project_exports;
-exports.AppGainforestOrganizationProjectRecord = AppGainforestOrganizationProjectRecord;
-exports.AppGainforestOrganizationSite = site_exports;
-exports.AppGainforestOrganizationSiteRecord = AppGainforestOrganizationSiteRecord;
 exports.AppNS = AppNS;
 exports.AtpBaseClient = AtpBaseClient;
 exports.ComAtprotoNS = ComAtprotoNS;
@@ -3070,10 +4354,37 @@ exports.OrgHypercertsClaimEvidenceRecord = OrgHypercertsClaimEvidenceRecord;
 exports.OrgHypercertsClaimMeasurement = measurement_exports;
 exports.OrgHypercertsClaimMeasurementRecord = OrgHypercertsClaimMeasurementRecord;
 exports.OrgHypercertsClaimNS = OrgHypercertsClaimNS;
+exports.OrgHypercertsClaimProject = project_exports;
+exports.OrgHypercertsClaimProjectRecord = OrgHypercertsClaimProjectRecord;
 exports.OrgHypercertsClaimRights = rights_exports;
 exports.OrgHypercertsClaimRightsRecord = OrgHypercertsClaimRightsRecord;
-exports.OrgHypercertsDefs = defs_exports2;
+exports.OrgHypercertsDefs = defs_exports3;
+exports.OrgHypercertsFundingNS = OrgHypercertsFundingNS;
+exports.OrgHypercertsFundingReceipt = receipt_exports;
+exports.OrgHypercertsFundingReceiptRecord = OrgHypercertsFundingReceiptRecord;
 exports.OrgHypercertsNS = OrgHypercertsNS;
 exports.OrgNS = OrgNS;
+exports.PUB_LEAFLET_PAGES = PUB_LEAFLET_PAGES;
+exports.PubLeafletBlocksBlockquote = blockquote_exports;
+exports.PubLeafletBlocksBskyPost = bskyPost_exports;
+exports.PubLeafletBlocksButton = button_exports;
+exports.PubLeafletBlocksCode = code_exports;
+exports.PubLeafletBlocksHeader = header_exports;
+exports.PubLeafletBlocksHorizontalRule = horizontalRule_exports;
+exports.PubLeafletBlocksIframe = iframe_exports;
+exports.PubLeafletBlocksImage = image_exports;
+exports.PubLeafletBlocksMath = math_exports;
+exports.PubLeafletBlocksNS = PubLeafletBlocksNS;
+exports.PubLeafletBlocksPage = page_exports;
+exports.PubLeafletBlocksPoll = poll_exports;
+exports.PubLeafletBlocksText = text_exports;
+exports.PubLeafletBlocksUnorderedList = unorderedList_exports;
+exports.PubLeafletBlocksWebsite = website_exports;
+exports.PubLeafletNS = PubLeafletNS;
+exports.PubLeafletPagesLinearDocument = linearDocument_exports;
+exports.PubLeafletPagesNS = PubLeafletPagesNS;
+exports.PubLeafletRichtextFacet = facet_exports;
+exports.PubLeafletRichtextNS = PubLeafletRichtextNS;
+exports.PubNS = PubNS;
 //# sourceMappingURL=lex-api.cjs.map
 //# sourceMappingURL=lex-api.cjs.map

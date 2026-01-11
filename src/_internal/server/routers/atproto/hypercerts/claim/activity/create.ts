@@ -15,6 +15,9 @@ import {
 import { getWriteAgent } from "@/_internal/server/utils/agent";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/_internal/index";
+import { StrongRefSchema } from "@/_internal/zod-schemas/strongref";
+import { createLinearDocument } from "@/_internal/server/utils/linear-document";
+import { checkOwnershipByAtUri } from "@/_internal/server/utils/ownership";
 
 const uploadFile = async (fileGenerator: FileGenerator, agent: Agent) => {
   const file = new File(
@@ -36,16 +39,18 @@ export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
           title: z.string(),
           shortDescription: z.string(),
           description: z.string().optional(),
+          locations: StrongRefSchema.array(),
+          project: z.string().optional(),
           workScopes: z.array(z.string()),
           startDate: z.string(),
           endDate: z.string(),
+          contributors: z.array(z.string()).refine((v) => v.length > 0, {
+            message: "At least one contributor is required",
+          }),
+          createdAt: z.string().optional(),
         }),
         uploads: z.object({
           image: FileGeneratorSchema,
-          contributors: z.array(z.string()).refine((v) => v.length > 0, {
-            message: "At least one contribution is required",
-          }),
-          siteAtUri: z.string(),
         }),
         pdsDomain: allowedPDSDomainSchema,
       })
@@ -60,25 +65,6 @@ export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
         });
       }
 
-      // Generate record data for validation before writing to the PDS:
-      // Location record
-      const locationNSID = "app.certified.location";
-      const location: AppCertifiedLocation.Record = {
-        $type: locationNSID,
-        lpVersion: "1.0.0",
-        srs: "https://epsg.io/3857",
-        locationType: "geojson",
-        location: {
-          $type: "org.hypercerts.defs#uri",
-          uri: input.uploads.siteAtUri,
-        },
-        createdAt: new Date().toISOString(),
-      };
-      const validatedLocation = validateRecordOrThrow(
-        location,
-        AppCertifiedLocation
-      );
-
       // Activity record
       const activityNSID = "org.hypercerts.claim.activity";
       const activity: OrgHypercertsClaimActivity.Record = {
@@ -86,14 +72,15 @@ export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
         title: input.activity.title,
         shortDescription: input.activity.shortDescription,
         description: input.activity.description,
-        // These will be set after the records are created:
+        // These will be set later in the function:
         image: undefined,
-        location: undefined,
         contributions: undefined,
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        location: input.activity.locations,
+        project: input.activity.project,
         workScope: {
           $type: "org.hypercerts.claim.activity#workScope",
-          anyOf: input.activity.workScopes,
+          withinAnyOf: input.activity.workScopes,
         },
         startDate: input.activity.startDate,
         endDate: input.activity.endDate,
@@ -116,7 +103,7 @@ export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
         },
         // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         role: "Contributor",
-        contributors: input.uploads.contributors,
+        contributors: input.activity.contributors,
         createdAt: new Date().toISOString(),
       };
       const validatedContribution = validateRecordOrThrow(
@@ -124,22 +111,29 @@ export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
         OrgHypercertsClaimContribution
       );
 
-      // Write records to the PDS
-      // 1. Write location to the PDS
-      const locationWriteResponse = await agent.com.atproto.repo.createRecord({
-        repo: did,
-        collection: locationNSID,
-        record: validatedLocation,
-      });
-      if (locationWriteResponse.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to write location record",
-        });
+      // Validate the ownership of records being referenced.
+      for (const location of input.activity.locations) {
+        if (!checkOwnershipByAtUri(location.uri, did)) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message:
+              "One of the locations being referenced is not owned by you.",
+          });
+        }
       }
-      // 2. Upload image to the PDS
+      if (input.activity.project) {
+        if (!checkOwnershipByAtUri(input.activity.project, did)) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "The project being referenced is not owned by you.",
+          });
+        }
+      }
+
+      // Write records to the PDS
+      // 1. Upload image to the PDS
       const imageBlobRef = await uploadFile(input.uploads.image, agent);
-      // 3. Write activity to the PDS
+      // 2. Write activity to the PDS
       const activityResponse = await agent.com.atproto.repo.createRecord({
         repo: did,
         collection: activityNSID,
@@ -148,11 +142,6 @@ export const createClaimActivityFactory = <T extends SupportedPDSDomain>(
           image: {
             $type: "org.hypercerts.defs#smallImage",
             image: toBlobRef(imageBlobRef),
-          },
-          location: {
-            $type: "com.atproto.repo.strongRef",
-            uri: locationWriteResponse.data.uri,
-            cid: locationWriteResponse.data.cid,
           },
         } satisfies OrgHypercertsClaimActivity.Record,
       });

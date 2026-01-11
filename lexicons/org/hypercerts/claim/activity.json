@@ -18,7 +18,7 @@
         "properties": {
           "title": {
             "type": "string",
-            "description": "Title of the hypercert",
+            "description": "Title of the hypercert.",
             "maxLength": 256
           },
           "shortDescription": {
@@ -39,7 +39,7 @@
               "org.hypercerts.defs#uri",
               "org.hypercerts.defs#smallImage"
             ],
-            "description": "The hypercert visual representation as a URI or image blob"
+            "description": "The hypercert visual representation as a URI or image blob."
           },
           "workScope": {
             "type": "ref",
@@ -57,7 +57,7 @@
           },
           "contributions": {
             "type": "array",
-            "description": "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution",
+            "description": "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution.",
             "items": {
               "type": "ref",
               "ref": "com.atproto.repo.strongRef"
@@ -66,12 +66,20 @@
           "rights": {
             "type": "ref",
             "ref": "com.atproto.repo.strongRef",
-            "description": "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights"
+            "description": "A strong reference to the rights that this hypercert has. The record referenced must conform with the lexicon org.hypercerts.claim.rights."
           },
-          "location": {
-            "type": "ref",
-            "ref": "com.atproto.repo.strongRef",
-            "description": "A strong reference to the location where the work for done hypercert was located. The record referenced must conform with the lexicon app.certified.location"
+          "locations": {
+            "type": "array",
+            "description": "An array of strong references to the location where activity was performed. The record referenced must conform with the lexicon app.certified.location.",
+            "items": {
+              "type": "ref",
+              "ref": "com.atproto.repo.strongRef"
+            }
+          },
+          "project": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "A reference (AT-URI) to the project record that this activity is part of. The record referenced must conform with the lexicon org.hypercerts.claim.project. This activity must also be referenced by the project, establishing a bidirectional link."
           },
           "createdAt": {
             "type": "string",
@@ -83,9 +91,9 @@
     },
     "workScope": {
       "type": "object",
-      "description": "Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply.",
+      "description": "Logical scope of the work using label-based conditions. All labels in `withinAllOf` must apply; at least one label in `withinAnyOf` must apply if provided; no label in `withinNoneOf` may apply.",
       "properties": {
-        "allOf": {
+        "withinAllOf": {
           "type": "array",
           "description": "Labels that MUST all hold for the scope to apply.",
           "items": {
@@ -93,7 +101,7 @@
           },
           "maxLength": 100
         },
-        "anyOf": {
+        "withinAnyOf": {
           "type": "array",
           "description": "Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition.",
           "items": {
@@ -101,13 +109,28 @@
           },
           "maxLength": 100
         },
-        "noneOf": {
+        "withinNoneOf": {
           "type": "array",
           "description": "Labels that MUST NOT hold for the scope to apply.",
           "items": {
             "type": "string"
           },
           "maxLength": 100
+        }
+      }
+    },
+    "activityWeight": {
+      "type": "object",
+      "required": ["activity", "weight"],
+      "properties": {
+        "activity": {
+          "type": "ref",
+          "ref": "com.atproto.repo.strongRef",
+          "description": "A strong reference to a hypercert activity record. This activity must conform to the lexicon org.hypercerts.claim.activity"
+        },
+        "weight": {
+          "type": "string",
+          "description": "The relative weight/importance of this hypercert activity (stored as a string to avoid float precision issues). Weights can be any positive numeric values and do not need to sum to a specific total; normalization can be performed by the consuming application as needed."
         }
       }
     }

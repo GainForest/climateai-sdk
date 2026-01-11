@@ -18,7 +18,7 @@ const id = 'org.hypercerts.claim.activity'
 
 export interface Main {
   $type: 'org.hypercerts.claim.activity'
-  /** Title of the hypercert */
+  /** Title of the hypercert. */
   title: string
   /** Short blurb of the impact work done. */
   shortDescription: string
@@ -33,10 +33,13 @@ export interface Main {
   startDate: string
   /** When the work ended */
   endDate: string
-  /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution */
+  /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution. */
   contributions?: ComAtprotoRepoStrongRef.Main[]
   rights?: ComAtprotoRepoStrongRef.Main
-  location?: ComAtprotoRepoStrongRef.Main
+  /** An array of strong references to the location where activity was performed. The record referenced must conform with the lexicon app.certified.location. */
+  locations?: ComAtprotoRepoStrongRef.Main[]
+  /** A reference (AT-URI) to the project record that this activity is part of. The record referenced must conform with the lexicon org.hypercerts.claim.project. This activity must also be referenced by the project, establishing a bidirectional link. */
+  project?: string
   /** Client-declared timestamp when this record was originally created */
   createdAt: string
   [k: string]: unknown
@@ -58,15 +61,15 @@ export {
   validateMain as validateRecord,
 }
 
-/** Logical scope of the work using label-based conditions. All labels in `allOf` must apply; at least one label in `anyOf` must apply if provided; no label in `noneOf` may apply. */
+/** Logical scope of the work using label-based conditions. All labels in `withinAllOf` must apply; at least one label in `withinAnyOf` must apply if provided; no label in `withinNoneOf` may apply. */
 export interface WorkScope {
   $type?: 'org.hypercerts.claim.activity#workScope'
   /** Labels that MUST all hold for the scope to apply. */
-  allOf?: string[]
+  withinAllOf?: string[]
   /** Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition. */
-  anyOf?: string[]
+  withinAnyOf?: string[]
   /** Labels that MUST NOT hold for the scope to apply. */
-  noneOf?: string[]
+  withinNoneOf?: string[]
 }
 
 const hashWorkScope = 'workScope'
@@ -77,4 +80,21 @@ export function isWorkScope<V>(v: V) {
 
 export function validateWorkScope<V>(v: V) {
   return validate<WorkScope & V>(v, id, hashWorkScope)
+}
+
+export interface ActivityWeight {
+  $type?: 'org.hypercerts.claim.activity#activityWeight'
+  activity: ComAtprotoRepoStrongRef.Main
+  /** The relative weight/importance of this hypercert activity (stored as a string to avoid float precision issues). Weights can be any positive numeric values and do not need to sum to a specific total; normalization can be performed by the consuming application as needed. */
+  weight: string
+}
+
+const hashActivityWeight = 'activityWeight'
+
+export function isActivityWeight<V>(v: V) {
+  return is$typed(v, id, hashActivityWeight)
+}
+
+export function validateActivityWeight<V>(v: V) {
+  return validate<ActivityWeight & V>(v, id, hashActivityWeight)
 }

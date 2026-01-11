@@ -18,18 +18,20 @@ const id = 'org.hypercerts.claim.evidence'
 
 export interface Main {
   $type: 'org.hypercerts.claim.evidence'
-  activity?: ComAtprotoRepoStrongRef.Main
+  subject?: ComAtprotoRepoStrongRef.Main
   content:
     | $Typed<OrgHypercertsDefs.Uri>
     | $Typed<OrgHypercertsDefs.SmallBlob>
     | { $type: string }
-  /** Title to describe the nature of the evidence */
+  /** Title to describe the nature of the evidence. */
   title: string
-  /** Short description explaining what this evidence demonstrates or proves */
+  /** Short description explaining what this evidence shows. */
   shortDescription?: string
-  /** Longer description describing the impact claim evidence. */
+  /** Longer description describing the evidence in more detail. */
   description?: string
-  /** Client-declared timestamp when this hypercert claim was originally created */
+  /** How this evidence relates to the subject. */
+  relationType?: 'supports' | 'challenges' | 'clarifies' | (string & {})
+  /** Client-declared timestamp when this record was originally created */
   createdAt: string
   [k: string]: unknown
 }

@@ -10,6 +10,7 @@ import {
   type OmitKey,
 } from '../../../../util'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
+import type * as AppCertifiedDefs from '../../../app/certified/defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -17,18 +18,18 @@ const id = 'org.hypercerts.claim.measurement'
 
 export interface Main {
   $type: 'org.hypercerts.claim.measurement'
-  activity: ComAtprotoRepoStrongRef.Main
+  subject?: ComAtprotoRepoStrongRef.Main
   /** DIDs of the entity (or entities) that measured this data */
-  measurers: string[]
+  measurers: AppCertifiedDefs.Did[]
   /** The metric being measured */
   metric: string
   /** The measured value */
   value: string
   /** Short identifier for the measurement methodology */
-  measurementMethodType?: string
+  methodType?: string
   /** URI to methodology documentation, standard protocol, or measurement procedure */
-  measurementMethodURI?: string
-  /** URIs to supporting evidence or data */
+  methodURI?: string
+  /** URIs to related evidence or underlying data (e.g. org.hypercerts.claim.evidence records or raw datasets) */
   evidenceURI?: string[]
   location?: ComAtprotoRepoStrongRef.Main
   /** Client-declared timestamp when this record was originally created */
