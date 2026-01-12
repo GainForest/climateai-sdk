@@ -3866,7 +3866,7 @@ var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) =
     const agent = getReadAgent(input.pdsDomain);
     const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
       agent.com.atproto.sync.listRepos({
-        limit: 100
+        limit: 150
       })
     );
     if (repositoriesListFetchError || repositoriesListResponse.success !== true) {
