@@ -5,11 +5,17 @@ import '@trpc/server';
 import 'zod';
 
 // src/_internal/server/session.ts
-var resumeCredentialSession = (service) => {
+var resumeCredentialSession = (service, sessionData) => {
   const credentialSession = new CredentialSession(
     new URL(`https://${service}`)
   );
-  return credentialSession.resumeSession;
+  return credentialSession.resumeSession({
+    accessJwt: sessionData.accessJwt,
+    refreshJwt: sessionData.refreshJwt,
+    handle: sessionData.handle,
+    did: sessionData.did,
+    active: true
+  });
 };
 
 // src/_internal/server/session.ts

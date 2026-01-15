@@ -7,11 +7,17 @@ require('@trpc/server');
 require('zod');
 
 // src/_internal/server/session.ts
-var resumeCredentialSession = (service) => {
+var resumeCredentialSession = (service, sessionData) => {
   const credentialSession = new api.CredentialSession(
     new URL(`https://${service}`)
   );
-  return credentialSession.resumeSession;
+  return credentialSession.resumeSession({
+    accessJwt: sessionData.accessJwt,
+    refreshJwt: sessionData.refreshJwt,
+    handle: sessionData.handle,
+    did: sessionData.did,
+    active: true
+  });
 };
 
 // src/_internal/server/session.ts

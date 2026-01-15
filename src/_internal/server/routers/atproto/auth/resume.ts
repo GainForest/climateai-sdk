@@ -1,17 +1,29 @@
 import { type SupportedPDSDomain } from "@/_internal/index";
 import { tryCatch } from "@/_internal/lib/tryCatch";
-import { getSessionFromRequest } from "@/_internal/server/session";
+import {
+  getSessionFromRequest,
+  StoredSession,
+} from "@/_internal/server/session";
 import { publicProcedure } from "@/_internal/server/trpc";
 import { CredentialSession } from "@atproto/api";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
-export const resumeCredentialSession = (service: SupportedPDSDomain) => {
+export const resumeCredentialSession = (
+  service: SupportedPDSDomain,
+  sessionData: StoredSession
+) => {
   const credentialSession = new CredentialSession(
     new URL(`https://${service}`)
   );
 
-  return credentialSession.resumeSession;
+  return credentialSession.resumeSession({
+    accessJwt: sessionData.accessJwt,
+    refreshJwt: sessionData.refreshJwt,
+    handle: sessionData.handle,
+    did: sessionData.did,
+    active: true,
+  });
 };
 
 export const resumeFactory = <T extends SupportedPDSDomain>(
