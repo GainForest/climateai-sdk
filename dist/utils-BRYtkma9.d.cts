@@ -7722,4 +7722,4 @@ type ValidatorParam<V extends Validator> = V extends Validator<infer R> ? R : ne
  */
 declare function asPredicate<V extends Validator>(validate: V): <T>(v: T) => v is T & ValidatorParam<V>;
 
-export { type $TypedObject as $, type LexiconDoc as L, type OmitKey as O, type Un$Typed as U, type ValidationResult as V, type $Typed as a, type LexUserType as b, type $Type as c, type Validator as d, type ValidatorParam as e, asPredicate as f, is$typed as i, maybe$typed as m };
+export { type $Typed as $, type LexiconDoc as L, type OmitKey as O, type Un$Typed as U, type ValidationResult as V, type $TypedObject as a, type LexUserType as b, type $Type as c, type Validator as d, type ValidatorParam as e, asPredicate as f, is$typed as i, maybe$typed as m };

@@ -6,6 +6,14 @@ import { CredentialSession } from "@atproto/api";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 
+export const resumeCredentialSession = (service: SupportedPDSDomain) => {
+  const credentialSession = new CredentialSession(
+    new URL(`https://${service}`)
+  );
+
+  return credentialSession.resumeSession;
+};
+
 export const resumeFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {

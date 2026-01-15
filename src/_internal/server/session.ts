@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import type { JwtPayload } from "@atproto/oauth-client-node";
 import type { SupportedPDSDomain } from "@/_internal/index";
+import { resumeCredentialSession } from "./routers/atproto/auth/resume";
 
 export interface StoredSession extends JwtPayload {
   accessJwt: string;
@@ -43,6 +44,8 @@ export async function getSessionFromRequest(
 
   return await decrypt(encryptedSession.value);
 }
+
+export { resumeCredentialSession } from "./../server/routers/atproto/auth/resume";
 
 export async function saveSession(
   session: StoredSession,

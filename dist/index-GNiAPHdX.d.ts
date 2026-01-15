@@ -1,19 +1,34 @@
+import { $ as $Typed } from './utils-BRYtkma9.js';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6, U as Uri, S as SmallImage, L as LargeImage, f as SmallBlob, g as LargeBlob } from './info-5wTP3IAZ.js';
+import { b as BlobRefGenerator } from './blobref-e8ss-bC-.js';
+import { z } from 'zod';
+import { M as Main$3, B as BlobRef } from './activity-BuClHKQ6.js';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './info-Bvuof6ha.js';
-import { M as Main$3 } from './activity-CvP9hZKL.js';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
-import { S as SupportedPDSDomain, a as StoredSession } from './session-D3BcCfum.js';
-import z from 'zod';
+import { JwtPayload } from '@atproto/oauth-client-node';
 
-declare class AppRouterFactory<T extends SupportedPDSDomain> {
+interface StoredSession extends JwtPayload {
+    accessJwt: string;
+    refreshJwt: string;
+    did: string;
+    handle: string;
+}
+declare function getSessionFromRequest(service?: SupportedPDSDomain): Promise<StoredSession | null>;
+
+declare const supportedDomains: readonly ["climateai.org", "hypercerts.org"];
+declare const supportedPDSDomainSchema: z.ZodEnum<{
+    "climateai.org": "climateai.org";
+    "hypercerts.org": "hypercerts.org";
+}>;
+type SupportedPDSDomain = (typeof supportedDomains)[number];
+declare class ClimateAiSDK<T extends SupportedPDSDomain> {
     allowedPDSDomains: T[];
-    allowedPDSDomainSchema: z.ZodEnum<{ [k_1 in T]: k_1; } extends infer T_1 ? { [k in keyof T_1]: T_1[k]; } : never>;
     appRouter: _trpc_server.TRPCBuiltRouter<{
         ctx: {
             session: StoredSession | null;
@@ -459,7 +474,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
             };
         };
     }>>;
-    constructor(_allowedPDSDomains: T[]);
     getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
@@ -898,7 +912,15 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
             };
         };
     }>>;
+    utilities: {
+        getBlobUrl: (did: string, imageData: string | BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
+        parseAtUri: (atUri: string) => {
+            did: string;
+            collection: string;
+            rkey: string;
+        };
+    };
+    constructor(_allowedPDSDomains: T[]);
 }
-type AppRouter<T extends SupportedPDSDomain> = AppRouterFactory<T>["appRouter"];
 
-export type { AppRouter as A };
+export { ClimateAiSDK as C, type SupportedPDSDomain as S, type StoredSession as a, getSessionFromRequest as g, supportedPDSDomainSchema as s };

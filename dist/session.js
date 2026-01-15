@@ -1,5 +1,16 @@
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { CredentialSession } from '@atproto/api';
+import '@trpc/server';
+import 'zod';
+
+// src/_internal/server/session.ts
+var resumeCredentialSession = (service) => {
+  const credentialSession = new CredentialSession(
+    new URL(`https://${service}`)
+  );
+  return credentialSession.resumeSession;
+};
 
 // src/_internal/server/session.ts
 var SECRET_KEY = new TextEncoder().encode(
@@ -22,6 +33,6 @@ async function getSessionFromRequest(service = "climateai.org") {
   return await decrypt(encryptedSession.value);
 }
 
-export { getSessionFromRequest };
+export { getSessionFromRequest, resumeCredentialSession };
 //# sourceMappingURL=session.js.map
 //# sourceMappingURL=session.js.map

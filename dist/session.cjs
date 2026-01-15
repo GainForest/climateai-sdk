@@ -2,6 +2,17 @@
 
 var headers = require('next/headers');
 var jose = require('jose');
+var api = require('@atproto/api');
+require('@trpc/server');
+require('zod');
+
+// src/_internal/server/session.ts
+var resumeCredentialSession = (service) => {
+  const credentialSession = new api.CredentialSession(
+    new URL(`https://${service}`)
+  );
+  return credentialSession.resumeSession;
+};
 
 // src/_internal/server/session.ts
 var SECRET_KEY = new TextEncoder().encode(
@@ -25,5 +36,6 @@ async function getSessionFromRequest(service = "climateai.org") {
 }
 
 exports.getSessionFromRequest = getSessionFromRequest;
+exports.resumeCredentialSession = resumeCredentialSession;
 //# sourceMappingURL=session.cjs.map
 //# sourceMappingURL=session.cjs.map
