@@ -105,6 +105,12 @@ export const getAllClaimActivitiesAcrossOrganizationsFactory = <
         (activity): activity is NonNullable<typeof activity> =>
           activity !== null
       );
+
+      console.log("TOTAL_ORGANIZATIONS:", organizationRepositories.length);
+      console.log("VALID_ORGANIZATIONS:", validOrganizationRepositories.length);
+      console.log("TOTAL_ACTIVITIES:", activities.length);
+      console.log("VALID_ACTIVITIES:", validActivities.length);
+
       return validActivities satisfies OrganizationWithActivities[];
     });
 };
