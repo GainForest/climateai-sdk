@@ -2554,7 +2554,6 @@ var validateRecordOrThrow = (record, {
 // src/_internal/server/routers/atproto/gainforest/organization/info/get.ts
 var getOrganizationInfoPure = async (did, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
-  console.log("FETCHING_ORG_INFO:", JSON.stringify({ did, pdsDomain }));
   const getRecordPromise = agent.com.atproto.repo.getRecord({
     collection: "app.gainforest.organization.info",
     repo: did,
@@ -2562,11 +2561,14 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
   });
   const [response, error] = await tryCatch(getRecordPromise);
   if (error) {
+    console.log(
+      "FETCHING_ORG_INFO_ERROR:",
+      JSON.stringify({ did, pdsDomain, error })
+    );
     if (error instanceof xrpc.XRPCError) {
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
-      console.log("FETCHING_ORG_INFO_ERROR:", error);
       throw new server.TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred."
@@ -2574,14 +2576,17 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
     }
   }
   if (response.success !== true) {
-    console.log("FETCHING_ORG_INFO_ERROR: response.success is not true");
+    console.log(
+      "FETCHING_ORG_INFO_ERROR: response.success is not true",
+      JSON.stringify({ did, pdsDomain })
+    );
     throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info."
     });
   }
   validateRecordOrThrow(response.data.value, info_exports);
-  console.log("FETCHING_ORG_INFO_SUCCESS");
+  console.log("FETCHING_ORG_INFO_SUCCESS", JSON.stringify({ did, pdsDomain }));
   return response.data;
 };
 var getOrganizationInfoFactory = (allowedPDSDomainSchema) => {

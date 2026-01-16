@@ -14,7 +14,9 @@ import type { GetRecordResponse } from "@/_internal/server/utils/response-types"
 import type { SupportedPDSDomain } from "@/_internal/index";
 
 export type OrganizationWithActivities = {
-  repo: Repo;
+  repo: {
+    did: string;
+  };
   organizationInfo: AppGainforestOrganizationInfo.Record;
   activities: GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
 };

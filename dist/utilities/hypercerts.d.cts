@@ -1,5 +1,4 @@
 import { Ecocert } from '../types.cjs';
-import { Repo } from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import '../utils-BRYtkma9.cjs';
 import { M as Main } from '../info-B-l-_nUN.cjs';
 import { M as Main$1 } from '../activity-D02N0lQZ.cjs';
@@ -12,13 +11,16 @@ import '@atproto/api';
 import '@trpc/server/unstable-core-do-not-import';
 import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
+import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
 import '@atproto/oauth-client-node';
 
 type OrganizationWithActivities = {
-    repo: Repo;
+    repo: {
+        did: string;
+    };
     organizationInfo: Main;
     activities: GetRecordResponse<Main$1>[];
 };
