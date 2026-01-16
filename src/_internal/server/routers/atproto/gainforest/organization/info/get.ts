@@ -15,7 +15,6 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
   pdsDomain: T
 ) => {
   const agent = getReadAgent(pdsDomain);
-  console.log("FETCHING_ORG_INFO:", JSON.stringify({ did, pdsDomain }));
   const getRecordPromise = agent.com.atproto.repo.getRecord({
     collection: "app.gainforest.organization.info",
     repo: did,
@@ -24,11 +23,14 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
   const [response, error] = await tryCatch(getRecordPromise);
 
   if (error) {
+    console.log(
+      "FETCHING_ORG_INFO_ERROR:",
+      JSON.stringify({ did, pdsDomain, error })
+    );
     if (error instanceof XRPCError) {
       const trpcError = xrpcErrorToTRPCError(error);
       throw trpcError;
     } else {
-      console.log("FETCHING_ORG_INFO_ERROR:", error);
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
         message: "An unknown error occurred.",
@@ -37,7 +39,10 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
   }
 
   if (response.success !== true) {
-    console.log("FETCHING_ORG_INFO_ERROR: response.success is not true");
+    console.log(
+      "FETCHING_ORG_INFO_ERROR: response.success is not true",
+      JSON.stringify({ did, pdsDomain })
+    );
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: "Failed to get organization info.",
@@ -46,7 +51,7 @@ export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
 
   validateRecordOrThrow(response.data.value, AppGainforestOrganizationInfo);
 
-  console.log("FETCHING_ORG_INFO_SUCCESS");
+  console.log("FETCHING_ORG_INFO_SUCCESS", JSON.stringify({ did, pdsDomain }));
   return response.data as GetRecordResponse<AppGainforestOrganizationInfo.Record>;
 };
 
