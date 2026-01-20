@@ -9,6 +9,7 @@ import { getDefaultProjectSiteFactory } from "./atproto/hypercerts/site/getDefau
 import { getMeasuredTreesFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/get";
 import { createClaimActivityFactory } from "./atproto/hypercerts/claim/activity/create";
 import { createOrUpdateOrganizationInfoFactory } from "./atproto/gainforest/organization/info/createOrUpdate";
+import { createOrUpdateLayerFactory } from "./atproto/gainforest/organization/layer/createOrUpdate";
 import { getAllSitesFactory } from "./atproto/hypercerts/site/getAll";
 import { createSiteFactory } from "./atproto/hypercerts/site/create";
 import { updateSiteFactory } from "./atproto/hypercerts/site/update";
@@ -59,6 +60,9 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
           layer: {
             get: getLayerFactory(this.allowedPDSDomainSchema),
             getAll: getAllLayersFactory(this.allowedPDSDomainSchema),
+            createOrUpdate: createOrUpdateLayerFactory(
+              this.allowedPDSDomainSchema
+            ),
             addToProject: addLayersToProjectFactory(
               this.allowedPDSDomainSchema
             ),
