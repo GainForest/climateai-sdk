@@ -178,6 +178,27 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         }[];
                         meta: object;
                     }>;
+                    createOrUpdate: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            layer: {
+                                name: string;
+                                type: "geojson_points" | "geojson_points_trees" | "geojson_line" | "choropleth" | "choropleth_shannon" | "raster_tif" | "tms_tile";
+                                uri: string;
+                                description?: string | undefined;
+                                createdAt?: string | undefined;
+                            };
+                            pdsDomain: Record<T, T>[T];
+                            rkey?: string | undefined;
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
+                        meta: object;
+                    }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
@@ -614,6 +635,27 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                             cid: string;
                             value: Main$1;
                         }[];
+                        meta: object;
+                    }>;
+                    createOrUpdate: _trpc_server.TRPCMutationProcedure<{
+                        input: {
+                            did: string;
+                            layer: {
+                                name: string;
+                                type: "geojson_points" | "geojson_points_trees" | "geojson_line" | "choropleth" | "choropleth_shannon" | "raster_tif" | "tms_tile";
+                                uri: string;
+                                description?: string | undefined;
+                                createdAt?: string | undefined;
+                            };
+                            pdsDomain: Record<T, T>[T];
+                            rkey?: string | undefined;
+                        };
+                        output: {
+                            uri: string;
+                            cid: string;
+                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            value: Main$1;
+                        };
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{

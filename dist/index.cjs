@@ -2892,6 +2892,68 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
     };
   });
 };
+var LayerTypeEnum = z12__default.default.enum([
+  "geojson_points",
+  "geojson_points_trees",
+  "geojson_line",
+  "choropleth",
+  "choropleth_shannon",
+  "raster_tif",
+  "tms_tile"
+]);
+var createOrUpdateLayerFactory = (allowedPDSDomainSchema) => {
+  return protectedProcedure.input(
+    z12__default.default.object({
+      did: z12__default.default.string(),
+      rkey: z12__default.default.string().optional(),
+      layer: z12__default.default.object({
+        name: z12__default.default.string(),
+        type: LayerTypeEnum,
+        uri: z12__default.default.string(),
+        description: z12__default.default.string().optional(),
+        createdAt: z12__default.default.string().optional()
+      }),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).mutation(async ({ input }) => {
+    const agent = await getWriteAgent(input.pdsDomain);
+    const layer = {
+      $type: "app.gainforest.organization.layer",
+      name: input.layer.name,
+      type: input.layer.type,
+      uri: input.layer.uri,
+      description: input.layer.description,
+      createdAt: input.layer.createdAt ? input.layer.createdAt : (/* @__PURE__ */ new Date()).toISOString()
+    };
+    const validatedLayer = validateRecordOrThrow(
+      layer,
+      layer_exports
+    );
+    const collection = "app.gainforest.organization.layer";
+    const response = input.rkey ? await agent.com.atproto.repo.putRecord({
+      repo: input.did,
+      collection,
+      record: validatedLayer,
+      rkey: input.rkey
+    }) : await agent.com.atproto.repo.createRecord({
+      repo: input.did,
+      collection,
+      record: validatedLayer
+    });
+    if (response.success !== true) {
+      throw new server.TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to create or update layer"
+      });
+    }
+    return {
+      uri: response.data.uri,
+      cid: response.data.cid,
+      validationStatus: response.data.validationStatus,
+      value: validatedLayer
+    };
+  });
+};
 var getAllSitesFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(z12.z.object({ did: z12.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
@@ -4405,6 +4467,9 @@ var AppRouterFactory = class {
           layer: {
             get: getLayerFactory(this.allowedPDSDomainSchema),
             getAll: getAllLayersFactory(this.allowedPDSDomainSchema),
+            createOrUpdate: createOrUpdateLayerFactory(
+              this.allowedPDSDomainSchema
+            ),
             addToProject: addLayersToProjectFactory(
               this.allowedPDSDomainSchema
             ),
