@@ -1,5 +1,10 @@
 import z from "zod";
-import { AppGainforestOrganizationInfo } from "@/../lex-api";
+import {
+  AppGainforestOrganizationInfo,
+  AppBskyRichtextFacet,
+  PubLeafletPagesLinearDocument,
+  PubLeafletBlocksText,
+} from "@/../lex-api";
 import { putRecord } from "@/_internal/server/utils/atproto-crud";
 import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
 import { FileGeneratorSchema } from "@/_internal/zod-schemas/file";
@@ -30,7 +35,7 @@ export type Objective = z.infer<typeof ObjectivesSchema>;
 /**
  * Zod schema for visibility setting
  */
-export const VisibilitySchema = z.enum(["Public", "Hidden"]);
+export const VisibilitySchema = z.enum(["Public", "Unlisted"]);
 
 export type Visibility = z.infer<typeof VisibilitySchema>;
 
@@ -89,17 +94,42 @@ export const createOrUpdateOrganizationInfoPure = async (
         ? toBlobRef(infoInput.coverImage)
         : undefined;
 
+  // Build shortDescription as richtext facet
+  const shortDescription: AppBskyRichtextFacet.Main = {
+    $type: "app.bsky.richtext.facet",
+    index: {
+      $type: "app.bsky.richtext.facet#byteSlice",
+      byteStart: 0,
+      byteEnd: Buffer.byteLength(infoInput.shortDescription, "utf8"),
+    },
+    features: [],
+  };
+
+  // Build longDescription as linear document
+  const longDescription: PubLeafletPagesLinearDocument.Main = {
+    $type: "pub.leaflet.pages.linearDocument",
+    blocks: [
+      {
+        $type: "pub.leaflet.pages.linearDocument#block",
+        block: {
+          $type: "pub.leaflet.blocks.text",
+          plaintext: infoInput.longDescription,
+        } satisfies PubLeafletBlocksText.Main,
+      } satisfies PubLeafletPagesLinearDocument.Block,
+    ],
+  };
+
   const info: AppGainforestOrganizationInfo.Record = {
     $type: COLLECTION,
     displayName: infoInput.displayName,
-    shortDescription: infoInput.shortDescription,
-    longDescription: infoInput.longDescription,
+    shortDescription,
+    longDescription,
     website: infoInput.website,
     logo: logoBlob
-      ? { $type: "app.gainforest.common.defs#smallImage", image: logoBlob }
+      ? { $type: "org.hypercerts.defs#smallImage", image: logoBlob }
       : undefined,
     coverImage: coverImageBlob
-      ? { $type: "app.gainforest.common.defs#smallImage", image: coverImageBlob }
+      ? { $type: "org.hypercerts.defs#smallImage", image: coverImageBlob }
       : undefined,
     objectives: infoInput.objectives,
     startDate: infoInput.startDate,

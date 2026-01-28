@@ -9,30 +9,32 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as PubLeafletPagesLinearDocument from '../../../pub/leaflet/pages/linearDocument.js'
-import type * as OrgHypercertsClaimActivity from './activity.js'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
+import type * as OrgHypercertsDefs from '../defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'org.hypercerts.claim.project'
+const id = 'org.hypercerts.helper.workScopeTag'
 
 export interface Main {
-  $type: 'org.hypercerts.claim.project'
-  /** Title of this project */
-  title: string
-  /** Short summary of this project, suitable for previews and list views. */
-  shortDescription: string
-  description?: PubLeafletPagesLinearDocument.Main
-  /** Primary avatar image representing this project across apps and views; typically a square logo or project identity image. */
-  avatar?: BlobRef
-  /** The cover photo of this project. */
-  coverPhoto?: BlobRef
-  /** Array of activities with their associated weights in this project */
-  activities?: OrgHypercertsClaimActivity.ActivityWeight[]
-  location?: ComAtprotoRepoStrongRef.Main
+  $type: 'org.hypercerts.helper.workScopeTag'
   /** Client-declared timestamp when this record was originally created */
   createdAt: string
+  /** Lowercase, hyphenated machine-readable key for this scope (e.g., 'ipfs', 'go-lang', 'filecoin'). */
+  key: string
+  /** Human-readable label for this scope. */
+  label: string
+  /** Category type of this scope. Recommended values: topic, language, domain, method, tag. */
+  kind?: string
+  /** Optional longer description of this scope. */
+  description?: string
+  parent?: ComAtprotoRepoStrongRef.Main
+  /** Optional array of alternative names or identifiers for this scope. */
+  aliases?: string[]
+  externalReference?:
+    | $Typed<OrgHypercertsDefs.Uri>
+    | $Typed<OrgHypercertsDefs.SmallBlob>
+    | { $type: string }
   [k: string]: unknown
 }
 

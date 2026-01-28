@@ -9,6 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as AppBskyRichtextFacet from '../../../app/bsky/richtext/facet.js'
 import type * as OrgHypercertsDefs from '../defs.js'
 import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 
@@ -20,26 +21,31 @@ export interface Main {
   $type: 'org.hypercerts.claim.activity'
   /** Title of the hypercert. */
   title: string
-  /** Short blurb of the impact work done. */
+  /** Short summary of this activity claim, suitable for previews and list views. Rich text annotations may be provided via `shortDescriptionFacets`. */
   shortDescription: string
-  /** Optional longer description of the impact work done. */
+  /** Rich text annotations for `shortDescription` (mentions, URLs, hashtags, etc). */
+  shortDescriptionFacets?: AppBskyRichtextFacet.Main[]
+  /** Optional longer description of this activity claim, including context or interpretation. Rich text annotations may be provided via `descriptionFacets`. */
   description?: string
+  /** Rich text annotations for `description` (mentions, URLs, hashtags, etc). */
+  descriptionFacets?: AppBskyRichtextFacet.Main[]
   image?:
     | $Typed<OrgHypercertsDefs.Uri>
     | $Typed<OrgHypercertsDefs.SmallImage>
     | { $type: string }
-  workScope?: WorkScope
+  workScope?:
+    | $Typed<ComAtprotoRepoStrongRef.Main>
+    | $Typed<WorkScopeString>
+    | { $type: string }
   /** When the work began */
-  startDate: string
+  startDate?: string
   /** When the work ended */
-  endDate: string
-  /** A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution. */
-  contributions?: ComAtprotoRepoStrongRef.Main[]
+  endDate?: string
+  /** An array of contributor objects, each containing contributor information, weight, and contribution details. */
+  contributors?: Contributor[]
   rights?: ComAtprotoRepoStrongRef.Main
   /** An array of strong references to the location where activity was performed. The record referenced must conform with the lexicon app.certified.location. */
   locations?: ComAtprotoRepoStrongRef.Main[]
-  /** A reference (AT-URI) to the project record that this activity is part of. The record referenced must conform with the lexicon org.hypercerts.claim.project. This activity must also be referenced by the project, establishing a bidirectional link. */
-  project?: string
   /** Client-declared timestamp when this record was originally created */
   createdAt: string
   [k: string]: unknown
@@ -61,40 +67,77 @@ export {
   validateMain as validateRecord,
 }
 
-/** Logical scope of the work using label-based conditions. All labels in `withinAllOf` must apply; at least one label in `withinAnyOf` must apply if provided; no label in `withinNoneOf` may apply. */
-export interface WorkScope {
-  $type?: 'org.hypercerts.claim.activity#workScope'
-  /** Labels that MUST all hold for the scope to apply. */
-  withinAllOf?: string[]
-  /** Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition. */
-  withinAnyOf?: string[]
-  /** Labels that MUST NOT hold for the scope to apply. */
-  withinNoneOf?: string[]
+export interface Contributor {
+  $type?: 'org.hypercerts.claim.activity#contributor'
+  contributorIdentity:
+    | $Typed<ContributorIdentity>
+    | $Typed<ComAtprotoRepoStrongRef.Main>
+    | { $type: string }
+  /** The relative weight/importance of this contribution (stored as a string to avoid float precision issues). Must be a positive numeric value. Weights do not need to sum to a specific total; normalization can be performed by the consuming application as needed. */
+  contributionWeight?: string
+  contributionDetails?:
+    | $Typed<ContributorRole>
+    | $Typed<ComAtprotoRepoStrongRef.Main>
+    | { $type: string }
 }
 
-const hashWorkScope = 'workScope'
+const hashContributor = 'contributor'
 
-export function isWorkScope<V>(v: V) {
-  return is$typed(v, id, hashWorkScope)
+export function isContributor<V>(v: V) {
+  return is$typed(v, id, hashContributor)
 }
 
-export function validateWorkScope<V>(v: V) {
-  return validate<WorkScope & V>(v, id, hashWorkScope)
+export function validateContributor<V>(v: V) {
+  return validate<Contributor & V>(v, id, hashContributor)
 }
 
-export interface ActivityWeight {
-  $type?: 'org.hypercerts.claim.activity#activityWeight'
-  activity: ComAtprotoRepoStrongRef.Main
-  /** The relative weight/importance of this hypercert activity (stored as a string to avoid float precision issues). Weights can be any positive numeric values and do not need to sum to a specific total; normalization can be performed by the consuming application as needed. */
-  weight: string
+/** Contributor information as a string (DID or identifier). */
+export interface ContributorIdentity {
+  $type?: 'org.hypercerts.claim.activity#contributorIdentity'
+  /** The contributor identity string (DID or identifier). */
+  identity: string
 }
 
-const hashActivityWeight = 'activityWeight'
+const hashContributorIdentity = 'contributorIdentity'
 
-export function isActivityWeight<V>(v: V) {
-  return is$typed(v, id, hashActivityWeight)
+export function isContributorIdentity<V>(v: V) {
+  return is$typed(v, id, hashContributorIdentity)
 }
 
-export function validateActivityWeight<V>(v: V) {
-  return validate<ActivityWeight & V>(v, id, hashActivityWeight)
+export function validateContributorIdentity<V>(v: V) {
+  return validate<ContributorIdentity & V>(v, id, hashContributorIdentity)
+}
+
+/** Contribution details as a string. */
+export interface ContributorRole {
+  $type?: 'org.hypercerts.claim.activity#contributorRole'
+  /** The contribution role or details. */
+  role: string
+}
+
+const hashContributorRole = 'contributorRole'
+
+export function isContributorRole<V>(v: V) {
+  return is$typed(v, id, hashContributorRole)
+}
+
+export function validateContributorRole<V>(v: V) {
+  return validate<ContributorRole & V>(v, id, hashContributorRole)
+}
+
+/** A free-form string describing the work scope for simple or legacy scopes. */
+export interface WorkScopeString {
+  $type?: 'org.hypercerts.claim.activity#workScopeString'
+  /** The work scope description string. */
+  scope: string
+}
+
+const hashWorkScopeString = 'workScopeString'
+
+export function isWorkScopeString<V>(v: V) {
+  return is$typed(v, id, hashWorkScopeString)
+}
+
+export function validateWorkScopeString<V>(v: V) {
+  return validate<WorkScopeString & V>(v, id, hashWorkScopeString)
 }

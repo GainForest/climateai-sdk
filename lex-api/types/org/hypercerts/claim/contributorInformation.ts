@@ -9,29 +9,23 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as ComAtprotoRepoStrongRef from '../../../com/atproto/repo/strongRef.js'
 import type * as OrgHypercertsDefs from '../defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'org.hypercerts.claim.evidence'
+const id = 'org.hypercerts.claim.contributorInformation'
 
 export interface Main {
-  $type: 'org.hypercerts.claim.evidence'
-  subject?: ComAtprotoRepoStrongRef.Main
-  content:
+  $type: 'org.hypercerts.claim.contributorInformation'
+  /** DID or a URI to a social profile of the contributor. */
+  identifier?: string
+  /** Display name of the contributor. */
+  displayName?: string
+  image?:
     | $Typed<OrgHypercertsDefs.Uri>
-    | $Typed<OrgHypercertsDefs.SmallBlob>
+    | $Typed<OrgHypercertsDefs.SmallImage>
     | { $type: string }
-  /** Title to describe the nature of the evidence. */
-  title: string
-  /** Short description explaining what this evidence shows. */
-  shortDescription?: string
-  /** Longer description describing the evidence in more detail. */
-  description?: string
-  /** How this evidence relates to the subject. */
-  relationType?: 'supports' | 'challenges' | 'clarifies' | (string & {})
-  /** Client-declared timestamp when this record was originally created */
+  /** Client-declared timestamp when this record was originally created. */
   createdAt: string
   [k: string]: unknown
 }

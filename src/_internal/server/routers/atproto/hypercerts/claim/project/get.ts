@@ -1,34 +1,38 @@
 import { getReadAgent } from "@/_internal/server/utils/agent";
-import { OrgHypercertsClaimProject } from "@/../lex-api";
+import { OrgHypercertsClaimCollection } from "@/../lex-api";
 import { getRecord } from "@/_internal/server/utils/atproto-crud";
 import { createDidRkeyQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
-const COLLECTION = "org.hypercerts.claim.project" as const;
-const RESOURCE_NAME = "project" as const;
+const COLLECTION = "org.hypercerts.claim.collection" as const;
+const RESOURCE_NAME = "collection" as const;
 
 /**
- * Pure function to get a project by DID and rkey.
+ * Pure function to get a collection by DID and rkey.
  * Can be reused outside of tRPC context.
  */
-export const getProjectPure = async <T extends SupportedPDSDomain>(
+export const getCollectionPure = async <T extends SupportedPDSDomain>(
   did: string,
   rkey: string,
   pdsDomain: T
-): Promise<GetRecordResponse<OrgHypercertsClaimProject.Record>> => {
+): Promise<GetRecordResponse<OrgHypercertsClaimCollection.Record>> => {
   const agent = getReadAgent(pdsDomain);
   return getRecord({
     agent,
     collection: COLLECTION,
     repo: did,
     rkey,
-    validator: OrgHypercertsClaimProject,
+    validator: OrgHypercertsClaimCollection,
     resourceName: RESOURCE_NAME,
   });
 };
 
 /**
- * Factory to create the tRPC procedure for getting a project.
+ * Factory to create the tRPC procedure for getting a collection.
  */
-export const getProjectFactory = createDidRkeyQueryFactory(getProjectPure);
+export const getCollectionFactory = createDidRkeyQueryFactory(getCollectionPure);
+
+// Backwards compatibility exports
+export const getProjectPure = getCollectionPure;
+export const getProjectFactory = getCollectionFactory;

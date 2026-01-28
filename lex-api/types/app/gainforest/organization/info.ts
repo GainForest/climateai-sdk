@@ -9,7 +9,9 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppGainforestCommonDefs from '../common/defs.js'
+import type * as AppBskyRichtextFacet from '../../bsky/richtext/facet.js'
+import type * as PubLeafletPagesLinearDocument from '../../../pub/leaflet/pages/linearDocument.js'
+import type * as OrgHypercertsDefs from '../../../org/hypercerts/defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -19,12 +21,10 @@ export interface Main {
   $type: 'app.gainforest.organization.info'
   /** The name of the organization or project */
   displayName: string
-  /** The description of the organization or project */
-  shortDescription: string
-  /** The long description of the organization or project in richtext */
-  longDescription: string
-  coverImage?: AppGainforestCommonDefs.SmallImage
-  logo?: AppGainforestCommonDefs.SmallImage
+  shortDescription: AppBskyRichtextFacet.Main
+  longDescription: PubLeafletPagesLinearDocument.Main
+  coverImage?: OrgHypercertsDefs.SmallImage
+  logo?: OrgHypercertsDefs.SmallImage
   /** The objectives of the organization or project */
   objectives: (
     | 'Conservation'
@@ -40,7 +40,7 @@ export interface Main {
   /** The country of the organization or project in two letter code (ISO 3166-1 alpha-2) */
   country: string
   /** The visibility of the organization or project in the Green Globe */
-  visibility: 'Public' | 'Hidden'
+  visibility: 'Public' | 'Unlisted'
   /** The date and time of the creation of the record */
   createdAt: string
   [k: string]: unknown
