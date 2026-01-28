@@ -2587,7 +2587,7 @@ var getOrganizationInfoFactory = (allowedPDSDomainSchema) => {
     return await getOrganizationInfoPure(input.did, input.pdsDomain);
   });
 };
-var getSiteFactory = (allowedPDSDomainSchema) => {
+var getLocationFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
     z.object({
       did: z.string(),
@@ -2604,14 +2604,14 @@ var getSiteFactory = (allowedPDSDomainSchema) => {
     if (response.success !== true) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get the site"
+        message: "Failed to get the location"
       });
     }
     validateRecordOrThrow(response.data.value, location_exports);
     return response.data;
   });
 };
-var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
+var getDefaultLocationFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
     z12.object({
       did: z12.string(),
@@ -2625,7 +2625,7 @@ var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
       rkey: "self"
     });
     if (response.success !== true) {
-      throw new Error("Failed to get default project site");
+      throw new Error("Failed to get default location");
     }
     validateRecordOrThrow(
       response.data.value,
@@ -2947,7 +2947,7 @@ var createOrUpdateLayerFactory = (allowedPDSDomainSchema) => {
     };
   });
 };
-var getAllSitesFactory = (allowedPDSDomainSchema) => {
+var getAllLocationsFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(z.object({ did: z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const listSitesTryCatchPromise = tryCatch(
@@ -3008,8 +3008,8 @@ var getAllSitesFactory = (allowedPDSDomainSchema) => {
       }
     }
     return {
-      sites: validRecords,
-      defaultSite
+      locations: validRecords,
+      defaultLocation: defaultSite
     };
   });
 };
@@ -3575,7 +3575,7 @@ var computePolygonMetrics = (geoJson) => {
   };
 };
 
-// src/_internal/server/routers/atproto/hypercerts/site/utils.ts
+// src/_internal/server/routers/atproto/hypercerts/location/utils.ts
 async function fetchGeojsonFromUrl(url) {
   const response = await fetch(url);
   if (!response.ok) {
@@ -3631,8 +3631,8 @@ async function processGeojsonFileOrThrow(file2) {
   };
 }
 
-// src/_internal/server/routers/atproto/hypercerts/site/create.ts
-var createSiteFactory = (allowedPDSDomainSchema) => {
+// src/_internal/server/routers/atproto/hypercerts/location/create.ts
+var createLocationFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     z.object({
       rkey: z.string().optional(),
@@ -3686,13 +3686,13 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
     if (creationResponse.success !== true) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to add new site"
+        message: "Failed to add new location"
       });
     }
     return creationResponse.data;
   });
 };
-var updateSiteFactory = (allowedPDSDomainSchema) => {
+var updateLocationFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     z.object({
       rkey: z.string(),
@@ -3766,16 +3766,16 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
     if (updateResponse.success !== true) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to update site"
+        message: "Failed to update location"
       });
     }
     return updateResponse.data;
   });
 };
-var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
+var setDefaultLocationFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
     z12.object({
-      siteAtUri: z12.string(),
+      locationAtUri: z12.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -3786,29 +3786,29 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
         message: "You are not authenticated"
       });
     }
-    const siteUri = input.siteAtUri;
+    const locationUri = input.locationAtUri;
     const siteNSID = "app.certified.location";
-    if (!(siteUri.startsWith(`at://`) && siteUri.includes(siteNSID))) {
+    if (!(locationUri.startsWith(`at://`) && locationUri.includes(siteNSID))) {
       throw new TRPCError({
         code: "BAD_REQUEST",
-        message: "Invalid site URI"
+        message: "Invalid location URI"
       });
     }
     const site = await agent.com.atproto.repo.getRecord({
       collection: siteNSID,
       repo: agent.did,
-      rkey: parseAtUri(siteUri).rkey
+      rkey: parseAtUri(locationUri).rkey
     });
     if (site.success !== true) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get site"
+        message: "Failed to get location"
       });
     }
     const defaultSiteNSID = "app.gainforest.organization.defaultSite";
     const defaultSite = {
       $type: defaultSiteNSID,
-      site: siteUri,
+      site: locationUri,
       createdAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     validateRecordOrThrow(defaultSite, defaultSite_exports);
@@ -3827,9 +3827,9 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
     return updateDefaultSiteResponse.data;
   });
 };
-var deleteSiteFactory = (allowedPDSDomainSchema) => {
+var deleteLocationFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.object({ siteAtUri: z12.string(), pdsDomain: allowedPDSDomainSchema })
+    z12.object({ locationAtUri: z12.string(), pdsDomain: allowedPDSDomainSchema })
   ).mutation(async ({ input }) => {
     const agent = await getWriteAgent(input.pdsDomain);
     if (!agent.did) {
@@ -3852,24 +3852,24 @@ var deleteSiteFactory = (allowedPDSDomainSchema) => {
         defaultSite_exports
       );
       const defaultSite = defaultSiteResponse.data.value;
-      if (defaultSite.site === input.siteAtUri) throw new Error("Equal");
+      if (defaultSite.site === input.locationAtUri) throw new Error("Equal");
     } catch (error) {
       if (error instanceof Error && error.message === "Equal") {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Cannot delete default site"
+          message: "Cannot delete default location"
         });
       }
     }
     const deletionResponse = await agent.com.atproto.repo.deleteRecord({
       collection: "app.gainforest.organization.site",
       repo: agent.did,
-      rkey: parseAtUri(input.siteAtUri).rkey
+      rkey: parseAtUri(input.locationAtUri).rkey
     });
     if (deletionResponse.success !== true)
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to delete site"
+        message: "Failed to delete location"
       });
     return deletionResponse.data;
   });
@@ -4035,49 +4035,6 @@ var getCliamActivityFactory = (allowedPDSDomainSchema) => {
     })
   ).query(async ({ input }) => {
     return await getClaimActivityPure(input.did, input.rkey, input.pdsDomain);
-  });
-};
-var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
-  const agent = getReadAgent(pdsDomain);
-  const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: "app.certified.location",
-    repo: did,
-    rkey
-  });
-  const [response, error] = await tryCatch(getRecordPromise);
-  if (error) {
-    if (error instanceof XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(error);
-      throw trpcError;
-    } else {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred."
-      });
-    }
-  }
-  if (response.success !== true) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to get organization info."
-    });
-  }
-  validateRecordOrThrow(response.data.value, location_exports);
-  return response.data;
-};
-var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z.object({
-      did: z.string(),
-      rkey: z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    return await getCertifiedLocationPure(
-      input.did,
-      input.rkey,
-      input.pdsDomain
-    );
   });
 };
 var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
@@ -4502,16 +4459,13 @@ var AppRouterFactory = class {
           }
         },
         location: {
-          get: getCertifiedLocationFactory(this.allowedPDSDomainSchema)
-        },
-        site: {
-          get: getSiteFactory(this.allowedPDSDomainSchema),
-          getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
-          create: createSiteFactory(this.allowedPDSDomainSchema),
-          update: updateSiteFactory(this.allowedPDSDomainSchema),
-          delete: deleteSiteFactory(this.allowedPDSDomainSchema),
-          getDefault: getDefaultProjectSiteFactory(this.allowedPDSDomainSchema),
-          setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema)
+          get: getLocationFactory(this.allowedPDSDomainSchema),
+          getAll: getAllLocationsFactory(this.allowedPDSDomainSchema),
+          create: createLocationFactory(this.allowedPDSDomainSchema),
+          update: updateLocationFactory(this.allowedPDSDomainSchema),
+          delete: deleteLocationFactory(this.allowedPDSDomainSchema),
+          getDefault: getDefaultLocationFactory(this.allowedPDSDomainSchema),
+          setDefault: setDefaultLocationFactory(this.allowedPDSDomainSchema)
         }
       }
     });

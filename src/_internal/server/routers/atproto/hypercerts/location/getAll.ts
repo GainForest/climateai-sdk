@@ -13,7 +13,7 @@ import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
-export const getAllSitesFactory = <T extends SupportedPDSDomain>(
+export const getAllLocationsFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return publicProcedure
@@ -86,8 +86,8 @@ export const getAllSitesFactory = <T extends SupportedPDSDomain>(
       }
 
       return {
-        sites: validRecords,
-        defaultSite,
+        locations: validRecords,
+        defaultLocation: defaultSite,
       };
     });
 };

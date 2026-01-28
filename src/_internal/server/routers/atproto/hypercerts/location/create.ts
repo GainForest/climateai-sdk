@@ -8,7 +8,7 @@ import { processGeojsonFileOrThrow, fetchGeojsonFromUrl } from "./utils";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 
-export const createSiteFactory = <T extends SupportedPDSDomain>(
+export const createLocationFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return protectedProcedure
@@ -81,7 +81,7 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
       if (creationResponse.success !== true) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to add new site",
+          message: "Failed to add new location",
         });
       }
 

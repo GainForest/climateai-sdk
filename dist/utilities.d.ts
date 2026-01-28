@@ -9,7 +9,7 @@ import './activity-BuClHKQ6.js';
 import 'multiformats/cid';
 import './blobref-e8ss-bC-.js';
 import '@atproto/api';
-import './index-EggIplvQ.js';
+import './index-BykF-VMZ.js';
 import '@trpc/server/unstable-core-do-not-import';
 import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
