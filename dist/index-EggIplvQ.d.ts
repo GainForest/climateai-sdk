@@ -27,7 +27,7 @@ declare const supportedPDSDomainSchema: z.ZodEnum<{
     "hypercerts.org": "hypercerts.org";
 }>;
 type SupportedPDSDomain = (typeof supportedDomains)[number];
-declare class ClimateAiSDK<T extends SupportedPDSDomain> {
+declare class GainforestSDK<T extends SupportedPDSDomain> {
     allowedPDSDomains: T[];
     appRouter: _trpc_server.TRPCBuiltRouter<{
         ctx: {
@@ -965,4 +965,4 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
     constructor(_allowedPDSDomains: T[]);
 }
 
-export { ClimateAiSDK as C, type SupportedPDSDomain as S, type StoredSession as a, getSessionFromRequest as g, supportedPDSDomainSchema as s };
+export { GainforestSDK as G, type SupportedPDSDomain as S, type StoredSession as a, getSessionFromRequest as g, supportedPDSDomainSchema as s };
