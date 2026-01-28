@@ -10,13 +10,13 @@ import { parseAtUri } from "@/_internal/utilities/atproto";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/_internal/index";
 
-export const setDefaultSiteFactory = <T extends SupportedPDSDomain>(
+export const setDefaultLocationFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return protectedProcedure
     .input(
       z.object({
-        siteAtUri: z.string(),
+        locationAtUri: z.string(),
         pdsDomain: allowedPDSDomainSchema,
       })
     )
@@ -29,25 +29,25 @@ export const setDefaultSiteFactory = <T extends SupportedPDSDomain>(
         });
       }
 
-      const siteUri = input.siteAtUri;
+      const locationUri = input.locationAtUri;
       const siteNSID: AppCertifiedLocation.Record["$type"] =
         "app.certified.location";
-      if (!(siteUri.startsWith(`at://`) && siteUri.includes(siteNSID))) {
+      if (!(locationUri.startsWith(`at://`) && locationUri.includes(siteNSID))) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Invalid site URI",
+          message: "Invalid location URI",
         });
       }
 
       const site = await agent.com.atproto.repo.getRecord({
         collection: siteNSID,
         repo: agent.did,
-        rkey: parseAtUri(siteUri).rkey,
+        rkey: parseAtUri(locationUri).rkey,
       });
       if (site.success !== true) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get site",
+          message: "Failed to get location",
         });
       }
 
@@ -55,7 +55,7 @@ export const setDefaultSiteFactory = <T extends SupportedPDSDomain>(
         "app.gainforest.organization.defaultSite";
       const defaultSite: AppGainforestOrganizationDefaultSite.Record = {
         $type: defaultSiteNSID,
-        site: siteUri,
+        site: locationUri,
         createdAt: new Date().toISOString(),
       };
       validateRecordOrThrow(defaultSite, AppGainforestOrganizationDefaultSite);

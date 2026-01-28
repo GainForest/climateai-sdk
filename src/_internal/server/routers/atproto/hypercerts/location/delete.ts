@@ -7,12 +7,12 @@ import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-
 import type { SupportedPDSDomain } from "@/_internal/index";
 import { parseAtUri } from "@/_internal/utilities/atproto";
 
-export const deleteSiteFactory = <T extends SupportedPDSDomain>(
+export const deleteLocationFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return protectedProcedure
     .input(
-      z.object({ siteAtUri: z.string(), pdsDomain: allowedPDSDomainSchema })
+      z.object({ locationAtUri: z.string(), pdsDomain: allowedPDSDomainSchema })
     )
     .mutation(async ({ input }) => {
       const agent = await getWriteAgent(input.pdsDomain);
@@ -40,13 +40,13 @@ export const deleteSiteFactory = <T extends SupportedPDSDomain>(
         );
         const defaultSite = defaultSiteResponse.data
           .value as AppGainforestOrganizationDefaultSite.Record;
-        if (defaultSite.site === input.siteAtUri) throw new Error("Equal");
+        if (defaultSite.site === input.locationAtUri) throw new Error("Equal");
       } catch (error) {
         // Only take action if the default site is determined and equals the site to be deleted
         if (error instanceof Error && error.message === "Equal") {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Cannot delete default site",
+            message: "Cannot delete default location",
           });
         }
       }
@@ -54,12 +54,12 @@ export const deleteSiteFactory = <T extends SupportedPDSDomain>(
       const deletionResponse = await agent.com.atproto.repo.deleteRecord({
         collection: "app.gainforest.organization.site",
         repo: agent.did,
-        rkey: parseAtUri(input.siteAtUri).rkey,
+        rkey: parseAtUri(input.locationAtUri).rkey,
       });
       if (deletionResponse.success !== true)
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete site",
+          message: "Failed to delete location",
         });
 
       return deletionResponse.data;

@@ -6,7 +6,7 @@ import { getReadAgent } from "@/_internal/server/utils/agent";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 
-export const getDefaultProjectSiteFactory = <T extends SupportedPDSDomain>(
+export const getDefaultLocationFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return publicProcedure
@@ -24,7 +24,7 @@ export const getDefaultProjectSiteFactory = <T extends SupportedPDSDomain>(
         rkey: "self",
       });
       if (response.success !== true) {
-        throw new Error("Failed to get default project site");
+        throw new Error("Failed to get default location");
       }
       validateRecordOrThrow(
         response.data.value,

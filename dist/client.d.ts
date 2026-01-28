@@ -1,6 +1,6 @@
 import * as _trpc_client from '@trpc/client';
-import { A as AppRouter } from './_app-DLy1GtUT.js';
-import { S as SupportedPDSDomain } from './index-EggIplvQ.js';
+import { A as AppRouter } from './_app-ELiTRlKD.js';
+import { S as SupportedPDSDomain } from './index-BykF-VMZ.js';
 import '@trpc/server/unstable-core-do-not-import';
 import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';

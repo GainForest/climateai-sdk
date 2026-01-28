@@ -399,25 +399,14 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                     output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
-            };
-            site: {
-                get: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        did: string;
-                        rkey: string;
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: GetRecordResponse<Main$5>;
-                    meta: object;
-                }>;
                 getAll: _trpc_server.TRPCQueryProcedure<{
                     input: {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
                     output: {
-                        sites: GetRecordResponse<Main$5>[];
-                        defaultSite: GetRecordResponse<Main$6> | null;
+                        locations: GetRecordResponse<Main$5>[];
+                        defaultLocation: GetRecordResponse<Main$6> | null;
                     };
                     meta: object;
                 }>;
@@ -470,7 +459,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        siteAtUri: string;
+                        locationAtUri: string;
                         pdsDomain: Record<T, T>[T];
                     };
                     output: _atproto_api_dist_client_types_com_atproto_repo_deleteRecord.OutputSchema;
@@ -486,7 +475,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        siteAtUri: string;
+                        locationAtUri: string;
                         pdsDomain: Record<T, T>[T];
                     };
                     output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
@@ -858,25 +847,14 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                     output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
-            };
-            site: {
-                get: _trpc_server.TRPCQueryProcedure<{
-                    input: {
-                        did: string;
-                        rkey: string;
-                        pdsDomain: Record<T, T>[T];
-                    };
-                    output: GetRecordResponse<Main$5>;
-                    meta: object;
-                }>;
                 getAll: _trpc_server.TRPCQueryProcedure<{
                     input: {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
                     output: {
-                        sites: GetRecordResponse<Main$5>[];
-                        defaultSite: GetRecordResponse<Main$6> | null;
+                        locations: GetRecordResponse<Main$5>[];
+                        defaultLocation: GetRecordResponse<Main$6> | null;
                     };
                     meta: object;
                 }>;
@@ -929,7 +907,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        siteAtUri: string;
+                        locationAtUri: string;
                         pdsDomain: Record<T, T>[T];
                     };
                     output: _atproto_api_dist_client_types_com_atproto_repo_deleteRecord.OutputSchema;
@@ -945,7 +923,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        siteAtUri: string;
+                        locationAtUri: string;
                         pdsDomain: Record<T, T>[T];
                     };
                     output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;

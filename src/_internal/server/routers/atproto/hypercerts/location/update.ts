@@ -17,7 +17,7 @@ import {
 import type { $Typed } from "@/../lex-api/util";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 
-export const updateSiteFactory = <T extends SupportedPDSDomain>(
+export const updateLocationFactory = <T extends SupportedPDSDomain>(
   allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
 ) => {
   return protectedProcedure
@@ -111,7 +111,7 @@ export const updateSiteFactory = <T extends SupportedPDSDomain>(
       if (updateResponse.success !== true) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update site",
+          message: "Failed to update location",
         });
       }
 
