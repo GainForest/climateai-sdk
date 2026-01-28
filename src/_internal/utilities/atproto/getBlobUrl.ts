@@ -1,27 +1,40 @@
 import {
+  type Uri as GFUri,
+  type Image as GFImage,
+  type ImageThumbnail as GFImageThumbnail,
+} from "@/../lex-api/types/app/gainforest/common/defs";
+import {
   type LargeBlob,
   type LargeImage,
   type SmallBlob,
   type SmallImage,
   type Uri,
-} from "@/../lex-api/types/app/gainforest/common/defs";
+} from "@/../lex-api/types/org/hypercerts/defs";
 import type { $Typed } from "@/../lex-api/util";
 import type { BlobRefGenerator } from "@/_internal/zod-schemas/blobref";
 import { BlobRef } from "@atproto/api";
 import { SupportedPDSDomain } from "../..";
 
+type SupportedImageData =
+  | string
+  | BlobRef
+  | BlobRefGenerator
+  // org.hypercerts.defs types
+  | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob>
+  | Uri
+  | SmallImage
+  | LargeImage
+  | SmallBlob
+  | LargeBlob
+  // app.gainforest.common.defs types
+  | $Typed<GFUri | GFImage | GFImageThumbnail>
+  | GFUri
+  | GFImage
+  | GFImageThumbnail;
+
 const getBlobUrl = <T extends SupportedPDSDomain>(
   did: string,
-  imageData:
-    | string
-    | BlobRef
-    | BlobRefGenerator
-    | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob>
-    | Uri
-    | SmallImage
-    | LargeImage
-    | SmallBlob
-    | LargeBlob,
+  imageData: SupportedImageData,
   pdsDomain: T
 ) => {
   if (typeof imageData === "string") {
@@ -39,46 +52,53 @@ const getBlobUrl = <T extends SupportedPDSDomain>(
     return `https://${pdsDomain}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
   }
 
-  // Handle $Typed cases
-  if (imageData.$type === "app.gainforest.common.defs#uri") {
-    const uri = imageData.uri;
-    // TODO: handle other URI types
-    // if (uri.startsWith("at://")) {
-    //   const { did: uriDid, rkey: uriRkey } = parseAtUri(uri);
-    //   return `${PDS_URL}/xrpc/com.atproto.repo.getRecord?did=${uriDid}&rkey=${uriRkey}`;
-    // }
-    return uri;
-  }
-
+  // Handle $Typed cases - URI types
   if (
-    imageData.$type === "app.gainforest.common.defs#smallBlob" ||
-    imageData.$type === "app.gainforest.common.defs#largeBlob"
+    imageData.$type === "app.gainforest.common.defs#uri" ||
+    imageData.$type === "org.hypercerts.defs#uri"
   ) {
-    const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsDomain);
+    return imageData.uri;
   }
 
+  // Handle org.hypercerts.defs blob types
   if (
-    imageData.$type === "app.gainforest.common.defs#smallImage" ||
-    imageData.$type === "app.gainforest.common.defs#largeImage"
+    imageData.$type === "org.hypercerts.defs#smallBlob" ||
+    imageData.$type === "org.hypercerts.defs#largeBlob"
   ) {
-    const image = imageData.image;
-    return getBlobUrl(did, image, pdsDomain);
+    return getBlobUrl(did, imageData.blob, pdsDomain);
   }
 
+  // Handle org.hypercerts.defs image types (use 'image' property)
+  if (
+    imageData.$type === "org.hypercerts.defs#smallImage" ||
+    imageData.$type === "org.hypercerts.defs#largeImage"
+  ) {
+    return getBlobUrl(did, imageData.image, pdsDomain);
+  }
+
+  // Handle app.gainforest.common.defs image types (use 'file' property)
+  if (
+    imageData.$type === "app.gainforest.common.defs#image" ||
+    imageData.$type === "app.gainforest.common.defs#imageThumbnail"
+  ) {
+    return getBlobUrl(did, imageData.file, pdsDomain);
+  }
+
+  // Fallback for untyped objects - check by property presence
   if ("blob" in imageData) {
-    const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsDomain);
+    return getBlobUrl(did, imageData.blob, pdsDomain);
   }
 
   if ("image" in imageData) {
-    const image = imageData.image;
-    return getBlobUrl(did, image, pdsDomain);
+    return getBlobUrl(did, imageData.image, pdsDomain);
+  }
+
+  if ("file" in imageData) {
+    return getBlobUrl(did, imageData.file, pdsDomain);
   }
 
   if ("uri" in imageData) {
-    const uri = imageData.uri;
-    return uri;
+    return imageData.uri;
   }
 
   // Line for compile time check that all cases are handled. THIS SHOULD NEVER BE REACHED.
