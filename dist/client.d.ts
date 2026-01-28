@@ -1,22 +1,19 @@
 import * as _trpc_client from '@trpc/client';
-import { A as AppRouter } from './_app-ELiTRlKD.js';
-import { S as SupportedPDSDomain } from './index-BykF-VMZ.js';
+import { A as AppRouter } from './_app-BKNpJhsF.js';
+import { S as SupportedPDSDomain } from './session-BJjwpb2l.js';
 import '@trpc/server/unstable-core-do-not-import';
-import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
-import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
-import './info-5wTP3IAZ.js';
-import './utils-BRYtkma9.js';
+import './project-B5S3nOat.js';
+import './utils-BtB-jULs.js';
 import 'zod';
-import './activity-BuClHKQ6.js';
+import './activity-B4BTvcNK.js';
 import 'multiformats/cid';
-import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
-import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import './response-types-DkRV5jYn.js';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
+import '@atproto/oauth-client-node';
 import './blobref-e8ss-bC-.js';
 import '@atproto/api';
-import '@atproto/oauth-client-node';
+import '@atproto/api/dist/client/types/com/atproto/server/getSession';
 
 declare const createTRPCClient: <T extends SupportedPDSDomain>(trpcEndpoint: string) => _trpc_client.TRPCClient<AppRouter<T>>;
 

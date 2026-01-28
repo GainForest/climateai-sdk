@@ -1,5 +1,5 @@
-import { a as $TypedObject, V as ValidationResult, $ as $Typed } from './utils-BRYtkma9.js';
-import { B as BlobRef, U as Uri$1, S as SmallBlob$1, a as Main$m, A as ActivityWeight } from './activity-BuClHKQ6.js';
+import { $ as $TypedObject, V as ValidationResult, a as $Typed } from './utils-BtB-jULs.cjs';
+import { B as BlobRef, U as Uri$1, S as SmallBlob$1, a as Main$m, A as ActivityWeight } from './activity-BWO0-2j_.cjs';
 
 /** Object containing a URI to external data */
 interface Uri {
@@ -115,27 +115,93 @@ declare namespace AppCertifiedLocation {
 }
 
 interface Main$j {
+    $type: 'app.gainforest.organization.info';
+    /** The name of the organization or project */
+    displayName: string;
+    /** The description of the organization or project */
+    shortDescription: string;
+    /** The long description of the organization or project in richtext */
+    longDescription: string;
+    coverImage?: SmallImage;
+    logo?: SmallImage;
+    /** The objectives of the organization or project */
+    objectives: ('Conservation' | 'Research' | 'Education' | 'Community' | 'Other')[];
+    /** The start date of the organization or project */
+    startDate?: string;
+    /** The website of the organization or project */
+    website?: string;
+    /** The country of the organization or project in two letter code (ISO 3166-1 alpha-2) */
+    country: string;
+    /** The visibility of the organization or project in the Green Globe */
+    visibility: 'Public' | 'Hidden';
+    /** The date and time of the creation of the record */
+    createdAt: string;
+    [k: string]: unknown;
+}
+declare function isMain$j<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.info", "main">;
+declare function validateMain$j<V>(v: V): ValidationResult<Main$j & V>;
+
+declare namespace AppGainforestOrganizationInfo {
+  export { type Main$j as Main, type Main$j as Record, isMain$j as isMain, isMain$j as isRecord, validateMain$j as validateMain, validateMain$j as validateRecord };
+}
+
+interface Main$i {
+    $type: 'app.gainforest.organization.layer';
+    /** The name of the site */
+    name: string;
+    /** The type of the layer */
+    type: 'geojson_points' | 'geojson_points_trees' | 'geojson_line' | 'choropleth' | 'choropleth_shannon' | 'raster_tif' | 'tms_tile';
+    /** The URI of the layer */
+    uri: string;
+    /** The description of the layer */
+    description?: string;
+    /** The date and time of the creation of the record */
+    createdAt: string;
+    [k: string]: unknown;
+}
+declare function isMain$i<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.layer", "main">;
+declare function validateMain$i<V>(v: V): ValidationResult<Main$i & V>;
+
+declare namespace AppGainforestOrganizationLayer {
+  export { type Main$i as Main, type Main$i as Record, isMain$i as isMain, isMain$i as isRecord, validateMain$i as validateMain, validateMain$i as validateRecord };
+}
+
+interface Main$h {
+    $type: 'app.gainforest.organization.observations.measuredTreesCluster';
+    shapefile: SmallBlob;
+    /** The date and time of the creation of the record */
+    createdAt: string;
+    [k: string]: unknown;
+}
+declare function isMain$h<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.measuredTreesCluster", "main">;
+declare function validateMain$h<V>(v: V): ValidationResult<Main$h & V>;
+
+declare namespace AppGainforestOrganizationObservationsMeasuredTreesCluster {
+  export { type Main$h as Main, type Main$h as Record, isMain$h as isMain, isMain$h as isRecord, validateMain$h as validateMain, validateMain$h as validateRecord };
+}
+
+interface Main$g {
     $type?: 'pub.leaflet.blocks.iframe';
     url: string;
     height?: number;
 }
-declare function isMain$j<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.iframe", "main">;
-declare function validateMain$j<V>(v: V): ValidationResult<Main$j & V>;
+declare function isMain$g<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.iframe", "main">;
+declare function validateMain$g<V>(v: V): ValidationResult<Main$g & V>;
 
 declare namespace iframe {
-  export { type Main$j as Main, isMain$j as isMain, validateMain$j as validateMain };
+  export { type Main$g as Main, isMain$g as isMain, validateMain$g as validateMain };
 }
 
 /** Annotation of a sub-string within rich text. */
-interface Main$i {
+interface Main$f {
     $type?: 'pub.leaflet.richtext.facet';
     index: ByteSlice;
     features: ($Typed<Link> | $Typed<DidMention> | $Typed<AtMention> | $Typed<Code> | $Typed<Highlight> | $Typed<Underline> | $Typed<Strikethrough> | $Typed<Id> | $Typed<Bold> | $Typed<Italic> | {
         $type: string;
     })[];
 }
-declare function isMain$i<V>(v: V): v is $TypedObject<V, "pub.leaflet.richtext.facet", "main">;
-declare function validateMain$i<V>(v: V): ValidationResult<Main$i & V>;
+declare function isMain$f<V>(v: V): v is $TypedObject<V, "pub.leaflet.richtext.facet", "main">;
+declare function validateMain$f<V>(v: V): ValidationResult<Main$f & V>;
 /** Specifies the sub-string range a facet feature applies to. Start index is inclusive, end index is exclusive. Indices are zero-indexed, counting bytes of the UTF-8 encoded text. NOTE: some languages, like Javascript, use UTF-16 or Unicode codepoints for string slice indexing; in these languages, convert to byte arrays before working with facets. */
 interface ByteSlice {
     $type?: 'pub.leaflet.richtext.facet#byteSlice';
@@ -243,56 +309,56 @@ declare const facet_validateLink: typeof validateLink;
 declare const facet_validateStrikethrough: typeof validateStrikethrough;
 declare const facet_validateUnderline: typeof validateUnderline;
 declare namespace facet {
-  export { type facet_AtMention as AtMention, type facet_Bold as Bold, type facet_ByteSlice as ByteSlice, type facet_Code as Code, type facet_DidMention as DidMention, type facet_Highlight as Highlight, type facet_Id as Id, type facet_Italic as Italic, type facet_Link as Link, type Main$i as Main, type facet_Strikethrough as Strikethrough, type facet_Underline as Underline, facet_isAtMention as isAtMention, facet_isBold as isBold, facet_isByteSlice as isByteSlice, facet_isCode as isCode, facet_isDidMention as isDidMention, facet_isHighlight as isHighlight, facet_isId as isId, facet_isItalic as isItalic, facet_isLink as isLink, isMain$i as isMain, facet_isStrikethrough as isStrikethrough, facet_isUnderline as isUnderline, facet_validateAtMention as validateAtMention, facet_validateBold as validateBold, facet_validateByteSlice as validateByteSlice, facet_validateCode as validateCode, facet_validateDidMention as validateDidMention, facet_validateHighlight as validateHighlight, facet_validateId as validateId, facet_validateItalic as validateItalic, facet_validateLink as validateLink, validateMain$i as validateMain, facet_validateStrikethrough as validateStrikethrough, facet_validateUnderline as validateUnderline };
-}
-
-interface Main$h {
-    $type?: 'pub.leaflet.blocks.text';
-    plaintext: string;
-    textSize?: 'default' | 'small' | 'large';
-    facets?: Main$i[];
-}
-declare function isMain$h<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.text", "main">;
-declare function validateMain$h<V>(v: V): ValidationResult<Main$h & V>;
-
-declare namespace text {
-  export { type Main$h as Main, isMain$h as isMain, validateMain$h as validateMain };
-}
-
-interface Main$g {
-    $type?: 'pub.leaflet.blocks.blockquote';
-    plaintext: string;
-    facets?: Main$i[];
-}
-declare function isMain$g<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.blockquote", "main">;
-declare function validateMain$g<V>(v: V): ValidationResult<Main$g & V>;
-
-declare namespace blockquote {
-  export { type Main$g as Main, isMain$g as isMain, validateMain$g as validateMain };
-}
-
-interface Main$f {
-    $type?: 'pub.leaflet.blocks.header';
-    level?: number;
-    plaintext: string;
-    facets?: Main$i[];
-}
-declare function isMain$f<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.header", "main">;
-declare function validateMain$f<V>(v: V): ValidationResult<Main$f & V>;
-
-declare namespace header {
-  export { type Main$f as Main, isMain$f as isMain, validateMain$f as validateMain };
+  export { type facet_AtMention as AtMention, type facet_Bold as Bold, type facet_ByteSlice as ByteSlice, type facet_Code as Code, type facet_DidMention as DidMention, type facet_Highlight as Highlight, type facet_Id as Id, type facet_Italic as Italic, type facet_Link as Link, type Main$f as Main, type facet_Strikethrough as Strikethrough, type facet_Underline as Underline, facet_isAtMention as isAtMention, facet_isBold as isBold, facet_isByteSlice as isByteSlice, facet_isCode as isCode, facet_isDidMention as isDidMention, facet_isHighlight as isHighlight, facet_isId as isId, facet_isItalic as isItalic, facet_isLink as isLink, isMain$f as isMain, facet_isStrikethrough as isStrikethrough, facet_isUnderline as isUnderline, facet_validateAtMention as validateAtMention, facet_validateBold as validateBold, facet_validateByteSlice as validateByteSlice, facet_validateCode as validateCode, facet_validateDidMention as validateDidMention, facet_validateHighlight as validateHighlight, facet_validateId as validateId, facet_validateItalic as validateItalic, facet_validateLink as validateLink, validateMain$f as validateMain, facet_validateStrikethrough as validateStrikethrough, facet_validateUnderline as validateUnderline };
 }
 
 interface Main$e {
+    $type?: 'pub.leaflet.blocks.text';
+    plaintext: string;
+    textSize?: 'default' | 'small' | 'large';
+    facets?: Main$f[];
+}
+declare function isMain$e<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.text", "main">;
+declare function validateMain$e<V>(v: V): ValidationResult<Main$e & V>;
+
+declare namespace text {
+  export { type Main$e as Main, isMain$e as isMain, validateMain$e as validateMain };
+}
+
+interface Main$d {
+    $type?: 'pub.leaflet.blocks.blockquote';
+    plaintext: string;
+    facets?: Main$f[];
+}
+declare function isMain$d<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.blockquote", "main">;
+declare function validateMain$d<V>(v: V): ValidationResult<Main$d & V>;
+
+declare namespace blockquote {
+  export { type Main$d as Main, isMain$d as isMain, validateMain$d as validateMain };
+}
+
+interface Main$c {
+    $type?: 'pub.leaflet.blocks.header';
+    level?: number;
+    plaintext: string;
+    facets?: Main$f[];
+}
+declare function isMain$c<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.header", "main">;
+declare function validateMain$c<V>(v: V): ValidationResult<Main$c & V>;
+
+declare namespace header {
+  export { type Main$c as Main, isMain$c as isMain, validateMain$c as validateMain };
+}
+
+interface Main$b {
     $type?: 'pub.leaflet.blocks.image';
     image: BlobRef;
     /** Alt text description of the image, for accessibility. */
     alt?: string;
     aspectRatio: AspectRatio;
 }
-declare function isMain$e<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.image", "main">;
-declare function validateMain$e<V>(v: V): ValidationResult<Main$e & V>;
+declare function isMain$b<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.image", "main">;
+declare function validateMain$b<V>(v: V): ValidationResult<Main$b & V>;
 interface AspectRatio {
     $type?: 'pub.leaflet.blocks.image#aspectRatio';
     width: number;
@@ -305,18 +371,18 @@ type image_AspectRatio = AspectRatio;
 declare const image_isAspectRatio: typeof isAspectRatio;
 declare const image_validateAspectRatio: typeof validateAspectRatio;
 declare namespace image {
-  export { type image_AspectRatio as AspectRatio, type Main$e as Main, image_isAspectRatio as isAspectRatio, isMain$e as isMain, image_validateAspectRatio as validateAspectRatio, validateMain$e as validateMain };
+  export { type image_AspectRatio as AspectRatio, type Main$b as Main, image_isAspectRatio as isAspectRatio, isMain$b as isMain, image_validateAspectRatio as validateAspectRatio, validateMain$b as validateMain };
 }
 
-interface Main$d {
+interface Main$a {
     $type?: 'pub.leaflet.blocks.unorderedList';
     children: ListItem[];
 }
-declare function isMain$d<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.unorderedList", "main">;
-declare function validateMain$d<V>(v: V): ValidationResult<Main$d & V>;
+declare function isMain$a<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.unorderedList", "main">;
+declare function validateMain$a<V>(v: V): ValidationResult<Main$a & V>;
 interface ListItem {
     $type?: 'pub.leaflet.blocks.unorderedList#listItem';
-    content: $Typed<Main$h> | $Typed<Main$f> | $Typed<Main$e> | {
+    content: $Typed<Main$e> | $Typed<Main$c> | $Typed<Main$b> | {
         $type: string;
     };
     children?: ListItem[];
@@ -328,112 +394,112 @@ type unorderedList_ListItem = ListItem;
 declare const unorderedList_isListItem: typeof isListItem;
 declare const unorderedList_validateListItem: typeof validateListItem;
 declare namespace unorderedList {
-  export { type unorderedList_ListItem as ListItem, type Main$d as Main, unorderedList_isListItem as isListItem, isMain$d as isMain, unorderedList_validateListItem as validateListItem, validateMain$d as validateMain };
+  export { type unorderedList_ListItem as ListItem, type Main$a as Main, unorderedList_isListItem as isListItem, isMain$a as isMain, unorderedList_validateListItem as validateListItem, validateMain$a as validateMain };
 }
 
-interface Main$c {
+interface Main$9 {
     $type?: 'pub.leaflet.blocks.website';
     previewImage?: BlobRef;
     title?: string;
     description?: string;
     src: string;
 }
-declare function isMain$c<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.website", "main">;
-declare function validateMain$c<V>(v: V): ValidationResult<Main$c & V>;
+declare function isMain$9<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.website", "main">;
+declare function validateMain$9<V>(v: V): ValidationResult<Main$9 & V>;
 
 declare namespace website {
-  export { type Main$c as Main, isMain$c as isMain, validateMain$c as validateMain };
+  export { type Main$9 as Main, isMain$9 as isMain, validateMain$9 as validateMain };
 }
 
-interface Main$b {
+interface Main$8 {
     $type?: 'pub.leaflet.blocks.math';
     tex: string;
 }
-declare function isMain$b<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.math", "main">;
-declare function validateMain$b<V>(v: V): ValidationResult<Main$b & V>;
+declare function isMain$8<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.math", "main">;
+declare function validateMain$8<V>(v: V): ValidationResult<Main$8 & V>;
 
 declare namespace math {
-  export { type Main$b as Main, isMain$b as isMain, validateMain$b as validateMain };
+  export { type Main$8 as Main, isMain$8 as isMain, validateMain$8 as validateMain };
 }
 
-interface Main$a {
+interface Main$7 {
     $type?: 'pub.leaflet.blocks.code';
     plaintext: string;
     language?: string;
     syntaxHighlightingTheme?: string;
 }
-declare function isMain$a<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.code", "main">;
-declare function validateMain$a<V>(v: V): ValidationResult<Main$a & V>;
-
-declare namespace code {
-  export { type Main$a as Main, isMain$a as isMain, validateMain$a as validateMain };
-}
-
-interface Main$9 {
-    $type?: 'pub.leaflet.blocks.horizontalRule';
-}
-declare function isMain$9<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.horizontalRule", "main">;
-declare function validateMain$9<V>(v: V): ValidationResult<Main$9 & V>;
-
-declare namespace horizontalRule {
-  export { type Main$9 as Main, isMain$9 as isMain, validateMain$9 as validateMain };
-}
-
-interface Main$8 {
-    $type?: 'pub.leaflet.blocks.bskyPost';
-    postRef: Main$m;
-}
-declare function isMain$8<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.bskyPost", "main">;
-declare function validateMain$8<V>(v: V): ValidationResult<Main$8 & V>;
-
-declare namespace bskyPost {
-  export { type Main$8 as Main, isMain$8 as isMain, validateMain$8 as validateMain };
-}
-
-interface Main$7 {
-    $type?: 'pub.leaflet.blocks.page';
-    id: string;
-}
-declare function isMain$7<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.page", "main">;
+declare function isMain$7<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.code", "main">;
 declare function validateMain$7<V>(v: V): ValidationResult<Main$7 & V>;
 
-declare namespace page {
+declare namespace code {
   export { type Main$7 as Main, isMain$7 as isMain, validateMain$7 as validateMain };
 }
 
 interface Main$6 {
-    $type?: 'pub.leaflet.blocks.poll';
-    pollRef: Main$m;
+    $type?: 'pub.leaflet.blocks.horizontalRule';
 }
-declare function isMain$6<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.poll", "main">;
+declare function isMain$6<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.horizontalRule", "main">;
 declare function validateMain$6<V>(v: V): ValidationResult<Main$6 & V>;
 
-declare namespace poll {
+declare namespace horizontalRule {
   export { type Main$6 as Main, isMain$6 as isMain, validateMain$6 as validateMain };
 }
 
 interface Main$5 {
-    $type?: 'pub.leaflet.blocks.button';
-    text: string;
-    url: string;
+    $type?: 'pub.leaflet.blocks.bskyPost';
+    postRef: Main$m;
 }
-declare function isMain$5<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.button", "main">;
+declare function isMain$5<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.bskyPost", "main">;
 declare function validateMain$5<V>(v: V): ValidationResult<Main$5 & V>;
 
-declare namespace button {
+declare namespace bskyPost {
   export { type Main$5 as Main, isMain$5 as isMain, validateMain$5 as validateMain };
 }
 
 interface Main$4 {
+    $type?: 'pub.leaflet.blocks.page';
+    id: string;
+}
+declare function isMain$4<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.page", "main">;
+declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
+
+declare namespace page {
+  export { type Main$4 as Main, isMain$4 as isMain, validateMain$4 as validateMain };
+}
+
+interface Main$3 {
+    $type?: 'pub.leaflet.blocks.poll';
+    pollRef: Main$m;
+}
+declare function isMain$3<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.poll", "main">;
+declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
+
+declare namespace poll {
+  export { type Main$3 as Main, isMain$3 as isMain, validateMain$3 as validateMain };
+}
+
+interface Main$2 {
+    $type?: 'pub.leaflet.blocks.button';
+    text: string;
+    url: string;
+}
+declare function isMain$2<V>(v: V): v is $TypedObject<V, "pub.leaflet.blocks.button", "main">;
+declare function validateMain$2<V>(v: V): ValidationResult<Main$2 & V>;
+
+declare namespace button {
+  export { type Main$2 as Main, isMain$2 as isMain, validateMain$2 as validateMain };
+}
+
+interface Main$1 {
     $type?: 'pub.leaflet.pages.linearDocument';
     id?: string;
     blocks: Block[];
 }
-declare function isMain$4<V>(v: V): v is $TypedObject<V, "pub.leaflet.pages.linearDocument", "main">;
-declare function validateMain$4<V>(v: V): ValidationResult<Main$4 & V>;
+declare function isMain$1<V>(v: V): v is $TypedObject<V, "pub.leaflet.pages.linearDocument", "main">;
+declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
 interface Block {
     $type?: 'pub.leaflet.pages.linearDocument#block';
-    block: $Typed<Main$j> | $Typed<Main$h> | $Typed<Main$g> | $Typed<Main$f> | $Typed<Main$e> | $Typed<Main$d> | $Typed<Main$c> | $Typed<Main$b> | $Typed<Main$a> | $Typed<Main$9> | $Typed<Main$8> | $Typed<Main$7> | $Typed<Main$6> | $Typed<Main$5> | {
+    block: $Typed<Main$g> | $Typed<Main$e> | $Typed<Main$d> | $Typed<Main$c> | $Typed<Main$b> | $Typed<Main$a> | $Typed<Main$9> | $Typed<Main$8> | $Typed<Main$7> | $Typed<Main$6> | $Typed<Main$5> | $Typed<Main$4> | $Typed<Main$3> | $Typed<Main$2> | {
         $type: string;
     };
     alignment?: 'lex:pub.leaflet.pages.linearDocument#textAlignLeft' | 'lex:pub.leaflet.pages.linearDocument#textAlignCenter' | 'lex:pub.leaflet.pages.linearDocument#textAlignRight' | 'lex:pub.leaflet.pages.linearDocument#textAlignJustify' | (string & {});
@@ -473,16 +539,16 @@ declare const linearDocument_validateBlock: typeof validateBlock;
 declare const linearDocument_validatePosition: typeof validatePosition;
 declare const linearDocument_validateQuote: typeof validateQuote;
 declare namespace linearDocument {
-  export { type linearDocument_Block as Block, type Main$4 as Main, type linearDocument_Position as Position, type linearDocument_Quote as Quote, linearDocument_TEXTALIGNCENTER as TEXTALIGNCENTER, linearDocument_TEXTALIGNJUSTIFY as TEXTALIGNJUSTIFY, linearDocument_TEXTALIGNLEFT as TEXTALIGNLEFT, linearDocument_TEXTALIGNRIGHT as TEXTALIGNRIGHT, linearDocument_isBlock as isBlock, isMain$4 as isMain, linearDocument_isPosition as isPosition, linearDocument_isQuote as isQuote, linearDocument_validateBlock as validateBlock, validateMain$4 as validateMain, linearDocument_validatePosition as validatePosition, linearDocument_validateQuote as validateQuote };
+  export { type linearDocument_Block as Block, type Main$1 as Main, type linearDocument_Position as Position, type linearDocument_Quote as Quote, linearDocument_TEXTALIGNCENTER as TEXTALIGNCENTER, linearDocument_TEXTALIGNJUSTIFY as TEXTALIGNJUSTIFY, linearDocument_TEXTALIGNLEFT as TEXTALIGNLEFT, linearDocument_TEXTALIGNRIGHT as TEXTALIGNRIGHT, linearDocument_isBlock as isBlock, isMain$1 as isMain, linearDocument_isPosition as isPosition, linearDocument_isQuote as isQuote, linearDocument_validateBlock as validateBlock, validateMain$1 as validateMain, linearDocument_validatePosition as validatePosition, linearDocument_validateQuote as validateQuote };
 }
 
-interface Main$3 {
+interface Main {
     $type: 'org.hypercerts.claim.project';
     /** Title of this project */
     title: string;
     /** Short summary of this project, suitable for previews and list views. */
     shortDescription: string;
-    description?: Main$4;
+    description?: Main$1;
     /** Primary avatar image representing this project across apps and views; typically a square logo or project identity image. */
     avatar?: BlobRef;
     /** The cover photo of this project. */
@@ -494,80 +560,14 @@ interface Main$3 {
     createdAt: string;
     [k: string]: unknown;
 }
-declare function isMain$3<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.project", "main">;
-declare function validateMain$3<V>(v: V): ValidationResult<Main$3 & V>;
-
-declare namespace OrgHypercertsClaimProject {
-  export { type Main$3 as Main, type Main$3 as Record, isMain$3 as isMain, isMain$3 as isRecord, validateMain$3 as validateMain, validateMain$3 as validateRecord };
-}
-
-interface Main$2 {
-    $type: 'app.gainforest.organization.observations.measuredTreesCluster';
-    shapefile: SmallBlob;
-    /** The date and time of the creation of the record */
-    createdAt: string;
-    [k: string]: unknown;
-}
-declare function isMain$2<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.observations.measuredTreesCluster", "main">;
-declare function validateMain$2<V>(v: V): ValidationResult<Main$2 & V>;
-
-declare namespace AppGainforestOrganizationObservationsMeasuredTreesCluster {
-  export { type Main$2 as Main, type Main$2 as Record, isMain$2 as isMain, isMain$2 as isRecord, validateMain$2 as validateMain, validateMain$2 as validateRecord };
-}
-
-interface Main$1 {
-    $type: 'app.gainforest.organization.layer';
-    /** The name of the site */
-    name: string;
-    /** The type of the layer */
-    type: 'geojson_points' | 'geojson_points_trees' | 'geojson_line' | 'choropleth' | 'choropleth_shannon' | 'raster_tif' | 'tms_tile';
-    /** The URI of the layer */
-    uri: string;
-    /** The description of the layer */
-    description?: string;
-    /** The date and time of the creation of the record */
-    createdAt: string;
-    [k: string]: unknown;
-}
-declare function isMain$1<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.layer", "main">;
-declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
-
-declare namespace AppGainforestOrganizationLayer {
-  export { type Main$1 as Main, type Main$1 as Record, isMain$1 as isMain, isMain$1 as isRecord, validateMain$1 as validateMain, validateMain$1 as validateRecord };
-}
-
-interface Main {
-    $type: 'app.gainforest.organization.info';
-    /** The name of the organization or project */
-    displayName: string;
-    /** The description of the organization or project */
-    shortDescription: string;
-    /** The long description of the organization or project in richtext */
-    longDescription: string;
-    coverImage?: SmallImage;
-    logo?: SmallImage;
-    /** The objectives of the organization or project */
-    objectives: ('Conservation' | 'Research' | 'Education' | 'Community' | 'Other')[];
-    /** The start date of the organization or project */
-    startDate?: string;
-    /** The website of the organization or project */
-    website?: string;
-    /** The country of the organization or project in two letter code (ISO 3166-1 alpha-2) */
-    country: string;
-    /** The visibility of the organization or project in the Green Globe */
-    visibility: 'Public' | 'Hidden';
-    /** The date and time of the creation of the record */
-    createdAt: string;
-    [k: string]: unknown;
-}
-declare function isMain<V>(v: V): v is $TypedObject<V, "app.gainforest.organization.info", "main">;
+declare function isMain<V>(v: V): v is $TypedObject<V, "org.hypercerts.claim.project", "main">;
 declare function validateMain<V>(v: V): ValidationResult<Main & V>;
 
-type AppGainforestOrganizationInfo_Main = Main;
-declare const AppGainforestOrganizationInfo_isMain: typeof isMain;
-declare const AppGainforestOrganizationInfo_validateMain: typeof validateMain;
-declare namespace AppGainforestOrganizationInfo {
-  export { type AppGainforestOrganizationInfo_Main as Main, type Main as Record, AppGainforestOrganizationInfo_isMain as isMain, isMain as isRecord, AppGainforestOrganizationInfo_validateMain as validateMain, validateMain as validateRecord };
+type OrgHypercertsClaimProject_Main = Main;
+declare const OrgHypercertsClaimProject_isMain: typeof isMain;
+declare const OrgHypercertsClaimProject_validateMain: typeof validateMain;
+declare namespace OrgHypercertsClaimProject {
+  export { type OrgHypercertsClaimProject_Main as Main, type Main as Record, OrgHypercertsClaimProject_isMain as isMain, isMain as isRecord, OrgHypercertsClaimProject_validateMain as validateMain, validateMain as validateRecord };
 }
 
-export { AppCertifiedLocation as A, linearDocument as B, facet as C, type IndexedOrganization as I, type LargeImage as L, type Main as M, OrgHypercertsClaimProject as O, type SmallImage as S, type Uri as U, type Main$1 as a, type Main$2 as b, type Main$3 as c, type Main$k as d, type Main$l as e, type SmallBlob as f, type LargeBlob as g, defs as h, AppGainforestOrganizationDefaultSite as i, AppGainforestOrganizationInfo as j, AppGainforestOrganizationLayer as k, AppGainforestOrganizationObservationsMeasuredTreesCluster as l, blockquote as m, bskyPost as n, button as o, code as p, header as q, horizontalRule as r, iframe as s, image as t, math as u, page as v, poll as w, text as x, unorderedList as y, website as z };
+export { AppCertifiedLocation as A, type SmallImage as B, type LargeBlob as C, type IndexedOrganization as I, type LargeImage as L, type Main$j as M, OrgHypercertsClaimProject as O, type SmallBlob as S, type Uri as U, type Main$i as a, type Main$h as b, type Main as c, type Main$k as d, type Main$l as e, defs as f, AppGainforestOrganizationDefaultSite as g, AppGainforestOrganizationInfo as h, AppGainforestOrganizationLayer as i, AppGainforestOrganizationObservationsMeasuredTreesCluster as j, blockquote as k, bskyPost as l, button as m, code as n, header as o, horizontalRule as p, iframe as q, image as r, math as s, page as t, poll as u, text as v, unorderedList as w, website as x, linearDocument as y, facet as z };

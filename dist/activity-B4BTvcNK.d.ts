@@ -1,4 +1,4 @@
-import { a as $TypedObject, V as ValidationResult, $ as $Typed } from './utils-BRYtkma9.js';
+import { $ as $TypedObject, V as ValidationResult, a as $Typed } from './utils-BtB-jULs.js';
 import { CID } from 'multiformats/cid';
 import { z } from 'zod';
 
@@ -38,6 +38,18 @@ declare class BlobRef {
     static fromJsonRef(json: JsonBlobRef): BlobRef;
     ipld(): JsonBlobRef;
     toJSON(): unknown;
+}
+
+interface Main$1 {
+    $type?: 'com.atproto.repo.strongRef';
+    uri: string;
+    cid: string;
+}
+declare function isMain$1<V>(v: V): v is $TypedObject<V, "com.atproto.repo.strongRef", "main">;
+declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
+
+declare namespace strongRef {
+  export { type Main$1 as Main, isMain$1 as isMain, validateMain$1 as validateMain };
 }
 
 /** Object containing a URI to external data */
@@ -98,18 +110,6 @@ declare const defs_validateSmallImage: typeof validateSmallImage;
 declare const defs_validateUri: typeof validateUri;
 declare namespace defs {
   export { type defs_LargeBlob as LargeBlob, type defs_LargeImage as LargeImage, type defs_SmallBlob as SmallBlob, type defs_SmallImage as SmallImage, type defs_Uri as Uri, defs_isLargeBlob as isLargeBlob, defs_isLargeImage as isLargeImage, defs_isSmallBlob as isSmallBlob, defs_isSmallImage as isSmallImage, defs_isUri as isUri, defs_validateLargeBlob as validateLargeBlob, defs_validateLargeImage as validateLargeImage, defs_validateSmallBlob as validateSmallBlob, defs_validateSmallImage as validateSmallImage, defs_validateUri as validateUri };
-}
-
-interface Main$1 {
-    $type?: 'com.atproto.repo.strongRef';
-    uri: string;
-    cid: string;
-}
-declare function isMain$1<V>(v: V): v is $TypedObject<V, "com.atproto.repo.strongRef", "main">;
-declare function validateMain$1<V>(v: V): ValidationResult<Main$1 & V>;
-
-declare namespace strongRef {
-  export { type Main$1 as Main, isMain$1 as isMain, validateMain$1 as validateMain };
 }
 
 interface Main {
