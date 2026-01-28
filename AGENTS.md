@@ -1,4 +1,4 @@
-# Agent Instructions
+# AGENTS.md - Gainforest SDK for Next.js
 
 ## 🦋 Changesets
 
@@ -19,7 +19,38 @@ The changeset summary is published to the changelog. Write it for human users.
 
 ---
 
-## Core Principles
+## What is this SDK?
+
+A batteries-included tRPC SDK for Next.js applications that need to interact with Gainforest/Hypercerts ATProto PDSes.
+
+### The Problem
+
+Multiple applications need to fetch data from our ATProto PDSes (and other supported ones). Without this SDK, each app would reimplement the same logic for authentication, data fetching, mutations, and type definitions.
+
+### The Solution
+
+This SDK extracts all shared logic into a single, scalable package that any Next.js application can use. It provides:
+
+- **Type-safe data fetching and mutations** - Full end-to-end type safety with tRPC
+- **Out-of-the-box authentication** - Session management with secure cookie-based auth
+- **Pre-built utilities** - ATProto helpers, blob URL resolution, URI parsing
+- **Zod validation schemas** - Reusable schemas for common data structures
+- **Domain types** - Shared TypeScript types for Ecocerts, claims, organizations, etc.
+
+### Who should use it?
+
+- **Internal apps** - Any Gainforest Next.js application that needs PDS data
+- **External developers** - Anyone building Next.js apps that interact with our PDSes
+
+### Why Next.js only?
+
+The SDK uses Next.js-specific features (server components, API routes, cookies via `next/headers`) for optimal integration. This constraint enables better DX and type safety.
+
+---
+
+## Development Rules
+
+### Core Principles
 
 1. **Scalability first** - Code must be organized so any developer intuitively knows where to find files
 2. **Single responsibility** - Each file contains only what it needs; reusable logic lives elsewhere
@@ -28,7 +59,7 @@ The changeset summary is published to the changelog. Write it for human users.
 
 ---
 
-## Internal vs Public
+### Internal vs Public
 
 | Aspect | `_internal/` | `_public/` |
 |--------|--------------|------------|
@@ -38,7 +69,7 @@ The changeset summary is published to the changelog. Write it for human users.
 
 ---
 
-## File Naming Rules
+### File Naming Rules
 
 - Use **lowercase with hyphens** for most files: `get-blob-url.ts`, `validate-record.ts`
 - Use **PascalCase** for type/class files: `Ecocert.ts`, `LinearDocument.ts`
@@ -47,9 +78,9 @@ The changeset summary is published to the changelog. Write it for human users.
 
 ---
 
-## Import Rules
+### Import Rules
 
-### In `_internal/` - Use Path Aliases
+#### In `_internal/` - Use Path Aliases
 ```typescript
 // CORRECT
 import { getReadAgent } from "@/_internal/server/utils/agent";
@@ -58,7 +89,7 @@ import { getReadAgent } from "@/_internal/server/utils/agent";
 import { getReadAgent } from "../../../server/utils/agent";
 ```
 
-### In `_public/` - NEVER Use Aliases
+#### In `_public/` - NEVER Use Aliases
 ```typescript
 // CORRECT - relative paths only
 export * from "../../_internal/utilities/atproto";
@@ -69,7 +100,7 @@ export * from "@/_internal/utilities/atproto";
 
 ---
 
-## Adding New Exports
+### Adding New Exports
 
 When exposing new functionality to consumers, you must update:
 
@@ -81,9 +112,9 @@ When exposing new functionality to consumers, you must update:
 
 ---
 
-## TypeScript Rules
+### TypeScript Rules
 
-### Never Use `any`
+#### Never Use `any`
 ```typescript
 // WRONG
 function process(data: any) { ... }
@@ -97,14 +128,14 @@ function process(data: unknown) {
 }
 ```
 
-### Use Type Guards
+#### Use Type Guards
 ```typescript
 export const isObject = (value: unknown): value is object => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 };
 ```
 
-### Use `satisfies` for Compile-Time Checks
+#### Use `satisfies` for Compile-Time Checks
 ```typescript
 return {
   uri: response.data.uri,
@@ -113,7 +144,7 @@ return {
 } satisfies PutRecordResponse<MyRecord>;
 ```
 
-### Infer Types from Zod Schemas
+#### Infer Types from Zod Schemas
 ```typescript
 const MySchema = z.object({ id: z.string(), name: z.string() });
 type MyType = z.infer<typeof MySchema>;
@@ -121,20 +152,20 @@ type MyType = z.infer<typeof MySchema>;
 
 ---
 
-## Code Organization Rules
+### Code Organization Rules
 
-### Single Responsibility
+#### Single Responsibility
 Each file should have one clear purpose. If you find yourself adding unrelated functionality, create a new file.
 
-### Reusable Code
+#### Reusable Code
 If code could be used by multiple files, extract it to a shared location where it makes sense. Never duplicate logic across files.
 
-### Pluggable Design
+#### Pluggable Design
 Structure code so components can be imported and used independently. Avoid tight coupling between unrelated modules.
 
 ---
 
-## Error Handling
+### Error Handling
 
 ```typescript
 import { TRPCError } from "@trpc/server";
@@ -149,7 +180,7 @@ if (!response.success) {
 
 ---
 
-## Zod Schema Naming
+### Zod Schema Naming
 
 ```typescript
 // Schema names end with "Schema"
@@ -162,7 +193,7 @@ export const toBlobRef = (generator: BlobRefGenerator): BlobRef => { ... };
 
 ---
 
-## Checklist for New Features
+### Checklist for New Features
 
 - [ ] Implementation in `_internal/` with proper organization
 - [ ] Types are strict - no `any` usage

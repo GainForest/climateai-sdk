@@ -3,7 +3,7 @@ import '../utils-BRYtkma9.cjs';
 import { M as Main } from '../info-B-l-_nUN.cjs';
 import { M as Main$1 } from '../activity-D02N0lQZ.cjs';
 import { G as GetRecordResponse } from '../response-types-DkRV5jYn.cjs';
-import { S as SupportedPDSDomain } from '../index-DeueK3FL.cjs';
+import { S as SupportedPDSDomain } from '../index-CChY4jWx.cjs';
 import 'zod';
 import 'multiformats/cid';
 import '../blobref-e8ss-bC-.cjs';

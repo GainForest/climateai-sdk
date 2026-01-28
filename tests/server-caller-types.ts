@@ -1,6 +1,6 @@
-import { ClimateAiSDK as SDKInternal } from "../src/_internal";
-import { ClimateAiSDK as SDKPublic } from "../src/_public";
-import { ClimateAiSDK as SDKDist } from "../dist";
+import { GainforestSDK as SDKInternal } from "../src/_internal";
+import { GainforestSDK as SDKPublic } from "../src/_public";
+import { GainforestSDK as SDKDist } from "../dist";
 
 const sdkInternal = new SDKInternal(["climateai.org", "hypercerts.org"]);
 const sdkPublic = new SDKPublic(["climateai.org", "hypercerts.org"]);

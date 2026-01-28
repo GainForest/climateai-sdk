@@ -4522,7 +4522,7 @@ var AppRouterFactory = class {
 var supportedDomains = ["climateai.org", "hypercerts.org"];
 var supportedPDSDomainSchema = z.enum(supportedDomains);
 var supportedPDSDomainsSchema = z.array(supportedPDSDomainSchema);
-var ClimateAiSDK = class {
+var GainforestSDK = class {
   constructor(_allowedPDSDomains) {
     __publicField(this, "allowedPDSDomains");
     __publicField(this, "appRouter");
@@ -4550,9 +4550,9 @@ var ClimateAiSDK = class {
 };
 
 // src/_public/index.ts
-var sdkInternal = new ClimateAiSDK(["climateai.org", "hypercerts.org"]);
+var sdkInternal = new GainforestSDK(["climateai.org", "hypercerts.org"]);
 sdkInternal.getServerCaller();
 
-export { ClimateAiSDK, createContext, supportedPDSDomainSchema };
+export { GainforestSDK, createContext, supportedPDSDomainSchema };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
