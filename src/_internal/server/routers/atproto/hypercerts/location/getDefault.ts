@@ -1,35 +1,33 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import z from "zod";
-import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { AppGainforestOrganizationDefaultSite } from "@/../lex-api";
 import { getReadAgent } from "@/_internal/server/utils/agent";
+import { AppGainforestOrganizationDefaultSite } from "@/../lex-api";
+import { getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createDidQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
-export const getDefaultLocationFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .query(async ({ input }) => {
-      const agent = getReadAgent(input.pdsDomain);
-      const response = await agent.com.atproto.repo.getRecord({
-        collection: "app.gainforest.organization.defaultSite",
-        repo: input.did,
-        rkey: "self",
-      });
-      if (response.success !== true) {
-        throw new Error("Failed to get default location");
-      }
-      validateRecordOrThrow(
-        response.data.value,
-        AppGainforestOrganizationDefaultSite
-      );
-      return response.data as GetRecordResponse<AppGainforestOrganizationDefaultSite.Record>;
-    });
+const COLLECTION = "app.gainforest.organization.defaultSite" as const;
+const RESOURCE_NAME = "default location" as const;
+
+/**
+ * Pure function to get the default location for a DID.
+ * Can be reused outside of tRPC context.
+ */
+export const getDefaultLocationPure = async <T extends SupportedPDSDomain>(
+  did: string,
+  pdsDomain: T
+): Promise<GetRecordResponse<AppGainforestOrganizationDefaultSite.Record>> => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    rkey: "self",
+    validator: AppGainforestOrganizationDefaultSite,
+    resourceName: RESOURCE_NAME,
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for getting the default location.
+ */
+export const getDefaultLocationFactory = createDidQueryFactory(getDefaultLocationPure);

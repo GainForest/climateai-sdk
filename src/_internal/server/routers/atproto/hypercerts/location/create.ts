@@ -1,90 +1,113 @@
-import { protectedProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
-import { getWriteAgent } from "@/_internal/server/utils/agent";
-import { AppCertifiedLocation } from "@/../lex-api";
-import { FileGeneratorSchema, toFile } from "@/_internal/zod-schemas/file";
+import z from "zod";
 import { TRPCError } from "@trpc/server";
+import { AppCertifiedLocation } from "@/../lex-api";
+import { tryCatch } from "@/_internal/lib/tryCatch";
+import { createRecord } from "@/_internal/server/utils/atproto-crud";
+import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
+import { FileGeneratorSchema, toFile } from "@/_internal/zod-schemas/file";
 import { processGeojsonFileOrThrow, fetchGeojsonFromUrl } from "./utils";
-import type { SupportedPDSDomain } from "@/_internal/index";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import type { Agent } from "@atproto/api";
+import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
 
-export const createLocationFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return protectedProcedure
-    .input(
-      z.object({
-        rkey: z.string().optional(),
-        site: z.object({
-          name: z.string().min(1),
-        }),
-        uploads: z.object({
-          shapefile: z.union([z.url(), FileGeneratorSchema]),
-        }),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
-      if (!agent.did) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "You are not authenticated",
-        });
-      }
+const COLLECTION = "app.certified.location" as const;
+const RESOURCE_NAME = "location" as const;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-      // If the site is a string, it is a URI, so fetch the file from the URI
-      const file =
-        typeof input.uploads.shapefile === "string" ?
-          await fetchGeojsonFromUrl(input.uploads.shapefile)
-        : await toFile(input.uploads.shapefile);
+/**
+ * Input schema for location creation
+ */
+export const LocationInputSchema = z.object({
+  name: z.string().min(1, "Location name is required"),
+});
 
-      // Check if the file is > 1MB
-      const tenMBs = 10 * 1024 * 1024;
-      if (file.size > tenMBs) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "The GeoJSON file is too large. It must be less than 10MB.",
-        });
-      }
+export type LocationInput = z.infer<typeof LocationInputSchema>;
 
-      // Process the GeoJSON file, and throw TRPCError if the file is invalid
-      await processGeojsonFileOrThrow(file);
+/**
+ * Upload schema for location creation
+ */
+export const LocationUploadsSchema = z.object({
+  shapefile: z.union([z.string().url(), FileGeneratorSchema]),
+});
 
-      const geojsonUploadResponse = await agent.uploadBlob(file);
-      const geojsonBlobRef = geojsonUploadResponse.data.blob;
+export type LocationUploads = z.infer<typeof LocationUploadsSchema>;
 
-      const nsid: AppCertifiedLocation.Record["$type"] =
-        "app.certified.location";
-      const site: AppCertifiedLocation.Record = {
-        $type: nsid,
-        name: input.site.name,
-        lpVersion: "1.0.0",
-        srs: "https://epsg.io/3857",
-        locationType: "geojson-point",
-        location: {
-          $type: "org.hypercerts.defs#smallBlob",
-          blob: geojsonBlobRef,
-        },
-        createdAt: new Date().toISOString(),
-      };
-
-      validateRecordOrThrow(site, AppCertifiedLocation);
-
-      const creationResponse = await agent.com.atproto.repo.createRecord({
-        collection: nsid,
-        repo: agent.did,
-        record: site,
-        rkey: input.rkey,
-      });
-
-      if (creationResponse.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to add new location",
-        });
-      }
-
-      return creationResponse.data;
+/**
+ * Pure function to create a location.
+ * Can be reused outside of tRPC context.
+ */
+export const createLocationPure = async (
+  agent: Agent,
+  locationInput: LocationInput,
+  uploads: LocationUploads,
+  rkey?: string
+): Promise<PutRecordResponse<AppCertifiedLocation.Record>> => {
+  const did = agent.did;
+  if (!did) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action.",
     });
+  }
+
+  // Fetch or convert the shapefile
+  const file =
+    typeof uploads.shapefile === "string"
+      ? await fetchGeojsonFromUrl(uploads.shapefile)
+      : await toFile(uploads.shapefile);
+
+  // Validate file size
+  if (file.size > MAX_FILE_SIZE) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "The GeoJSON file is too large. It must be less than 10MB.",
+    });
+  }
+
+  // Process and validate the GeoJSON file
+  await processGeojsonFileOrThrow(file);
+
+  // Upload the blob
+  const [uploadResponse, uploadError] = await tryCatch(agent.uploadBlob(file));
+  if (uploadError !== null || uploadResponse === null) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to upload the GeoJSON file.",
+      cause: uploadError,
+    });
+  }
+
+  const location: AppCertifiedLocation.Record = {
+    $type: COLLECTION,
+    name: locationInput.name,
+    lpVersion: "1.0.0",
+    srs: "https://epsg.io/3857",
+    locationType: "geojson-point",
+    location: {
+      $type: "org.hypercerts.defs#smallBlob",
+      blob: uploadResponse.data.blob,
+    },
+    createdAt: new Date().toISOString(),
+  };
+
+  return createRecord({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    record: location,
+    validator: AppCertifiedLocation,
+    resourceName: RESOURCE_NAME,
+    rkey,
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for creating a location.
+ */
+export const createLocationFactory = createMutationFactory(
+  {
+    site: LocationInputSchema,
+    uploads: LocationUploadsSchema,
+    rkey: z.string().optional(),
+  },
+  (agent, input) => createLocationPure(agent, input.site, input.uploads, input.rkey)
+);

@@ -1,67 +1,68 @@
-import { AppGainforestOrganizationDefaultSite } from "@/../lex-api";
-import { protectedProcedure } from "@/_internal/server/trpc";
-import { getWriteAgent } from "@/_internal/server/utils/agent";
-import { TRPCError } from "@trpc/server";
 import z from "zod";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
-import type { SupportedPDSDomain } from "@/_internal/index";
+import { TRPCError } from "@trpc/server";
+import { AppGainforestOrganizationDefaultSite, AppCertifiedLocation } from "@/../lex-api";
+import { tryCatch } from "@/_internal/lib/tryCatch";
+import { deleteRecord, getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
 import { parseAtUri } from "@/_internal/utilities/atproto";
+import type { Agent } from "@atproto/api";
+import type { DeleteRecordResponse } from "@/_internal/server/utils/atproto-crud";
 
-export const deleteLocationFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return protectedProcedure
-    .input(
-      z.object({ locationAtUri: z.string(), pdsDomain: allowedPDSDomainSchema })
-    )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
-      if (!agent.did) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "You are not authenticated",
-        });
-      }
+const LOCATION_COLLECTION = "app.certified.location" as const;
+const DEFAULT_SITE_COLLECTION = "app.gainforest.organization.defaultSite" as const;
 
-      try {
-        // Check if the site is the default site
-        const defaultSiteNSID: AppGainforestOrganizationDefaultSite.Record["$type"] =
-          "app.gainforest.organization.defaultSite";
-        const defaultSiteResponse = await agent.com.atproto.repo.getRecord({
-          collection: defaultSiteNSID,
-          repo: agent.did,
-          rkey: "self",
-        });
-        if (defaultSiteResponse.success !== true)
-          throw Error("Failed to get default site");
-        validateRecordOrThrow(
-          defaultSiteResponse.data.value,
-          AppGainforestOrganizationDefaultSite
-        );
-        const defaultSite = defaultSiteResponse.data
-          .value as AppGainforestOrganizationDefaultSite.Record;
-        if (defaultSite.site === input.locationAtUri) throw new Error("Equal");
-      } catch (error) {
-        // Only take action if the default site is determined and equals the site to be deleted
-        if (error instanceof Error && error.message === "Equal") {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Cannot delete default location",
-          });
-        }
-      }
-
-      const deletionResponse = await agent.com.atproto.repo.deleteRecord({
-        collection: "app.gainforest.organization.site",
-        repo: agent.did,
-        rkey: parseAtUri(input.locationAtUri).rkey,
-      });
-      if (deletionResponse.success !== true)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete location",
-        });
-
-      return deletionResponse.data;
+/**
+ * Pure function to delete a location.
+ * Can be reused outside of tRPC context.
+ */
+export const deleteLocationPure = async (
+  agent: Agent,
+  locationAtUri: string
+): Promise<DeleteRecordResponse> => {
+  const did = agent.did;
+  if (!did) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action.",
     });
+  }
+
+  // Check if this is the default location
+  const [defaultSiteResult] = await tryCatch(
+    getRecord({
+      agent,
+      collection: DEFAULT_SITE_COLLECTION,
+      repo: did,
+      rkey: "self",
+      validator: AppGainforestOrganizationDefaultSite,
+      resourceName: "default location",
+    })
+  );
+
+  if (defaultSiteResult?.value.site === locationAtUri) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Cannot delete the default location. Please set a different default first.",
+    });
+  }
+
+  const rkey = parseAtUri(locationAtUri).rkey;
+
+  return deleteRecord({
+    agent,
+    collection: LOCATION_COLLECTION,
+    repo: did,
+    rkey,
+    resourceName: "location",
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for deleting a location.
+ */
+export const deleteLocationFactory = createMutationFactory(
+  {
+    locationAtUri: z.string(),
+  },
+  (agent, input) => deleteLocationPure(agent, input.locationAtUri)
+);

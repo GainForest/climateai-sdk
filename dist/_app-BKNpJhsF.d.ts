@@ -1,14 +1,10 @@
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
-import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
-import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './info-5wTP3IAZ.js';
-import { M as Main$3 } from './activity-BuClHKQ6.js';
-import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
-import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './project-B5S3nOat.js';
+import { S as SupportedPDSDomain, a as StoredSession, L as LoginResult, R as ResumeResult, b as LogoutResult, O as OrganizationWithActivities, c as GetAllClaimActivitiesResponse, d as GetAllLocationsResponse, D as DeleteRecordResponse } from './session-BJjwpb2l.js';
+import { M as Main$3 } from './activity-B4BTvcNK.js';
 import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
-import { S as SupportedPDSDomain, a as StoredSession } from './index-BykF-VMZ.js';
 import z from 'zod';
 
 declare class AppRouterFactory<T extends SupportedPDSDomain> {
@@ -32,12 +28,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
         common: {
             uploadFileAsBlob: _trpc_server.TRPCMutationProcedure<{
                 input: {
+                    did: string;
+                    pdsDomain: Record<T, T>[T];
                     file: {
                         name: string;
                         type: string;
                         dataBase64: string;
                     };
-                    pdsDomain: Record<T, T>[T];
                 };
                 output: _atproto_api_dist_client_types_com_atproto_repo_uploadBlob.OutputSchema;
                 meta: object;
@@ -50,31 +47,21 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     service: Record<T, T>[T];
                     password: string;
                 };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
+                output: LoginResult;
                 meta: object;
             }>;
             resume: _trpc_server.TRPCQueryProcedure<{
                 input: {
                     service: Record<T, T>[T];
                 };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
+                output: ResumeResult;
                 meta: object;
             }>;
             logout: _trpc_server.TRPCMutationProcedure<{
                 input: {
                     service: Record<T, T>[T];
                 };
-                output: {
-                    success: boolean;
-                };
+                output: LogoutResult;
                 meta: object;
             }>;
         };
@@ -92,6 +79,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
+                            pdsDomain: Record<T, T>[T];
                             info: {
                                 displayName: string;
                                 shortDescription: string;
@@ -119,7 +107,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 startDate?: string | undefined;
                                 createdAt?: string | undefined;
                             };
-                            pdsDomain: Record<T, T>[T];
                             uploads?: {
                                 logo?: {
                                     name: string;
@@ -144,11 +131,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            uri: string;
-                            cid: string | undefined;
-                            value: Main$1;
-                        };
+                        output: GetRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -156,16 +139,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            uri: string;
-                            cid: string;
-                            value: Main$1;
-                        }[];
+                        output: GetRecordResponse<Main$1>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
+                            pdsDomain: Record<T, T>[T];
                             layer: {
                                 name: string;
                                 type: "geojson_points" | "geojson_points_trees" | "geojson_line" | "choropleth" | "choropleth_shannon" | "raster_tif" | "tms_tile";
@@ -173,15 +153,9 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 description?: string | undefined;
                                 createdAt?: string | undefined;
                             };
-                            pdsDomain: Record<T, T>[T];
                             rkey?: string | undefined;
                         };
-                        output: {
-                            uri: string;
-                            cid: string;
-                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
-                            value: Main$1;
-                        };
+                        output: PutRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -244,6 +218,8 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 activity: {
                     create: _trpc_server.TRPCMutationProcedure<{
                         input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
                             activity: {
                                 title: string;
                                 shortDescription: string;
@@ -267,20 +243,15 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                     dataBase64: string;
                                 };
                             };
-                            pdsDomain: Record<T, T>[T];
                         };
-                        output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
                         input: {
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            activities: GetRecordResponse<Main$3>[];
-                            organizationInfo: Main;
-                        }[];
+                        output: OrganizationWithActivities[];
                         meta: object;
                     }>;
                     get: _trpc_server.TRPCQueryProcedure<{
@@ -297,9 +268,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            activities: GetRecordResponse<Main$3>[];
-                        };
+                        output: GetAllClaimActivitiesResponse;
                         meta: object;
                     }>;
                 };
@@ -318,16 +287,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            uri: string;
-                            cid: string;
-                            value: Main$4;
-                        }[];
+                        output: GetRecordResponse<Main$4>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
+                            pdsDomain: Record<T, T>[T];
                             info: {
                                 displayName: string;
                                 shortDescription: string;
@@ -355,7 +321,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 startDate?: string | undefined;
                                 createdAt?: string | undefined;
                             };
-                            pdsDomain: Record<T, T>[T];
                             uploads?: {
                                 logo?: {
                                     name: string;
@@ -389,14 +354,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: {
-                        locations: GetRecordResponse<Main$5>[];
-                        defaultLocation: GetRecordResponse<Main$6> | null;
-                    };
+                    output: GetAllLocationsResponse;
                     meta: object;
                 }>;
                 create: _trpc_server.TRPCMutationProcedure<{
                     input: {
+                        did: string;
+                        pdsDomain: Record<T, T>[T];
                         site: {
                             name: string;
                         };
@@ -407,14 +371,15 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 dataBase64: string;
                             };
                         };
-                        pdsDomain: Record<T, T>[T];
                         rkey?: string | undefined;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.OutputSchema;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 update: _trpc_server.TRPCMutationProcedure<{
                     input: {
+                        did: string;
+                        pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
                             name: string;
@@ -430,7 +395,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 };
                             } | undefined;
                         };
-                        pdsDomain: Record<T, T>[T];
                         uploads?: {
                             shapefile?: {
                                 name: string;
@@ -439,15 +403,16 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             } | undefined;
                         } | undefined;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        locationAtUri: string;
+                        did: string;
                         pdsDomain: Record<T, T>[T];
+                        locationAtUri: string;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_deleteRecord.OutputSchema;
+                    output: DeleteRecordResponse;
                     meta: object;
                 }>;
                 getDefault: _trpc_server.TRPCQueryProcedure<{
@@ -460,10 +425,11 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        locationAtUri: string;
+                        did: string;
                         pdsDomain: Record<T, T>[T];
+                        locationAtUri: string;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
+                    output: PutRecordResponse<Main$6>;
                     meta: object;
                 }>;
             };
@@ -481,12 +447,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
         common: {
             uploadFileAsBlob: _trpc_server.TRPCMutationProcedure<{
                 input: {
+                    did: string;
+                    pdsDomain: Record<T, T>[T];
                     file: {
                         name: string;
                         type: string;
                         dataBase64: string;
                     };
-                    pdsDomain: Record<T, T>[T];
                 };
                 output: _atproto_api_dist_client_types_com_atproto_repo_uploadBlob.OutputSchema;
                 meta: object;
@@ -499,31 +466,21 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     service: Record<T, T>[T];
                     password: string;
                 };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
+                output: LoginResult;
                 meta: object;
             }>;
             resume: _trpc_server.TRPCQueryProcedure<{
                 input: {
                     service: Record<T, T>[T];
                 };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
+                output: ResumeResult;
                 meta: object;
             }>;
             logout: _trpc_server.TRPCMutationProcedure<{
                 input: {
                     service: Record<T, T>[T];
                 };
-                output: {
-                    success: boolean;
-                };
+                output: LogoutResult;
                 meta: object;
             }>;
         };
@@ -541,6 +498,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
+                            pdsDomain: Record<T, T>[T];
                             info: {
                                 displayName: string;
                                 shortDescription: string;
@@ -568,7 +526,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 startDate?: string | undefined;
                                 createdAt?: string | undefined;
                             };
-                            pdsDomain: Record<T, T>[T];
                             uploads?: {
                                 logo?: {
                                     name: string;
@@ -593,11 +550,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            uri: string;
-                            cid: string | undefined;
-                            value: Main$1;
-                        };
+                        output: GetRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -605,16 +558,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            uri: string;
-                            cid: string;
-                            value: Main$1;
-                        }[];
+                        output: GetRecordResponse<Main$1>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
+                            pdsDomain: Record<T, T>[T];
                             layer: {
                                 name: string;
                                 type: "geojson_points" | "geojson_points_trees" | "geojson_line" | "choropleth" | "choropleth_shannon" | "raster_tif" | "tms_tile";
@@ -622,15 +572,9 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 description?: string | undefined;
                                 createdAt?: string | undefined;
                             };
-                            pdsDomain: Record<T, T>[T];
                             rkey?: string | undefined;
                         };
-                        output: {
-                            uri: string;
-                            cid: string;
-                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
-                            value: Main$1;
-                        };
+                        output: PutRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -693,6 +637,8 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 activity: {
                     create: _trpc_server.TRPCMutationProcedure<{
                         input: {
+                            did: string;
+                            pdsDomain: Record<T, T>[T];
                             activity: {
                                 title: string;
                                 shortDescription: string;
@@ -716,20 +662,15 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                     dataBase64: string;
                                 };
                             };
-                            pdsDomain: Record<T, T>[T];
                         };
-                        output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.Response;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
                         input: {
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            repo: _atproto_api_dist_client_types_com_atproto_sync_listRepos.Repo;
-                            activities: GetRecordResponse<Main$3>[];
-                            organizationInfo: Main;
-                        }[];
+                        output: OrganizationWithActivities[];
                         meta: object;
                     }>;
                     get: _trpc_server.TRPCQueryProcedure<{
@@ -746,9 +687,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            activities: GetRecordResponse<Main$3>[];
-                        };
+                        output: GetAllClaimActivitiesResponse;
                         meta: object;
                     }>;
                 };
@@ -767,16 +706,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: {
-                            uri: string;
-                            cid: string;
-                            value: Main$4;
-                        }[];
+                        output: GetRecordResponse<Main$4>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
                         input: {
                             did: string;
+                            pdsDomain: Record<T, T>[T];
                             info: {
                                 displayName: string;
                                 shortDescription: string;
@@ -804,7 +740,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 startDate?: string | undefined;
                                 createdAt?: string | undefined;
                             };
-                            pdsDomain: Record<T, T>[T];
                             uploads?: {
                                 logo?: {
                                     name: string;
@@ -838,14 +773,13 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: {
-                        locations: GetRecordResponse<Main$5>[];
-                        defaultLocation: GetRecordResponse<Main$6> | null;
-                    };
+                    output: GetAllLocationsResponse;
                     meta: object;
                 }>;
                 create: _trpc_server.TRPCMutationProcedure<{
                     input: {
+                        did: string;
+                        pdsDomain: Record<T, T>[T];
                         site: {
                             name: string;
                         };
@@ -856,14 +790,15 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 dataBase64: string;
                             };
                         };
-                        pdsDomain: Record<T, T>[T];
                         rkey?: string | undefined;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_createRecord.OutputSchema;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 update: _trpc_server.TRPCMutationProcedure<{
                     input: {
+                        did: string;
+                        pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
                             name: string;
@@ -879,7 +814,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 };
                             } | undefined;
                         };
-                        pdsDomain: Record<T, T>[T];
                         uploads?: {
                             shapefile?: {
                                 name: string;
@@ -888,15 +822,16 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             } | undefined;
                         } | undefined;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        locationAtUri: string;
+                        did: string;
                         pdsDomain: Record<T, T>[T];
+                        locationAtUri: string;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_deleteRecord.OutputSchema;
+                    output: DeleteRecordResponse;
                     meta: object;
                 }>;
                 getDefault: _trpc_server.TRPCQueryProcedure<{
@@ -909,10 +844,11 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
                     input: {
-                        locationAtUri: string;
+                        did: string;
                         pdsDomain: Record<T, T>[T];
+                        locationAtUri: string;
                     };
-                    output: _atproto_api_dist_client_types_com_atproto_repo_putRecord.OutputSchema;
+                    output: PutRecordResponse<Main$6>;
                     meta: object;
                 }>;
             };

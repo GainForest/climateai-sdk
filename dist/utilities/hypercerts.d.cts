@@ -1,29 +1,18 @@
 import { Ecocert } from '../types.cjs';
-import '../utils-BRYtkma9.cjs';
-import { M as Main } from '../info-B-l-_nUN.cjs';
-import { M as Main$1 } from '../activity-D02N0lQZ.cjs';
-import { G as GetRecordResponse } from '../response-types-DkRV5jYn.cjs';
-import { S as SupportedPDSDomain } from '../index-CULRM_IA.cjs';
+import { O as OrganizationWithActivities, S as SupportedPDSDomain } from '../session-Doi-8fnR.cjs';
+import '../utils-BtB-jULs.cjs';
 import 'zod';
+import '../activity-BWO0-2j_.cjs';
 import 'multiformats/cid';
+import '../response-types-DkRV5jYn.cjs';
+import '@atproto/oauth-client-node';
+import '../project-DIS_R7JL.cjs';
 import '../blobref-e8ss-bC-.cjs';
 import '@atproto/api';
 import '@trpc/server/unstable-core-do-not-import';
-import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
-import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
-import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
-import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
+import '@atproto/api/dist/client/types/com/atproto/server/getSession';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
-import '@atproto/oauth-client-node';
-
-type OrganizationWithActivities = {
-    repo: {
-        did: string;
-    };
-    organizationInfo: Main;
-    activities: GetRecordResponse<Main$1>[];
-};
 
 declare const getEcocertsFromClaimActivities: (activitiesWithOrgInfo: OrganizationWithActivities[], pdsDomain: SupportedPDSDomain) => Ecocert[];
 

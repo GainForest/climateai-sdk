@@ -1,78 +1,87 @@
-import { protectedProcedure } from "@/_internal/server/trpc";
 import z from "zod";
+import { TRPCError } from "@trpc/server";
 import {
   AppGainforestOrganizationDefaultSite,
   AppCertifiedLocation,
 } from "@/../lex-api";
-import { getWriteAgent } from "@/_internal/server/utils/agent";
-import { TRPCError } from "@trpc/server";
+import { tryCatch } from "@/_internal/lib/tryCatch";
+import { putRecord, getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
 import { parseAtUri } from "@/_internal/utilities/atproto";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
-import type { SupportedPDSDomain } from "@/_internal/index";
+import type { Agent } from "@atproto/api";
+import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
 
-export const setDefaultLocationFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return protectedProcedure
-    .input(
-      z.object({
-        locationAtUri: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
-      if (!agent.did) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "You are not authenticated",
-        });
-      }
+const LOCATION_COLLECTION = "app.certified.location" as const;
+const DEFAULT_SITE_COLLECTION = "app.gainforest.organization.defaultSite" as const;
 
-      const locationUri = input.locationAtUri;
-      const siteNSID: AppCertifiedLocation.Record["$type"] =
-        "app.certified.location";
-      if (!(locationUri.startsWith(`at://`) && locationUri.includes(siteNSID))) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Invalid location URI",
-        });
-      }
-
-      const site = await agent.com.atproto.repo.getRecord({
-        collection: siteNSID,
-        repo: agent.did,
-        rkey: parseAtUri(locationUri).rkey,
-      });
-      if (site.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get location",
-        });
-      }
-
-      const defaultSiteNSID: AppGainforestOrganizationDefaultSite.Record["$type"] =
-        "app.gainforest.organization.defaultSite";
-      const defaultSite: AppGainforestOrganizationDefaultSite.Record = {
-        $type: defaultSiteNSID,
-        site: locationUri,
-        createdAt: new Date().toISOString(),
-      };
-      validateRecordOrThrow(defaultSite, AppGainforestOrganizationDefaultSite);
-      const updateDefaultSiteResponse = await agent.com.atproto.repo.putRecord({
-        collection: defaultSiteNSID,
-        repo: agent.did,
-        rkey: "self",
-        record: defaultSite,
-      });
-
-      if (updateDefaultSiteResponse.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update default site",
-        });
-      }
-
-      return updateDefaultSiteResponse.data;
+/**
+ * Pure function to set the default location.
+ * Can be reused outside of tRPC context.
+ */
+export const setDefaultLocationPure = async (
+  agent: Agent,
+  locationAtUri: string
+): Promise<PutRecordResponse<AppGainforestOrganizationDefaultSite.Record>> => {
+  const did = agent.did;
+  if (!did) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action.",
     });
+  }
+
+  // Validate URI format
+  if (!(locationAtUri.startsWith("at://") && locationAtUri.includes(LOCATION_COLLECTION))) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Invalid location URI format.",
+    });
+  }
+
+  // Verify the location exists
+  const [, locationError] = await tryCatch(
+    getRecord({
+      agent,
+      collection: LOCATION_COLLECTION,
+      repo: did,
+      rkey: parseAtUri(locationAtUri).rkey,
+      validator: AppCertifiedLocation,
+      resourceName: "location",
+    })
+  );
+
+  if (locationError !== null) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "The specified location was not found.",
+      cause: locationError,
+    });
+  }
+
+  // Create the default site record
+  const defaultSite: AppGainforestOrganizationDefaultSite.Record = {
+    $type: DEFAULT_SITE_COLLECTION,
+    site: locationAtUri,
+    createdAt: new Date().toISOString(),
+  };
+
+  return putRecord({
+    agent,
+    collection: DEFAULT_SITE_COLLECTION,
+    repo: did,
+    rkey: "self",
+    record: defaultSite,
+    validator: AppGainforestOrganizationDefaultSite,
+    resourceName: "default location",
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for setting the default location.
+ */
+export const setDefaultLocationFactory = createMutationFactory(
+  {
+    locationAtUri: z.string(),
+  },
+  (agent, input) => setDefaultLocationPure(agent, input.locationAtUri)
+);

@@ -1,6 +1,6 @@
 'use strict';
 
-var z12 = require('zod');
+var z8 = require('zod');
 var api = require('@atproto/api');
 var server = require('@trpc/server');
 var headers = require('next/headers');
@@ -13,7 +13,7 @@ var turf = require('@turf/turf');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
-var z12__default = /*#__PURE__*/_interopDefault(z12);
+var z8__default = /*#__PURE__*/_interopDefault(z8);
 var superjson__default = /*#__PURE__*/_interopDefault(superjson);
 
 var __defProp = Object.defineProperty;
@@ -82,49 +82,52 @@ var tryCatch = async (promise) => {
     return [null, error];
   }
 };
-var resumeFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12__default.default.object({
-      service: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const session = await getSessionFromRequest(input.service);
-    if (!session) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "No session found"
-      });
-    }
-    const credentialSession = new api.CredentialSession(
-      new URL(`https://${input.service}`)
-    );
-    const resumeSessionPromise = credentialSession.resumeSession({
+var resumePure = async (service) => {
+  const session = await getSessionFromRequest(service);
+  if (!session) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "No active session found. Please log in."
+    });
+  }
+  const credentialSession = new api.CredentialSession(
+    new URL(`https://${service}`)
+  );
+  const [resumeSessionResult, resumeSessionError] = await tryCatch(
+    credentialSession.resumeSession({
       accessJwt: session.accessJwt,
       refreshJwt: session.refreshJwt,
       handle: session.handle,
       did: session.did,
       active: true
+    })
+  );
+  if (resumeSessionError !== null) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Failed to resume session. Please log in again.",
+      cause: resumeSessionError
     });
-    const [resumeSessionResult, resumeSessionError] = await tryCatch(resumeSessionPromise);
-    if (resumeSessionError) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to resume session",
-        cause: resumeSessionError
-      });
-    }
-    if (!resumeSessionResult.success) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to resume session",
-        cause: "Session could not be resumed successfully"
-      });
-    }
-    return {
-      did: resumeSessionResult.data.did,
-      handle: resumeSessionResult.data.handle,
-      service: input.service
-    };
+  }
+  if (resumeSessionResult === null || !resumeSessionResult.success) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Failed to resume session. Please log in again."
+    });
+  }
+  return {
+    did: resumeSessionResult.data.did,
+    handle: resumeSessionResult.data.handle,
+    service
+  };
+};
+var resumeFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(
+    z8__default.default.object({
+      service: allowedPDSDomainSchema
+    })
+  ).query(async ({ input }) => {
+    return resumePure(input.service);
   });
 };
 
@@ -167,13 +170,13 @@ async function clearSession(service = "climateai.org") {
   const cookieStore = await headers.cookies();
   cookieStore.delete(`${service}_session`);
 }
-var BlobRefGeneratorSchema = z12__default.default.object({
-  $type: z12__default.default.literal("blob-ref-generator"),
-  ref: z12__default.default.object({
-    $link: z12__default.default.string()
+var BlobRefGeneratorSchema = z8__default.default.object({
+  $type: z8__default.default.literal("blob-ref-generator"),
+  ref: z8__default.default.object({
+    $link: z8__default.default.string()
   }),
-  mimeType: z12__default.default.string(),
-  size: z12__default.default.number()
+  mimeType: z8__default.default.string(),
+  size: z8__default.default.number()
 });
 var toBlobRef = (input) => {
   const validCID = cid.CID.parse(
@@ -288,93 +291,139 @@ var getWriteAgent = async (pdsDomain) => {
     });
   return new api.Agent(credentialSession);
 };
-var FileGeneratorSchema = z12__default.default.object({
-  name: z12__default.default.string(),
-  type: z12__default.default.string(),
-  dataBase64: z12__default.default.string()
+
+// src/_internal/server/utils/procedure-factories.ts
+function createDidQueryFactory(handler) {
+  return (allowedPDSDomainSchema) => publicProcedure.input(
+    z8.z.object({
+      did: z8.z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(({ input }) => handler(input.did, input.pdsDomain));
+}
+function createDidRkeyQueryFactory(handler) {
+  return (allowedPDSDomainSchema) => publicProcedure.input(
+    z8.z.object({
+      did: z8.z.string(),
+      rkey: z8.z.string(),
+      pdsDomain: allowedPDSDomainSchema
+    })
+  ).query(({ input }) => handler(input.did, input.rkey, input.pdsDomain));
+}
+function createMutationFactory(additionalInput, handler) {
+  return (allowedPDSDomainSchema) => protectedProcedure.input(
+    z8.z.object({
+      did: z8.z.string(),
+      pdsDomain: allowedPDSDomainSchema,
+      ...additionalInput
+    })
+  ).mutation(async ({ input }) => {
+    const typedInput = input;
+    const agent = await getWriteAgent(typedInput.pdsDomain);
+    return handler(agent, typedInput);
+  });
+}
+var FileGeneratorSchema = z8__default.default.object({
+  name: z8__default.default.string(),
+  type: z8__default.default.string(),
+  dataBase64: z8__default.default.string()
 });
 var toFile = async (fileGenerator) => {
-  const file2 = new File(
+  const file = new File(
     [Buffer.from(fileGenerator.dataBase64, "base64")],
     fileGenerator.name,
     { type: fileGenerator.type }
   );
-  return file2;
+  return file;
 };
-var uploadFileAsBlobPure = async (file2, agent) => {
+
+// src/_internal/server/routers/atproto/common/uploadFileAsBlob.ts
+var uploadFileAsBlobPure = async (file, agent) => {
   let fileToUpload;
-  if (file2 instanceof File) {
-    fileToUpload = file2;
+  if (file instanceof File) {
+    fileToUpload = file;
   } else {
-    fileToUpload = await toFile(file2);
+    fileToUpload = await toFile(file);
   }
-  const response = await agent.uploadBlob(fileToUpload);
-  if (response.success !== true) {
+  const [response, error] = await tryCatch(agent.uploadBlob(fileToUpload));
+  if (error !== null) {
     throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to upload file as blob."
+      message: "Failed to upload file.",
+      cause: error
+    });
+  }
+  if (response === null || response.success !== true) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to upload file."
     });
   }
   return response.data;
 };
-var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12__default.default.object({
-      file: FileGeneratorSchema,
-      pdsDomain: allowedPDSDomainSchema
+var uploadFileAsBlobFactory = createMutationFactory(
+  {
+    file: FileGeneratorSchema
+  },
+  (agent, input) => uploadFileAsBlobPure(input.file, agent)
+);
+var loginPure = async (handlePrefix, password, service) => {
+  const session = new api.CredentialSession(new URL(`https://${service}`));
+  const [result, error] = await tryCatch(
+    session.login({
+      identifier: `${handlePrefix}.${service}`,
+      password
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    const response = await uploadFileAsBlobPure(input.file, agent);
-    return response;
-  });
+  );
+  if (error !== null) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Login failed. Please check your credentials.",
+      cause: error
+    });
+  }
+  if (result === null || !result.success) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Login failed. Please check your credentials."
+    });
+  }
+  const context = {
+    accessJwt: result.data.accessJwt,
+    refreshJwt: result.data.refreshJwt,
+    did: result.data.did,
+    handle: result.data.handle
+  };
+  await saveSession(context, service);
+  return {
+    did: context.did,
+    handle: context.handle,
+    service
+  };
 };
 var loginFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12__default.default.object({
-      handlePrefix: z12__default.default.string().regex(/^^[a-zA-Z0-9-]+$/),
+    z8__default.default.object({
+      handlePrefix: z8__default.default.string().regex(/^[a-zA-Z0-9-]+$/),
       // alphanumerics and hyphens only
       service: allowedPDSDomainSchema,
-      password: z12__default.default.string()
+      password: z8__default.default.string()
     })
   ).mutation(async ({ input }) => {
-    const session = new api.CredentialSession(
-      new URL(`https://${input.service}`)
-    );
-    const result = await session.login({
-      identifier: `${input.handlePrefix}.${input.service}`,
-      password: input.password
-    });
-    if (!result.success) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Login failed"
-      });
-    }
-    const context = {
-      accessJwt: result.data.accessJwt,
-      refreshJwt: result.data.refreshJwt,
-      did: result.data.did,
-      handle: result.data.handle
-    };
-    await saveSession(context, input.service);
-    return {
-      did: context.did,
-      handle: context.handle,
-      service: input.service
-    };
+    return loginPure(input.handlePrefix, input.password, input.service);
   });
+};
+var logoutPure = async (service) => {
+  await clearSession(service);
+  return { success: true };
 };
 var logoutFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12__default.default.object({
+    z8__default.default.object({
       service: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
-    await clearSession(input.service);
-    return {
-      success: true
-    };
+    return logoutPure(input.service);
   });
 };
 
@@ -2509,35 +2558,53 @@ function isMain8(v) {
 function validateMain8(v) {
   return validate9(v, id8, hashMain8, true);
 }
-var xrpcErrorToTRPCError = (error) => {
+var createErrorMessage = {
+  fetchFailed: (resource) => `Failed to fetch ${resource}.`,
+  listFailed: (resource) => `Failed to list ${resource}.`,
+  createFailed: (resource) => `Failed to create ${resource}.`,
+  updateFailed: (resource) => `Failed to update ${resource}.`,
+  deleteFailed: (resource) => `Failed to delete ${resource}.`,
+  notFound: (resource) => `The ${resource} was not found.`,
+  invalidData: (resource) => `The ${resource} data is invalid or malformed.`,
+  unauthorized: () => "You are not authorized to perform this action.",
+  unknown: () => "An unexpected error occurred. Please try again."
+};
+var handleXrpcError = (error, resource) => {
   if (error.error === "InvalidRequest") {
-    return new server.TRPCError({
+    throw new server.TRPCError({
       code: "BAD_REQUEST",
-      message: "This resource does not exist."
-    });
-  } else if (error.error === "RecordNotFound") {
-    return new server.TRPCError({
-      code: "NOT_FOUND",
-      message: "The resource you are looking for does not exist."
-    });
-  } else {
-    console.error("xrpc error could not be classified by trpc. error:", error);
-    return new server.TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "An unknown error occurred."
+      message: createErrorMessage.invalidData(resource),
+      cause: error
     });
   }
+  if (error.error === "RecordNotFound") {
+    throw new server.TRPCError({
+      code: "NOT_FOUND",
+      message: createErrorMessage.notFound(resource),
+      cause: error
+    });
+  }
+  if (error.error === "AuthRequired" || error.error === "InvalidToken") {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: createErrorMessage.unauthorized(),
+      cause: error
+    });
+  }
+  throw new server.TRPCError({
+    code: "INTERNAL_SERVER_ERROR",
+    message: createErrorMessage.unknown(),
+    cause: error
+  });
 };
-var validateRecordOrThrow = (record, {
-  validateRecord
-}) => {
+var validateRecord = (record, validator, resource) => {
   let validationResponse;
   try {
-    validationResponse = validateRecord(record);
+    validationResponse = validator.validateRecord(record);
   } catch (error) {
     throw new server.TRPCError({
       code: "UNPROCESSABLE_CONTENT",
-      message: "Invalid record",
+      message: createErrorMessage.invalidData(resource),
       cause: error
     });
   }
@@ -2550,125 +2617,281 @@ var validateRecordOrThrow = (record, {
   }
   return validationResponse.value;
 };
-
-// src/_internal/server/routers/atproto/gainforest/organization/info/get.ts
-var getOrganizationInfoPure = async (did, pdsDomain) => {
-  const agent = getReadAgent(pdsDomain);
-  const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: "app.gainforest.organization.info",
-    repo: did,
-    rkey: "self"
-  });
-  const [response, error] = await tryCatch(getRecordPromise);
-  if (error) {
-    console.log(
-      "FETCHING_ORG_INFO_ERROR:",
-      JSON.stringify({ did, pdsDomain, error })
-    );
-    if (error instanceof xrpc.XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(error);
-      throw trpcError;
-    } else {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred."
-      });
-    }
+var handleOperationError = (error, resource, operation) => {
+  if (error instanceof xrpc.XRPCError) {
+    handleXrpcError(error, resource);
   }
-  if (response.success !== true) {
-    console.log(
-      "FETCHING_ORG_INFO_ERROR: response.success is not true",
-      JSON.stringify({ did, pdsDomain })
-    );
+  if (error instanceof server.TRPCError) {
+    throw error;
+  }
+  const messageMap = {
+    fetch: createErrorMessage.fetchFailed,
+    list: createErrorMessage.listFailed,
+    create: createErrorMessage.createFailed,
+    update: createErrorMessage.updateFailed,
+    delete: createErrorMessage.deleteFailed
+  };
+  throw new server.TRPCError({
+    code: "INTERNAL_SERVER_ERROR",
+    message: messageMap[operation](resource),
+    cause: error
+  });
+};
+var getRecord = async ({
+  agent,
+  collection,
+  repo,
+  rkey,
+  validator,
+  resourceName
+}) => {
+  const [response, error] = await tryCatch(
+    agent.com.atproto.repo.getRecord({ collection, repo, rkey })
+  );
+  if (error !== null) {
+    handleOperationError(error, resourceName, "fetch");
+  }
+  if (response === null || !response.success) {
     throw new server.TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to get organization info."
+      message: createErrorMessage.fetchFailed(resourceName)
     });
   }
-  validateRecordOrThrow(response.data.value, info_exports);
-  console.log("FETCHING_ORG_INFO_SUCCESS", JSON.stringify({ did, pdsDomain }));
-  return response.data;
+  const validatedValue = validateRecord(response.data.value, validator, resourceName);
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    value: validatedValue
+  };
 };
-var getOrganizationInfoFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(z12.z.object({ did: z12.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
-    return await getOrganizationInfoPure(input.did, input.pdsDomain);
-  });
-};
-var getLocationFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const response = await agent.com.atproto.repo.getRecord({
-      collection: "app.certified.location",
-      repo: input.did,
-      rkey: input.rkey
+var listRecords = async ({
+  agent,
+  collection,
+  repo,
+  validator,
+  resourceName,
+  skipInvalid = true,
+  limit,
+  cursor
+}) => {
+  const [response, error] = await tryCatch(
+    agent.com.atproto.repo.listRecords({ collection, repo, limit, cursor })
+  );
+  if (error !== null) {
+    handleOperationError(error, resourceName, "list");
+  }
+  if (response === null || !response.success) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: createErrorMessage.listFailed(resourceName)
     });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get the location"
+  }
+  const validatedRecords = [];
+  for (const record of response.data.records) {
+    try {
+      const validatedValue = validateRecord(record.value, validator, resourceName);
+      validatedRecords.push({
+        uri: record.uri,
+        cid: record.cid,
+        value: validatedValue
       });
+    } catch (validationError) {
+      if (!skipInvalid) {
+        throw validationError;
+      }
     }
-    validateRecordOrThrow(response.data.value, location_exports);
-    return response.data;
-  });
+  }
+  return {
+    records: validatedRecords,
+    cursor: response.data.cursor
+  };
 };
-var getDefaultLocationFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
-      pdsDomain: allowedPDSDomainSchema
+var createRecord = async ({
+  agent,
+  collection,
+  repo,
+  record,
+  validator,
+  resourceName,
+  rkey
+}) => {
+  const validatedRecord = validateRecord(record, validator, resourceName);
+  const [response, error] = await tryCatch(
+    agent.com.atproto.repo.createRecord({
+      collection,
+      repo,
+      record: validatedRecord,
+      rkey
     })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const response = await agent.com.atproto.repo.getRecord({
-      collection: "app.gainforest.organization.defaultSite",
-      repo: input.did,
-      rkey: "self"
+  );
+  if (error !== null) {
+    handleOperationError(error, resourceName, "create");
+  }
+  if (response === null || !response.success) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: createErrorMessage.createFailed(resourceName)
     });
-    if (response.success !== true) {
-      throw new Error("Failed to get default location");
-    }
-    validateRecordOrThrow(
-      response.data.value,
-      defaultSite_exports
-    );
-    return response.data;
-  });
+  }
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    validationStatus: response.data.validationStatus,
+    value: validatedRecord
+  };
 };
-var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
-      pdsDomain: allowedPDSDomainSchema
+var putRecord = async ({
+  agent,
+  collection,
+  repo,
+  rkey,
+  record,
+  validator,
+  resourceName
+}) => {
+  const validatedRecord = validateRecord(record, validator, resourceName);
+  const [response, error] = await tryCatch(
+    agent.com.atproto.repo.putRecord({
+      collection,
+      repo,
+      rkey,
+      record: validatedRecord
     })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const nsid = "app.gainforest.organization.observations.measuredTreesCluster";
-    const response = await agent.com.atproto.repo.getRecord({
-      collection: nsid,
-      repo: input.did,
-      rkey: "self"
+  );
+  if (error !== null) {
+    handleOperationError(error, resourceName, "update");
+  }
+  if (response === null || !response.success) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: createErrorMessage.updateFailed(resourceName)
     });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get measured trees"
-      });
-    }
-    validateRecordOrThrow(response.data.value, measuredTreesCluster_exports);
-    return response.data;
+  }
+  return {
+    uri: response.data.uri,
+    cid: response.data.cid,
+    validationStatus: response.data.validationStatus,
+    value: validatedRecord
+  };
+};
+var deleteRecord = async ({
+  agent,
+  collection,
+  repo,
+  rkey,
+  resourceName
+}) => {
+  const [response, error] = await tryCatch(
+    agent.com.atproto.repo.deleteRecord({ collection, repo, rkey })
+  );
+  if (error !== null) {
+    handleOperationError(error, resourceName, "delete");
+  }
+  if (response === null || !response.success) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: createErrorMessage.deleteFailed(resourceName)
+    });
+  }
+  return { success: true };
+};
+var createOrUpdateRecord = async ({
+  agent,
+  collection,
+  repo,
+  record,
+  validator,
+  resourceName,
+  rkey
+}) => {
+  if (rkey) {
+    return putRecord({
+      agent,
+      collection,
+      repo,
+      rkey,
+      record,
+      validator,
+      resourceName
+    });
+  }
+  return createRecord({
+    agent,
+    collection,
+    repo,
+    record,
+    validator,
+    resourceName
   });
 };
-var StrongRefSchema = z12__default.default.object({
-  $type: z12__default.default.literal("com.atproto.repo.strongRef").optional(),
-  uri: z12__default.default.string().regex(/^at:\/\//),
-  cid: z12__default.default.string()
+
+// src/_internal/server/routers/atproto/gainforest/organization/info/get.ts
+var COLLECTION = "app.gainforest.organization.info";
+var RESOURCE_NAME = "organization info";
+var getOrganizationInfoPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    rkey: "self",
+    validator: info_exports,
+    resourceName: RESOURCE_NAME
+  });
+};
+var getOrganizationInfoFactory = createDidQueryFactory(getOrganizationInfoPure);
+
+// src/_internal/server/routers/atproto/hypercerts/location/get.ts
+var COLLECTION2 = "app.certified.location";
+var RESOURCE_NAME2 = "location";
+var getLocationPure = async (did, rkey, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION2,
+    repo: did,
+    rkey,
+    validator: location_exports,
+    resourceName: RESOURCE_NAME2
+  });
+};
+var getLocationFactory = createDidRkeyQueryFactory(getLocationPure);
+
+// src/_internal/server/routers/atproto/hypercerts/location/getDefault.ts
+var COLLECTION3 = "app.gainforest.organization.defaultSite";
+var RESOURCE_NAME3 = "default location";
+var getDefaultLocationPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION3,
+    repo: did,
+    rkey: "self",
+    validator: defaultSite_exports,
+    resourceName: RESOURCE_NAME3
+  });
+};
+var getDefaultLocationFactory = createDidQueryFactory(getDefaultLocationPure);
+
+// src/_internal/server/routers/atproto/gainforest/organization/observations/measuredTreesCluster/get.ts
+var COLLECTION4 = "app.gainforest.organization.observations.measuredTreesCluster";
+var RESOURCE_NAME4 = "measured trees cluster";
+var getMeasuredTreesClusterPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION4,
+    repo: did,
+    rkey: "self",
+    validator: measuredTreesCluster_exports,
+    resourceName: RESOURCE_NAME4
+  });
+};
+var getMeasuredTreesFactory = createDidQueryFactory(getMeasuredTreesClusterPure);
+var StrongRefSchema = z8__default.default.object({
+  $type: z8__default.default.literal("com.atproto.repo.strongRef").optional(),
+  uri: z8__default.default.string().regex(/^at:\/\//),
+  cid: z8__default.default.string()
 });
 
 // src/_internal/server/utils/ownership.ts
@@ -2681,218 +2904,194 @@ var checkOwnershipByAtUri = (atUri, userDid) => {
 };
 
 // src/_internal/server/routers/atproto/hypercerts/claim/activity/create.ts
+var ACTIVITY_COLLECTION = "org.hypercerts.claim.activity";
+var CONTRIBUTION_COLLECTION = "org.hypercerts.claim.contribution";
+var ClaimActivityInputSchema = z8__default.default.object({
+  title: z8__default.default.string().min(1, "Title is required"),
+  shortDescription: z8__default.default.string().min(1, "Short description is required"),
+  description: z8__default.default.string().optional(),
+  locations: StrongRefSchema.array().min(1, "At least one location is required"),
+  project: z8__default.default.string().optional(),
+  workScopes: z8__default.default.array(z8__default.default.string()).min(1, "At least one work scope is required"),
+  startDate: z8__default.default.string(),
+  endDate: z8__default.default.string(),
+  contributors: z8__default.default.array(z8__default.default.string()).min(1, "At least one contributor is required"),
+  createdAt: z8__default.default.string().optional()
+});
+var ClaimActivityUploadsSchema = z8__default.default.object({
+  image: FileGeneratorSchema
+});
 var uploadFile = async (fileGenerator, agent) => {
-  const file2 = new File(
+  const file = new File(
     [Buffer.from(fileGenerator.dataBase64, "base64")],
     fileGenerator.name,
     { type: fileGenerator.type }
   );
-  const response = await agent.uploadBlob(file2);
+  const response = await agent.uploadBlob(file);
   return toBlobRefGenerator(response.data.blob);
 };
-var createClaimActivityFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12__default.default.object({
-      activity: z12__default.default.object({
-        title: z12__default.default.string(),
-        shortDescription: z12__default.default.string(),
-        description: z12__default.default.string().optional(),
-        locations: StrongRefSchema.array(),
-        project: z12__default.default.string().optional(),
-        workScopes: z12__default.default.array(z12__default.default.string()),
-        startDate: z12__default.default.string(),
-        endDate: z12__default.default.string(),
-        contributors: z12__default.default.array(z12__default.default.string()).refine((v) => v.length > 0, {
-          message: "At least one contributor is required"
-        }),
-        createdAt: z12__default.default.string().optional()
-      }),
-      uploads: z12__default.default.object({
-        image: FileGeneratorSchema
-      }),
-      pdsDomain: allowedPDSDomainSchema
+var createClaimActivityPure = async (agent, activityInput, uploads) => {
+  const did = agent.did;
+  if (!did) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action."
+    });
+  }
+  for (const location of activityInput.locations) {
+    if (!checkOwnershipByAtUri(location.uri, did)) {
+      throw new server.TRPCError({
+        code: "FORBIDDEN",
+        message: "One of the locations being referenced is not owned by you."
+      });
+    }
+  }
+  if (activityInput.project) {
+    if (!checkOwnershipByAtUri(activityInput.project, did)) {
+      throw new server.TRPCError({
+        code: "FORBIDDEN",
+        message: "The project being referenced is not owned by you."
+      });
+    }
+  }
+  const [imageBlobRef, uploadError] = await tryCatch(
+    uploadFile(uploads.image, agent)
+  );
+  if (uploadError !== null || !imageBlobRef) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to upload the activity image.",
+      cause: uploadError
+    });
+  }
+  const activity = {
+    $type: ACTIVITY_COLLECTION,
+    title: activityInput.title,
+    shortDescription: activityInput.shortDescription,
+    description: activityInput.description,
+    image: {
+      $type: "org.hypercerts.defs#smallImage",
+      image: toBlobRef(imageBlobRef)
+    },
+    location: activityInput.locations,
+    project: activityInput.project,
+    workScope: {
+      $type: "org.hypercerts.claim.activity#workScope",
+      withinAnyOf: activityInput.workScopes
+    },
+    startDate: activityInput.startDate,
+    endDate: activityInput.endDate,
+    createdAt: activityInput.createdAt ?? (/* @__PURE__ */ new Date()).toISOString()
+  };
+  const activityResult = await createRecord({
+    agent,
+    collection: ACTIVITY_COLLECTION,
+    repo: did,
+    record: activity,
+    validator: activity_exports,
+    resourceName: "claim activity"
+  });
+  const contribution = {
+    $type: CONTRIBUTION_COLLECTION,
+    hypercert: {
+      $type: "com.atproto.repo.strongRef",
+      uri: activityResult.uri,
+      cid: activityResult.cid
+    },
+    role: "Contributor",
+    contributors: activityInput.contributors,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  const [, contributionError] = await tryCatch(
+    createRecord({
+      agent,
+      collection: CONTRIBUTION_COLLECTION,
+      repo: did,
+      record: contribution,
+      validator: contribution_exports,
+      resourceName: "contribution"
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    const did = agent.did;
-    if (!did) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authorized to perform this action."
-      });
-    }
-    const activityNSID = "org.hypercerts.claim.activity";
-    const activity = {
-      $type: activityNSID,
-      title: input.activity.title,
-      shortDescription: input.activity.shortDescription,
-      description: input.activity.description,
-      // These will be set later in the function:
-      image: void 0,
-      contributions: void 0,
-      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      location: input.activity.locations,
-      project: input.activity.project,
-      workScope: {
-        $type: "org.hypercerts.claim.activity#workScope",
-        withinAnyOf: input.activity.workScopes
-      },
-      startDate: input.activity.startDate,
-      endDate: input.activity.endDate,
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    const validatedActivity = validateRecordOrThrow(
-      activity,
-      activity_exports
-    );
-    const contributionNSID = "org.hypercerts.claim.contribution";
-    const contribution = {
-      $type: "org.hypercerts.claim.contribution",
-      // Use dummy hypercert reference for now because the activity record is not yet created:
-      hypercert: {
-        $type: "com.atproto.repo.strongRef",
-        uri: `at://${did}/org.hypercerts.claim.activity/0`,
-        cid: "bafkreifj2t4px2uizj25ml53axem47yfhpgsx72ekjrm2qyymcn5ifz744"
-      },
-      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      role: "Contributor",
-      contributors: input.activity.contributors,
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    const validatedContribution = validateRecordOrThrow(
-      contribution,
-      contribution_exports
-    );
-    for (const location of input.activity.locations) {
-      if (!checkOwnershipByAtUri(location.uri, did)) {
-        throw new server.TRPCError({
-          code: "FORBIDDEN",
-          message: "One of the locations being referenced is not owned by you."
-        });
-      }
-    }
-    if (input.activity.project) {
-      if (!checkOwnershipByAtUri(input.activity.project, did)) {
-        throw new server.TRPCError({
-          code: "FORBIDDEN",
-          message: "The project being referenced is not owned by you."
-        });
-      }
-    }
-    const imageBlobRef = await uploadFile(input.uploads.image, agent);
-    const activityResponse = await agent.com.atproto.repo.createRecord({
-      repo: did,
-      collection: activityNSID,
-      record: {
-        ...validatedActivity,
-        image: {
-          $type: "org.hypercerts.defs#smallImage",
-          image: toBlobRef(imageBlobRef)
-        }
-      }
+  );
+  if (contributionError !== null) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to create the contribution record.",
+      cause: contributionError
     });
-    if (activityResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to write activity record"
-      });
-    }
-    const contributionWriteResponse = await agent.com.atproto.repo.createRecord({
-      repo: did,
-      collection: contributionNSID,
-      record: {
-        ...validatedContribution,
-        hypercert: {
-          $type: "com.atproto.repo.strongRef",
-          uri: activityResponse.data.uri,
-          cid: activityResponse.data.cid
-        }
-      }
-    });
-    if (contributionWriteResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to write contribution record"
-      });
-    }
-    return activityResponse;
+  }
+  return activityResult;
+};
+var createClaimActivityFactory = createMutationFactory(
+  {
+    activity: ClaimActivityInputSchema,
+    uploads: ClaimActivityUploadsSchema
+  },
+  (agent, input) => createClaimActivityPure(agent, input.activity, input.uploads)
+);
+var COLLECTION5 = "app.gainforest.organization.info";
+var RESOURCE_NAME5 = "organization info";
+var ObjectivesSchema = z8__default.default.enum([
+  "Conservation",
+  "Research",
+  "Education",
+  "Community",
+  "Other"
+]);
+var VisibilitySchema = z8__default.default.enum(["Public", "Hidden"]);
+var OrganizationInfoInputSchema = z8__default.default.object({
+  displayName: z8__default.default.string().min(1, "Display name is required"),
+  shortDescription: z8__default.default.string().min(1, "Short description is required"),
+  longDescription: z8__default.default.string().min(1, "Long description is required"),
+  website: z8__default.default.string().url("Website must be a valid URL").optional(),
+  logo: BlobRefGeneratorSchema.optional(),
+  coverImage: BlobRefGeneratorSchema.optional(),
+  objectives: z8__default.default.array(ObjectivesSchema).min(1, "At least one objective is required"),
+  startDate: z8__default.default.string().datetime().optional(),
+  country: z8__default.default.string().min(1, "Country is required"),
+  visibility: VisibilitySchema,
+  createdAt: z8__default.default.string().datetime().optional()
+});
+var OrganizationInfoUploadsSchema = z8__default.default.object({
+  logo: FileGeneratorSchema.optional(),
+  coverImage: FileGeneratorSchema.optional()
+});
+var createOrUpdateOrganizationInfoPure = async (agent, did, infoInput, uploads) => {
+  const logoBlob = uploads?.logo ? (await uploadFileAsBlobPure(uploads.logo, agent)).blob : infoInput.logo ? toBlobRef(infoInput.logo) : void 0;
+  const coverImageBlob = uploads?.coverImage ? (await uploadFileAsBlobPure(uploads.coverImage, agent)).blob : infoInput.coverImage ? toBlobRef(infoInput.coverImage) : void 0;
+  const info = {
+    $type: COLLECTION5,
+    displayName: infoInput.displayName,
+    shortDescription: infoInput.shortDescription,
+    longDescription: infoInput.longDescription,
+    website: infoInput.website,
+    logo: logoBlob ? { $type: "app.gainforest.common.defs#smallImage", image: logoBlob } : void 0,
+    coverImage: coverImageBlob ? { $type: "app.gainforest.common.defs#smallImage", image: coverImageBlob } : void 0,
+    objectives: infoInput.objectives,
+    startDate: infoInput.startDate,
+    country: infoInput.country,
+    visibility: infoInput.visibility,
+    createdAt: infoInput.createdAt ?? (/* @__PURE__ */ new Date()).toISOString()
+  };
+  return putRecord({
+    agent,
+    collection: COLLECTION5,
+    repo: did,
+    rkey: "self",
+    record: info,
+    validator: info_exports,
+    resourceName: RESOURCE_NAME5
   });
 };
-var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
-      info: z12__default.default.object({
-        displayName: z12__default.default.string(),
-        shortDescription: z12__default.default.string(),
-        longDescription: z12__default.default.string(),
-        website: z12__default.default.string().optional(),
-        logo: BlobRefGeneratorSchema.optional(),
-        coverImage: BlobRefGeneratorSchema.optional(),
-        objectives: z12__default.default.array(
-          z12__default.default.enum([
-            "Conservation",
-            "Research",
-            "Education",
-            "Community",
-            "Other"
-          ])
-        ),
-        startDate: z12__default.default.string().optional(),
-        country: z12__default.default.string(),
-        visibility: z12__default.default.enum(["Public", "Hidden"]),
-        createdAt: z12__default.default.string().optional()
-      }),
-      uploads: z12__default.default.object({
-        logo: FileGeneratorSchema.optional(),
-        coverImage: FileGeneratorSchema.optional()
-      }).optional(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    const logoBlob = input.uploads?.logo ? (await uploadFileAsBlobPure(input.uploads.logo, agent)).blob : input.info.logo ? toBlobRef(input.info.logo) : void 0;
-    const coverImageBlob = input.uploads?.coverImage ? (await uploadFileAsBlobPure(input.uploads.coverImage, agent)).blob : input.info.coverImage ? toBlobRef(input.info.coverImage) : void 0;
-    const info = {
-      $type: "app.gainforest.organization.info",
-      displayName: input.info.displayName,
-      shortDescription: input.info.shortDescription,
-      longDescription: input.info.longDescription,
-      website: input.info.website ? input.info.website : void 0,
-      logo: logoBlob ? {
-        $type: "app.gainforest.common.defs#smallImage",
-        image: logoBlob
-      } : void 0,
-      coverImage: coverImageBlob ? {
-        $type: "app.gainforest.common.defs#smallImage",
-        image: coverImageBlob
-      } : void 0,
-      objectives: input.info.objectives,
-      startDate: input.info.startDate ? input.info.startDate : void 0,
-      country: input.info.country,
-      visibility: input.info.visibility,
-      createdAt: input.info.createdAt ? input.info.createdAt : (/* @__PURE__ */ new Date()).toISOString()
-    };
-    validateRecordOrThrow(info, info_exports);
-    const response = await agent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection: "app.gainforest.organization.info",
-      record: info,
-      rkey: "self"
-    });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to update organization info"
-      });
-    }
-    return {
-      ...response.data,
-      value: info
-    };
-  });
-};
-var LayerTypeEnum = z12__default.default.enum([
+var createOrUpdateOrganizationInfoFactory = createMutationFactory(
+  {
+    info: OrganizationInfoInputSchema,
+    uploads: OrganizationInfoUploadsSchema.optional()
+  },
+  (agent, input) => createOrUpdateOrganizationInfoPure(agent, input.did, input.info, input.uploads)
+);
+var COLLECTION6 = "app.gainforest.organization.layer";
+var RESOURCE_NAME6 = "layer";
+var LayerTypeSchema = z8__default.default.enum([
   "geojson_points",
   "geojson_points_trees",
   "geojson_line",
@@ -2901,125 +3100,72 @@ var LayerTypeEnum = z12__default.default.enum([
   "raster_tif",
   "tms_tile"
 ]);
-var createOrUpdateLayerFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
-      rkey: z12__default.default.string().optional(),
-      layer: z12__default.default.object({
-        name: z12__default.default.string(),
-        type: LayerTypeEnum,
-        uri: z12__default.default.string(),
-        description: z12__default.default.string().optional(),
-        createdAt: z12__default.default.string().optional()
-      }),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    const layer = {
-      $type: "app.gainforest.organization.layer",
-      name: input.layer.name,
-      type: input.layer.type,
-      uri: input.layer.uri,
-      description: input.layer.description,
-      createdAt: input.layer.createdAt ? input.layer.createdAt : (/* @__PURE__ */ new Date()).toISOString()
-    };
-    const validatedLayer = validateRecordOrThrow(
-      layer,
-      layer_exports
-    );
-    const collection = "app.gainforest.organization.layer";
-    const response = input.rkey ? await agent.com.atproto.repo.putRecord({
-      repo: input.did,
-      collection,
-      record: validatedLayer,
-      rkey: input.rkey
-    }) : await agent.com.atproto.repo.createRecord({
-      repo: input.did,
-      collection,
-      record: validatedLayer
-    });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to create or update layer"
-      });
-    }
-    return {
-      uri: response.data.uri,
-      cid: response.data.cid,
-      validationStatus: response.data.validationStatus,
-      value: validatedLayer
-    };
+var LayerInputSchema = z8__default.default.object({
+  name: z8__default.default.string().min(1, "Layer name is required"),
+  type: LayerTypeSchema,
+  uri: z8__default.default.string().url("Layer URI must be a valid URL"),
+  description: z8__default.default.string().optional(),
+  createdAt: z8__default.default.string().datetime().optional()
+});
+var createOrUpdateLayerPure = async (agent, did, layerInput, rkey) => {
+  const layer = {
+    $type: COLLECTION6,
+    name: layerInput.name,
+    type: layerInput.type,
+    uri: layerInput.uri,
+    description: layerInput.description,
+    createdAt: layerInput.createdAt ?? (/* @__PURE__ */ new Date()).toISOString()
+  };
+  return createOrUpdateRecord({
+    agent,
+    collection: COLLECTION6,
+    repo: did,
+    record: layer,
+    validator: layer_exports,
+    resourceName: RESOURCE_NAME6,
+    rkey
   });
 };
-var getAllLocationsFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(z12.z.object({ did: z12.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const listSitesTryCatchPromise = tryCatch(
-      agent.com.atproto.repo.listRecords({
-        collection: "app.certified.location",
-        repo: input.did
+var createOrUpdateLayerFactory = createMutationFactory(
+  {
+    layer: LayerInputSchema,
+    rkey: z8__default.default.string().optional()
+  },
+  (agent, input) => createOrUpdateLayerPure(agent, input.did, input.layer, input.rkey)
+);
+
+// src/_internal/server/routers/atproto/hypercerts/location/getAll.ts
+var LOCATION_COLLECTION = "app.certified.location";
+var DEFAULT_SITE_COLLECTION = "app.gainforest.organization.defaultSite";
+var getAllLocationsPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  const [locationsResult, defaultSiteResult] = await Promise.all([
+    listRecords({
+      agent,
+      collection: LOCATION_COLLECTION,
+      repo: did,
+      validator: location_exports,
+      resourceName: "locations",
+      skipInvalid: true
+    }),
+    tryCatch(
+      getRecord({
+        agent,
+        collection: DEFAULT_SITE_COLLECTION,
+        repo: did,
+        rkey: "self",
+        validator: defaultSite_exports,
+        resourceName: "default location"
       })
-    );
-    const getDefaultSiteTryCatchPromise = tryCatch(
-      agent.com.atproto.repo.getRecord({
-        collection: "app.certified.location",
-        repo: input.did,
-        rkey: "self"
-      })
-    );
-    const [
-      [listSitesResponse, errorListSites],
-      [getDefaultSiteResponse, errorGetDefaultSite]
-    ] = await Promise.all([
-      listSitesTryCatchPromise,
-      getDefaultSiteTryCatchPromise
-    ]);
-    if (errorListSites) {
-      if (errorListSites instanceof xrpc.XRPCError) {
-        const trpcError = xrpcErrorToTRPCError(errorListSites);
-        throw trpcError;
-      }
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred."
-      });
-    } else if (listSitesResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred."
-      });
-    }
-    const validRecords = listSitesResponse.data.records.map((record) => {
-      try {
-        validateRecordOrThrow(record.value, location_exports);
-        return record;
-      } catch {
-        return null;
-      }
-    }).filter(
-      (record) => record !== null
-    );
-    let defaultSite = null;
-    if (getDefaultSiteResponse) {
-      defaultSite = getDefaultSiteResponse.data;
-      try {
-        validateRecordOrThrow(
-          defaultSite.value,
-          defaultSite_exports
-        );
-      } catch {
-        defaultSite = null;
-      }
-    }
-    return {
-      locations: validRecords,
-      defaultLocation: defaultSite
-    };
-  });
+    )
+  ]);
+  const [defaultSite] = defaultSiteResult;
+  return {
+    locations: locationsResult.records,
+    defaultLocation: defaultSite ?? null
+  };
 };
+var getAllLocationsFactory = createDidQueryFactory(getAllLocationsPure);
 
 // src/_internal/lib/geojson/validate.ts
 function validateGeojsonOrThrow(value) {
@@ -3598,19 +3744,19 @@ async function fetchGeojsonFromUrl(url) {
       message: "Site must be a GeoJSON file"
     });
   }
-  const file2 = new File([blob], "site.geojson", {
+  const file = new File([blob], "site.geojson", {
     type: blob.type
   });
-  return file2;
+  return file;
 }
-async function processGeojsonFileOrThrow(file2) {
-  if (file2.type !== "application/geo+json") {
+async function processGeojsonFileOrThrow(file) {
+  if (file.type !== "application/geo+json") {
     throw new server.TRPCError({
       code: "BAD_REQUEST",
       message: "Site must be a GeoJSON file"
     });
   }
-  const geojsonText = await file2.text();
+  const geojsonText = await file.text();
   const geojson = JSON.parse(geojsonText);
   const [validatedGeojsonObject, geojsonValidationError] = await tryCatch(
     new Promise((r) => r(validateGeojsonOrThrow(geojson)))
@@ -3639,417 +3785,338 @@ async function processGeojsonFileOrThrow(file2) {
 }
 
 // src/_internal/server/routers/atproto/hypercerts/location/create.ts
-var createLocationFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12.z.object({
-      rkey: z12.z.string().optional(),
-      site: z12.z.object({
-        name: z12.z.string().min(1)
-      }),
-      uploads: z12.z.object({
-        shapefile: z12.z.union([z12.z.url(), FileGeneratorSchema])
-      }),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    if (!agent.did) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authenticated"
-      });
-    }
-    const file2 = typeof input.uploads.shapefile === "string" ? await fetchGeojsonFromUrl(input.uploads.shapefile) : await toFile(input.uploads.shapefile);
-    const tenMBs = 10 * 1024 * 1024;
-    if (file2.size > tenMBs) {
-      throw new server.TRPCError({
-        code: "BAD_REQUEST",
-        message: "The GeoJSON file is too large. It must be less than 10MB."
-      });
-    }
-    await processGeojsonFileOrThrow(file2);
-    const geojsonUploadResponse = await agent.uploadBlob(file2);
-    const geojsonBlobRef = geojsonUploadResponse.data.blob;
-    const nsid = "app.certified.location";
-    const site = {
-      $type: nsid,
-      name: input.site.name,
-      lpVersion: "1.0.0",
-      srs: "https://epsg.io/3857",
-      locationType: "geojson-point",
-      location: {
-        $type: "org.hypercerts.defs#smallBlob",
-        blob: geojsonBlobRef
-      },
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    validateRecordOrThrow(site, location_exports);
-    const creationResponse = await agent.com.atproto.repo.createRecord({
-      collection: nsid,
-      repo: agent.did,
-      record: site,
-      rkey: input.rkey
-    });
-    if (creationResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to add new location"
-      });
-    }
-    return creationResponse.data;
-  });
-};
-var updateLocationFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12.z.object({
-      rkey: z12.z.string(),
-      site: z12.z.object({
-        name: z12.z.string().min(1),
-        shapefile: z12.z.object({
-          $type: z12.z.literal("app.gainforest.common.defs#smallBlob"),
-          blob: BlobRefGeneratorSchema
-        }).optional()
-      }),
-      uploads: z12.z.object({
-        shapefile: FileGeneratorSchema.optional()
-      }).optional(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    if (!agent.did) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authenticated"
-      });
-    }
-    let file2 = null;
-    if (input.uploads) {
-      if (input.uploads.shapefile === void 0) {
-        file2 = null;
-      } else {
-        file2 = await toFile(input.uploads.shapefile);
-      }
-    }
-    let shapefile;
-    if (file2 !== null) {
-      await processGeojsonFileOrThrow(file2);
-      const geojsonUploadResponse = await agent.uploadBlob(file2);
-      shapefile = {
-        $type: "app.gainforest.common.defs#smallBlob",
-        blob: geojsonUploadResponse.data.blob
-      };
-    } else if (input.site.shapefile) {
-      shapefile = {
-        $type: "app.gainforest.common.defs#smallBlob",
-        blob: toBlobRef(input.site.shapefile.blob)
-      };
-    } else {
-      throw new server.TRPCError({
-        code: "BAD_REQUEST",
-        message: "No shapefile provided"
-      });
-    }
-    const nsid = "app.certified.location";
-    const site = {
-      $type: nsid,
-      name: input.site.name,
-      lpVersion: "1.0.0",
-      srs: "https://epsg.io/3857",
-      locationType: "geojson-point",
-      location: {
-        $type: "org.hypercerts.defs#smallBlob",
-        blob: shapefile.blob
-      },
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    validateRecordOrThrow(site, location_exports);
-    const updateResponse = await agent.com.atproto.repo.putRecord({
-      collection: nsid,
-      repo: agent.did,
-      record: site,
-      rkey: input.rkey
-    });
-    if (updateResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to update location"
-      });
-    }
-    return updateResponse.data;
-  });
-};
-var setDefaultLocationFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12__default.default.object({
-      locationAtUri: z12__default.default.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    if (!agent.did) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authenticated"
-      });
-    }
-    const locationUri = input.locationAtUri;
-    const siteNSID = "app.certified.location";
-    if (!(locationUri.startsWith(`at://`) && locationUri.includes(siteNSID))) {
-      throw new server.TRPCError({
-        code: "BAD_REQUEST",
-        message: "Invalid location URI"
-      });
-    }
-    const site = await agent.com.atproto.repo.getRecord({
-      collection: siteNSID,
-      repo: agent.did,
-      rkey: parseAtUri(locationUri).rkey
-    });
-    if (site.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get location"
-      });
-    }
-    const defaultSiteNSID = "app.gainforest.organization.defaultSite";
-    const defaultSite = {
-      $type: defaultSiteNSID,
-      site: locationUri,
-      createdAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
-    validateRecordOrThrow(defaultSite, defaultSite_exports);
-    const updateDefaultSiteResponse = await agent.com.atproto.repo.putRecord({
-      collection: defaultSiteNSID,
-      repo: agent.did,
-      rkey: "self",
-      record: defaultSite
-    });
-    if (updateDefaultSiteResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to update default site"
-      });
-    }
-    return updateDefaultSiteResponse.data;
-  });
-};
-var deleteLocationFactory = (allowedPDSDomainSchema) => {
-  return protectedProcedure.input(
-    z12__default.default.object({ locationAtUri: z12__default.default.string(), pdsDomain: allowedPDSDomainSchema })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
-    if (!agent.did) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You are not authenticated"
-      });
-    }
-    try {
-      const defaultSiteNSID = "app.gainforest.organization.defaultSite";
-      const defaultSiteResponse = await agent.com.atproto.repo.getRecord({
-        collection: defaultSiteNSID,
-        repo: agent.did,
-        rkey: "self"
-      });
-      if (defaultSiteResponse.success !== true)
-        throw Error("Failed to get default site");
-      validateRecordOrThrow(
-        defaultSiteResponse.data.value,
-        defaultSite_exports
-      );
-      const defaultSite = defaultSiteResponse.data.value;
-      if (defaultSite.site === input.locationAtUri) throw new Error("Equal");
-    } catch (error) {
-      if (error instanceof Error && error.message === "Equal") {
-        throw new server.TRPCError({
-          code: "BAD_REQUEST",
-          message: "Cannot delete default location"
-        });
-      }
-    }
-    const deletionResponse = await agent.com.atproto.repo.deleteRecord({
-      collection: "app.gainforest.organization.site",
-      repo: agent.did,
-      rkey: parseAtUri(input.locationAtUri).rkey
-    });
-    if (deletionResponse.success !== true)
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to delete location"
-      });
-    return deletionResponse.data;
-  });
-};
-var getAllClaimActivitiesPure = async (did, pdsDomain) => {
-  const activityNSID = "org.hypercerts.claim.activity";
-  const agent = getReadAgent(pdsDomain);
-  const [listClaimActivitiesResponse, errorListClaimActivities] = await tryCatch(
-    agent.com.atproto.repo.listRecords({
-      collection: activityNSID,
-      repo: did
-    })
-  );
-  if (errorListClaimActivities) {
-    if (errorListClaimActivities instanceof xrpc.XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(errorListClaimActivities);
-      throw trpcError;
-    }
+var COLLECTION7 = "app.certified.location";
+var RESOURCE_NAME7 = "location";
+var MAX_FILE_SIZE = 10 * 1024 * 1024;
+var LocationInputSchema = z8__default.default.object({
+  name: z8__default.default.string().min(1, "Location name is required")
+});
+var LocationUploadsSchema = z8__default.default.object({
+  shapefile: z8__default.default.union([z8__default.default.string().url(), FileGeneratorSchema])
+});
+var createLocationPure = async (agent, locationInput, uploads, rkey) => {
+  const did = agent.did;
+  if (!did) {
     throw new server.TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "An unknown error occurred."
-    });
-  } else if (listClaimActivitiesResponse.success !== true) {
-    throw new server.TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "An unknown error occurred."
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action."
     });
   }
-  const validRecords = listClaimActivitiesResponse.data.records.map((record) => {
-    try {
-      validateRecordOrThrow(record.value, activity_exports);
-      return record;
-    } catch {
-      return null;
+  const file = typeof uploads.shapefile === "string" ? await fetchGeojsonFromUrl(uploads.shapefile) : await toFile(uploads.shapefile);
+  if (file.size > MAX_FILE_SIZE) {
+    throw new server.TRPCError({
+      code: "BAD_REQUEST",
+      message: "The GeoJSON file is too large. It must be less than 10MB."
+    });
+  }
+  await processGeojsonFileOrThrow(file);
+  const [uploadResponse, uploadError] = await tryCatch(agent.uploadBlob(file));
+  if (uploadError !== null || uploadResponse === null) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to upload the GeoJSON file.",
+      cause: uploadError
+    });
+  }
+  const location = {
+    $type: COLLECTION7,
+    name: locationInput.name,
+    lpVersion: "1.0.0",
+    srs: "https://epsg.io/3857",
+    locationType: "geojson-point",
+    location: {
+      $type: "org.hypercerts.defs#smallBlob",
+      blob: uploadResponse.data.blob
+    },
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  return createRecord({
+    agent,
+    collection: COLLECTION7,
+    repo: did,
+    record: location,
+    validator: location_exports,
+    resourceName: RESOURCE_NAME7,
+    rkey
+  });
+};
+var createLocationFactory = createMutationFactory(
+  {
+    site: LocationInputSchema,
+    uploads: LocationUploadsSchema,
+    rkey: z8__default.default.string().optional()
+  },
+  (agent, input) => createLocationPure(agent, input.site, input.uploads, input.rkey)
+);
+var COLLECTION8 = "app.certified.location";
+var RESOURCE_NAME8 = "location";
+var LocationUpdateInputSchema = z8__default.default.object({
+  name: z8__default.default.string().min(1, "Location name is required"),
+  shapefile: z8__default.default.object({
+    $type: z8__default.default.literal("app.gainforest.common.defs#smallBlob"),
+    blob: BlobRefGeneratorSchema
+  }).optional()
+});
+var LocationUpdateUploadsSchema = z8__default.default.object({
+  shapefile: FileGeneratorSchema.optional()
+}).optional();
+var updateLocationPure = async (agent, rkey, locationInput, uploads) => {
+  const did = agent.did;
+  if (!did) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action."
+    });
+  }
+  let shapefileBlob;
+  if (uploads?.shapefile) {
+    const file = await toFile(uploads.shapefile);
+    await processGeojsonFileOrThrow(file);
+    const [uploadResponse, uploadError] = await tryCatch(agent.uploadBlob(file));
+    if (uploadError !== null || uploadResponse === null) {
+      throw new server.TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to upload the GeoJSON file.",
+        cause: uploadError
+      });
     }
-  }).filter(
-    (record) => record !== null
+    shapefileBlob = {
+      $type: "org.hypercerts.defs#smallBlob",
+      blob: uploadResponse.data.blob
+    };
+  } else if (locationInput.shapefile) {
+    shapefileBlob = {
+      $type: "org.hypercerts.defs#smallBlob",
+      blob: toBlobRef(locationInput.shapefile.blob)
+    };
+  } else {
+    throw new server.TRPCError({
+      code: "BAD_REQUEST",
+      message: "A shapefile is required. Provide either a new file or an existing blob reference."
+    });
+  }
+  const location = {
+    $type: COLLECTION8,
+    name: locationInput.name,
+    lpVersion: "1.0.0",
+    srs: "https://epsg.io/3857",
+    locationType: "geojson-point",
+    location: shapefileBlob,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  return putRecord({
+    agent,
+    collection: COLLECTION8,
+    repo: did,
+    rkey,
+    record: location,
+    validator: location_exports,
+    resourceName: RESOURCE_NAME8
+  });
+};
+var updateLocationFactory = createMutationFactory(
+  {
+    rkey: z8__default.default.string(),
+    site: LocationUpdateInputSchema,
+    uploads: LocationUpdateUploadsSchema
+  },
+  (agent, input) => updateLocationPure(agent, input.rkey, input.site, input.uploads)
+);
+var LOCATION_COLLECTION2 = "app.certified.location";
+var DEFAULT_SITE_COLLECTION2 = "app.gainforest.organization.defaultSite";
+var setDefaultLocationPure = async (agent, locationAtUri) => {
+  const did = agent.did;
+  if (!did) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action."
+    });
+  }
+  if (!(locationAtUri.startsWith("at://") && locationAtUri.includes(LOCATION_COLLECTION2))) {
+    throw new server.TRPCError({
+      code: "BAD_REQUEST",
+      message: "Invalid location URI format."
+    });
+  }
+  const [, locationError] = await tryCatch(
+    getRecord({
+      agent,
+      collection: LOCATION_COLLECTION2,
+      repo: did,
+      rkey: parseAtUri(locationAtUri).rkey,
+      validator: location_exports,
+      resourceName: "location"
+    })
   );
+  if (locationError !== null) {
+    throw new server.TRPCError({
+      code: "NOT_FOUND",
+      message: "The specified location was not found.",
+      cause: locationError
+    });
+  }
+  const defaultSite = {
+    $type: DEFAULT_SITE_COLLECTION2,
+    site: locationAtUri,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  return putRecord({
+    agent,
+    collection: DEFAULT_SITE_COLLECTION2,
+    repo: did,
+    rkey: "self",
+    record: defaultSite,
+    validator: defaultSite_exports,
+    resourceName: "default location"
+  });
+};
+var setDefaultLocationFactory = createMutationFactory(
+  {
+    locationAtUri: z8__default.default.string()
+  },
+  (agent, input) => setDefaultLocationPure(agent, input.locationAtUri)
+);
+var LOCATION_COLLECTION3 = "app.certified.location";
+var DEFAULT_SITE_COLLECTION3 = "app.gainforest.organization.defaultSite";
+var deleteLocationPure = async (agent, locationAtUri) => {
+  const did = agent.did;
+  if (!did) {
+    throw new server.TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You are not authorized to perform this action."
+    });
+  }
+  const [defaultSiteResult] = await tryCatch(
+    getRecord({
+      agent,
+      collection: DEFAULT_SITE_COLLECTION3,
+      repo: did,
+      rkey: "self",
+      validator: defaultSite_exports,
+      resourceName: "default location"
+    })
+  );
+  if (defaultSiteResult?.value.site === locationAtUri) {
+    throw new server.TRPCError({
+      code: "BAD_REQUEST",
+      message: "Cannot delete the default location. Please set a different default first."
+    });
+  }
+  const rkey = parseAtUri(locationAtUri).rkey;
+  return deleteRecord({
+    agent,
+    collection: LOCATION_COLLECTION3,
+    repo: did,
+    rkey,
+    resourceName: "location"
+  });
+};
+var deleteLocationFactory = createMutationFactory(
+  {
+    locationAtUri: z8__default.default.string()
+  },
+  (agent, input) => deleteLocationPure(agent, input.locationAtUri)
+);
+
+// src/_internal/server/routers/atproto/hypercerts/claim/activity/getAll.ts
+var COLLECTION9 = "org.hypercerts.claim.activity";
+var RESOURCE_NAME9 = "claim activities";
+var getAllClaimActivitiesPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  const result = await listRecords({
+    agent,
+    collection: COLLECTION9,
+    repo: did,
+    validator: activity_exports,
+    resourceName: RESOURCE_NAME9,
+    skipInvalid: true
+  });
   return {
-    activities: validRecords
+    activities: result.records
   };
 };
-var getAllClaimActivitiesFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
+var getAllClaimActivitiesFactory = createDidQueryFactory(getAllClaimActivitiesPure);
+
+// src/_internal/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
+var getAllClaimActivitiesAcrossOrganizationsPure = async (pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
+    agent.com.atproto.sync.listRepos({
+      limit: 150
     })
-  ).query(async ({ input }) => {
-    return await getAllClaimActivitiesPure(input.did, input.pdsDomain);
+  );
+  if (repositoriesListFetchError !== null || repositoriesListResponse === null || repositoriesListResponse.success !== true) {
+    throw new server.TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to fetch the list of repositories.",
+      cause: repositoriesListFetchError
+    });
+  }
+  const repositoriesList = repositoriesListResponse.data.repos;
+  const organizationResults = await Promise.all(
+    repositoriesList.map(async (repo) => {
+      const [organizationInfoResponse] = await tryCatch(
+        getOrganizationInfoPure(repo.did, pdsDomain)
+      );
+      if (!organizationInfoResponse) {
+        return null;
+      }
+      return {
+        repo: { did: repo.did },
+        organizationInfo: organizationInfoResponse.value
+      };
+    })
+  );
+  const validOrganizations = organizationResults.filter(
+    (org) => org !== null
+  );
+  const activitiesResults = await Promise.all(
+    validOrganizations.map(async (organization) => {
+      const [activitiesResponse] = await tryCatch(
+        getAllClaimActivitiesPure(organization.repo.did, pdsDomain)
+      );
+      if (!activitiesResponse) {
+        return null;
+      }
+      return {
+        repo: organization.repo,
+        activities: activitiesResponse.activities,
+        organizationInfo: organization.organizationInfo
+      };
+    })
+  );
+  return activitiesResults.filter(
+    (activity) => activity !== null
+  );
+};
+var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
+  return publicProcedure.input(z8.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+    return getAllClaimActivitiesAcrossOrganizationsPure(input.pdsDomain);
   });
 };
 
-// src/_internal/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
-var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(z12.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
-      agent.com.atproto.sync.listRepos({
-        limit: 150
-      })
-    );
-    if (repositoriesListFetchError || repositoriesListResponse.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to fetch repositories list"
-      });
-    }
-    const repositoriesList = repositoriesListResponse.data.repos;
-    const [organizationRepositories, organizationsFetchError] = await tryCatch(
-      Promise.all(
-        repositoriesList.map(async (repo) => {
-          const [organizationInfoResponse, organizationInfoFetchError] = await tryCatch(
-            getOrganizationInfoPure(repo.did, input.pdsDomain)
-          );
-          if (organizationInfoFetchError) {
-            return null;
-          }
-          return {
-            repo,
-            organizationInfo: organizationInfoResponse.value
-          };
-        })
-      )
-    );
-    if (organizationsFetchError) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to fetch organizations list"
-      });
-    }
-    const validOrganizationRepositories = organizationRepositories.filter(
-      (org) => org !== null
-    );
-    const [activities, activitiesFetchError] = await tryCatch(
-      Promise.all(
-        validOrganizationRepositories.map(async (organization) => {
-          const [activitiesResponse, activitiesFetchError2] = await tryCatch(
-            getAllClaimActivitiesPure(organization.repo.did, input.pdsDomain)
-          );
-          if (activitiesFetchError2) {
-            return null;
-          }
-          return {
-            repo: organization.repo,
-            activities: activitiesResponse.activities,
-            organizationInfo: organization.organizationInfo
-          };
-        })
-      )
-    );
-    if (activitiesFetchError) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to fetch activities list"
-      });
-    }
-    const validActivities = activities.filter(
-      (activity) => activity !== null
-    );
-    console.log("TOTAL_ORGANIZATIONS:", organizationRepositories.length);
-    console.log("VALID_ORGANIZATIONS:", validOrganizationRepositories.length);
-    console.log("TOTAL_ACTIVITIES:", activities.length);
-    console.log("VALID_ACTIVITIES:", validActivities.length);
-    return validActivities;
-  });
-};
+// src/_internal/server/routers/atproto/hypercerts/claim/activity/get.ts
+var COLLECTION10 = "org.hypercerts.claim.activity";
+var RESOURCE_NAME10 = "claim activity";
 var getClaimActivityPure = async (did, rkey, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
-  const nsid = "org.hypercerts.claim.activity";
-  const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: nsid,
+  return getRecord({
+    agent,
+    collection: COLLECTION10,
     repo: did,
-    rkey
-  });
-  const [response, error] = await tryCatch(getRecordPromise);
-  if (error) {
-    if (error instanceof xrpc.XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(error);
-      throw trpcError;
-    } else {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred."
-      });
-    }
-  }
-  if (response.success !== true) {
-    throw new server.TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to get organization info."
-    });
-  }
-  validateRecordOrThrow(response.data.value, activity_exports);
-  return response.data;
-};
-var getCliamActivityFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    return await getClaimActivityPure(input.did, input.rkey, input.pdsDomain);
+    rkey,
+    validator: activity_exports,
+    resourceName: RESOURCE_NAME10
   });
 };
+var getClaimActivityFactory = createDidRkeyQueryFactory(getClaimActivityPure);
+var getCliamActivityFactory = getClaimActivityFactory;
 var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      measuredTreesClusterUris: z12.z.array(z12.z.string()).min(1),
+    z8.z.object({
+      did: z8.z.string(),
+      projectRkey: z8.z.string(),
+      measuredTreesClusterUris: z8.z.array(z8.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -4113,10 +4180,10 @@ var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
 };
 var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      measuredTreesClusterUris: z12.z.array(z12.z.string()).min(1),
+    z8.z.object({
+      did: z8.z.string(),
+      projectRkey: z8.z.string(),
+      measuredTreesClusterUris: z8.z.array(z8.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -4145,10 +4212,10 @@ var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
 };
 var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      layerUris: z12.z.array(z12.z.string()).min(1),
+    z8.z.object({
+      did: z8.z.string(),
+      projectRkey: z8.z.string(),
+      layerUris: z8.z.array(z8.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -4210,12 +4277,34 @@ var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
     return true;
   });
 };
+var validateRecordOrThrow = (record, {
+  validateRecord: validateRecord2
+}) => {
+  let validationResponse;
+  try {
+    validationResponse = validateRecord2(record);
+  } catch (error) {
+    throw new server.TRPCError({
+      code: "UNPROCESSABLE_CONTENT",
+      message: "Invalid record",
+      cause: error
+    });
+  }
+  if (!validationResponse.success) {
+    throw new server.TRPCError({
+      code: "UNPROCESSABLE_CONTENT",
+      message: validationResponse.error.message,
+      cause: validationResponse.error
+    });
+  }
+  return validationResponse.value;
+};
 var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      layerUris: z12.z.array(z12.z.string()).min(1),
+    z8.z.object({
+      did: z8.z.string(),
+      projectRkey: z8.z.string(),
+      layerUris: z8.z.array(z8.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
   ).mutation(async ({ input }) => {
@@ -4246,149 +4335,72 @@ var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
     return true;
   });
 };
-var getLayerFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const nsid = "app.gainforest.organization.layer";
-    const response = await agent.com.atproto.repo.getRecord({
-      collection: nsid,
-      repo: input.did,
-      rkey: input.rkey
-    });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get the layer"
-      });
-    }
-    const validatedRecord = validateRecordOrThrow(
-      response.data.value,
-      layer_exports
-    );
-    return {
-      uri: response.data.uri,
-      cid: response.data.cid,
-      value: validatedRecord
-    };
+
+// src/_internal/server/routers/atproto/gainforest/organization/layer/get.ts
+var COLLECTION11 = "app.gainforest.organization.layer";
+var RESOURCE_NAME11 = "layer";
+var getLayerPure = async (did, rkey, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION11,
+    repo: did,
+    rkey,
+    validator: layer_exports,
+    resourceName: RESOURCE_NAME11
   });
 };
-var getProjectFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const nsid = "org.hypercerts.claim.project";
-    const response = await agent.com.atproto.repo.getRecord({
-      collection: nsid,
-      repo: input.did,
-      rkey: input.rkey
-    });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get the project"
-      });
-    }
-    const validatedRecord = validateRecordOrThrow(
-      response.data.value,
-      project_exports
-    );
-    response.data = {
-      ...response.data,
-      value: validatedRecord
-    };
-    return response.data;
+var getLayerFactory = createDidRkeyQueryFactory(getLayerPure);
+
+// src/_internal/server/routers/atproto/hypercerts/claim/project/get.ts
+var COLLECTION12 = "org.hypercerts.claim.project";
+var RESOURCE_NAME12 = "project";
+var getProjectPure = async (did, rkey, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION12,
+    repo: did,
+    rkey,
+    validator: project_exports,
+    resourceName: RESOURCE_NAME12
   });
 };
-var getAllProjectsFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const nsid = "org.hypercerts.claim.project";
-    const response = await agent.com.atproto.repo.listRecords({
-      collection: nsid,
-      repo: input.did
-    });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get the projects"
-      });
-    }
-    const ownershipCheckedRecords = response.data.records.map((record) => {
-      let validatedRecord;
-      try {
-        validatedRecord = validateRecordOrThrow(
-          record.value,
-          project_exports
-        );
-      } catch (error) {
-        return null;
-      }
-      return {
-        uri: record.uri,
-        cid: record.cid,
-        value: validatedRecord
-      };
-    }).filter((record) => record !== null);
-    return ownershipCheckedRecords;
+var getProjectFactory = createDidRkeyQueryFactory(getProjectPure);
+
+// src/_internal/server/routers/atproto/hypercerts/claim/project/getAll.ts
+var COLLECTION13 = "org.hypercerts.claim.project";
+var RESOURCE_NAME13 = "projects";
+var getAllProjectsPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  const result = await listRecords({
+    agent,
+    collection: COLLECTION13,
+    repo: did,
+    validator: project_exports,
+    resourceName: RESOURCE_NAME13,
+    skipInvalid: true
   });
+  return result.records;
 };
-var getAllLayersFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      pdsDomain: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const agent = getReadAgent(input.pdsDomain);
-    const nsid = "app.gainforest.organization.layer";
-    const response = await agent.com.atproto.repo.listRecords({
-      collection: nsid,
-      repo: input.did
-    });
-    if (response.success !== true) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to get the layers"
-      });
-    }
-    const validatedRecords = response.data.records.map((record) => {
-      let validatedRecord;
-      try {
-        validatedRecord = validateRecordOrThrow(
-          record.value,
-          layer_exports
-        );
-      } catch (error) {
-        return null;
-      }
-      return {
-        ...record,
-        value: validatedRecord
-      };
-    }).filter((record) => record !== null);
-    return validatedRecords.map((record) => ({
-      uri: record.uri,
-      cid: record.cid,
-      value: record.value
-    }));
+var getAllProjectsFactory = createDidQueryFactory(getAllProjectsPure);
+
+// src/_internal/server/routers/atproto/gainforest/organization/layer/getAll.ts
+var COLLECTION14 = "app.gainforest.organization.layer";
+var RESOURCE_NAME14 = "layers";
+var getAllLayersPure = async (did, pdsDomain) => {
+  const agent = getReadAgent(pdsDomain);
+  const result = await listRecords({
+    agent,
+    collection: COLLECTION14,
+    repo: did,
+    validator: layer_exports,
+    resourceName: RESOURCE_NAME14,
+    skipInvalid: true
   });
+  return result.records;
 };
+var getAllLayersFactory = createDidQueryFactory(getAllLayersPure);
 
 // src/_internal/server/routers/_app.ts
 var AppRouterFactory = class {
@@ -4402,7 +4414,7 @@ var AppRouterFactory = class {
       );
     });
     this.allowedPDSDomains = _allowedPDSDomains;
-    this.allowedPDSDomainSchema = z12__default.default.enum(this.allowedPDSDomains);
+    this.allowedPDSDomainSchema = z8__default.default.enum(this.allowedPDSDomains);
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
@@ -4481,8 +4493,8 @@ var AppRouterFactory = class {
 
 // src/_internal/index.ts
 var supportedDomains = ["climateai.org", "hypercerts.org"];
-var supportedPDSDomainSchema = z12.z.enum(supportedDomains);
-var supportedPDSDomainsSchema = z12.z.array(supportedPDSDomainSchema);
+var supportedPDSDomainSchema = z8.z.enum(supportedDomains);
+var supportedPDSDomainsSchema = z8.z.array(supportedPDSDomainSchema);
 var GainforestSDK = class {
   constructor(_allowedPDSDomains) {
     __publicField(this, "allowedPDSDomains");

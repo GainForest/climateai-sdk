@@ -1,75 +1,44 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
-import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { TRPCError } from "@trpc/server";
-import { OrgHypercertsClaimActivity } from "@/../lex-api";
-import { tryCatch } from "@/_internal/lib/tryCatch";
-import { XRPCError } from "@atproto/xrpc";
 import { getReadAgent } from "@/_internal/server/utils/agent";
-import { xrpcErrorToTRPCError } from "@/_internal/server/utils/classify-xrpc-error";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { OrgHypercertsClaimActivity } from "@/../lex-api";
+import { listRecords } from "@/_internal/server/utils/atproto-crud";
+import { createDidQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
+import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
+const COLLECTION = "org.hypercerts.claim.activity" as const;
+const RESOURCE_NAME = "claim activities" as const;
+
+/**
+ * Response type for getAllClaimActivities
+ */
+export type GetAllClaimActivitiesResponse = {
+  activities: GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
+};
+
+/**
+ * Pure function to get all claim activities for a DID.
+ * Can be reused outside of tRPC context.
+ */
 export const getAllClaimActivitiesPure = async <T extends SupportedPDSDomain>(
   did: string,
   pdsDomain: T
-) => {
-  const activityNSID: OrgHypercertsClaimActivity.Record["$type"] =
-    "org.hypercerts.claim.activity";
+): Promise<GetAllClaimActivitiesResponse> => {
   const agent = getReadAgent(pdsDomain);
-  const [listClaimActivitiesResponse, errorListClaimActivities] =
-    await tryCatch(
-      agent.com.atproto.repo.listRecords({
-        collection: activityNSID,
-        repo: did,
-      })
-    );
-
-  if (errorListClaimActivities) {
-    if (errorListClaimActivities instanceof XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(errorListClaimActivities);
-      throw trpcError;
-    }
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "An unknown error occurred.",
-    });
-  } else if (listClaimActivitiesResponse.success !== true) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "An unknown error occurred.",
-    });
-  }
-
-  const validRecords = listClaimActivitiesResponse.data.records
-    .map((record) => {
-      try {
-        validateRecordOrThrow(record.value, OrgHypercertsClaimActivity);
-        return record;
-      } catch {
-        return null;
-      }
-    })
-    .filter(
-      (record) => record !== null
-    ) as GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
+  const result = await listRecords({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    validator: OrgHypercertsClaimActivity,
+    resourceName: RESOURCE_NAME,
+    skipInvalid: true,
+  });
 
   return {
-    activities: validRecords,
+    activities: result.records,
   };
 };
 
-export const getAllClaimActivitiesFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .query(async ({ input }) => {
-      return await getAllClaimActivitiesPure(input.did, input.pdsDomain);
-    });
-};
+/**
+ * Factory to create the tRPC procedure for getting all claim activities.
+ */
+export const getAllClaimActivitiesFactory = createDidQueryFactory(getAllClaimActivitiesPure);

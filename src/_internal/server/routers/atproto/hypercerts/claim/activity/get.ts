@@ -1,66 +1,37 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
-import { tryCatch } from "@/_internal/lib/tryCatch";
-import { XRPCError } from "@atproto/xrpc";
-import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { OrgHypercertsClaimActivity } from "@/../lex-api";
 import { getReadAgent } from "@/_internal/server/utils/agent";
-import { xrpcErrorToTRPCError } from "@/_internal/server/utils/classify-xrpc-error";
-import { TRPCError } from "@trpc/server";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { OrgHypercertsClaimActivity } from "@/../lex-api";
+import { getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createDidRkeyQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
+import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
+const COLLECTION = "org.hypercerts.claim.activity" as const;
+const RESOURCE_NAME = "claim activity" as const;
+
+/**
+ * Pure function to get a claim activity by DID and rkey.
+ * Can be reused outside of tRPC context.
+ */
 export const getClaimActivityPure = async <T extends SupportedPDSDomain>(
   did: string,
   rkey: string,
   pdsDomain: T
-) => {
+): Promise<GetRecordResponse<OrgHypercertsClaimActivity.Record>> => {
   const agent = getReadAgent(pdsDomain);
-  const nsid: OrgHypercertsClaimActivity.Record["$type"] =
-    "org.hypercerts.claim.activity";
-  const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: nsid,
+  return getRecord({
+    agent,
+    collection: COLLECTION,
     repo: did,
-    rkey: rkey,
+    rkey,
+    validator: OrgHypercertsClaimActivity,
+    resourceName: RESOURCE_NAME,
   });
-  const [response, error] = await tryCatch(getRecordPromise);
-
-  if (error) {
-    if (error instanceof XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(error);
-      throw trpcError;
-    } else {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred.",
-      });
-    }
-  }
-
-  if (response.success !== true) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to get organization info.",
-    });
-  }
-
-  validateRecordOrThrow(response.data.value, OrgHypercertsClaimActivity);
-
-  return response.data as GetRecordResponse<OrgHypercertsClaimActivity.Record>;
 };
 
-export const getCliamActivityFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        rkey: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .query(async ({ input }) => {
-      return await getClaimActivityPure(input.did, input.rkey, input.pdsDomain);
-    });
-};
+/**
+ * Factory to create the tRPC procedure for getting a claim activity.
+ */
+export const getClaimActivityFactory = createDidRkeyQueryFactory(getClaimActivityPure);
+
+// Backwards compatibility alias (typo in original name)
+export const getCliamActivityFactory = getClaimActivityFactory;

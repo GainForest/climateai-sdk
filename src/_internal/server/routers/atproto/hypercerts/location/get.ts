@@ -1,37 +1,34 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
 import { getReadAgent } from "@/_internal/server/utils/agent";
 import { AppCertifiedLocation } from "@/../lex-api";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createDidRkeyQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { TRPCError } from "@trpc/server";
 
-export const getLocationFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        rkey: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .query(async ({ input }) => {
-      const agent = getReadAgent(input.pdsDomain);
-      const response = await agent.com.atproto.repo.getRecord({
-        collection: "app.certified.location",
-        repo: input.did,
-        rkey: input.rkey,
-      });
-      if (response.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get the location",
-        });
-      }
-      validateRecordOrThrow(response.data.value, AppCertifiedLocation);
-      return response.data as GetRecordResponse<AppCertifiedLocation.Record>;
-    });
+const COLLECTION = "app.certified.location" as const;
+const RESOURCE_NAME = "location" as const;
+
+/**
+ * Pure function to get a location by DID and rkey.
+ * Can be reused outside of tRPC context.
+ */
+export const getLocationPure = async <T extends SupportedPDSDomain>(
+  did: string,
+  rkey: string,
+  pdsDomain: T
+): Promise<GetRecordResponse<AppCertifiedLocation.Record>> => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    rkey,
+    validator: AppCertifiedLocation,
+    resourceName: RESOURCE_NAME,
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for getting a location.
+ */
+export const getLocationFactory = createDidRkeyQueryFactory(getLocationPure);

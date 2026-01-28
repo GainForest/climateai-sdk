@@ -1,93 +1,67 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
+import { getReadAgent } from "@/_internal/server/utils/agent";
 import {
   AppGainforestOrganizationDefaultSite,
   AppCertifiedLocation,
 } from "@/../lex-api";
 import { tryCatch } from "@/_internal/lib/tryCatch";
-import { XRPCError } from "@atproto/xrpc";
-import { getReadAgent } from "@/_internal/server/utils/agent";
-import { xrpcErrorToTRPCError } from "@/_internal/server/utils/classify-xrpc-error";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { listRecords, getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createDidQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
-export const getAllLocationsFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(z.object({ did: z.string(), pdsDomain: allowedPDSDomainSchema }))
-    .query(async ({ input }) => {
-      const agent = getReadAgent(input.pdsDomain);
-      const listSitesTryCatchPromise = tryCatch(
-        agent.com.atproto.repo.listRecords({
-          collection: "app.certified.location",
-          repo: input.did,
-        })
-      );
-      const getDefaultSiteTryCatchPromise = tryCatch(
-        agent.com.atproto.repo.getRecord({
-          collection: "app.certified.location",
-          repo: input.did,
-          rkey: "self",
-        })
-      );
+const LOCATION_COLLECTION = "app.certified.location" as const;
+const DEFAULT_SITE_COLLECTION = "app.gainforest.organization.defaultSite" as const;
 
-      const [
-        [listSitesResponse, errorListSites],
-        [getDefaultSiteResponse, errorGetDefaultSite],
-      ] = await Promise.all([
-        listSitesTryCatchPromise,
-        getDefaultSiteTryCatchPromise,
-      ]);
-
-      if (errorListSites) {
-        if (errorListSites instanceof XRPCError) {
-          const trpcError = xrpcErrorToTRPCError(errorListSites);
-          throw trpcError;
-        }
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unknown error occurred.",
-        });
-      } else if (listSitesResponse.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unknown error occurred.",
-        });
-      }
-
-      const validRecords = listSitesResponse.data.records
-        .map((record) => {
-          try {
-            validateRecordOrThrow(record.value, AppCertifiedLocation);
-            return record;
-          } catch {
-            return null;
-          }
-        })
-        .filter(
-          (record) => record !== null
-        ) as GetRecordResponse<AppCertifiedLocation.Record>[];
-
-      let defaultSite = null;
-      if (getDefaultSiteResponse) {
-        defaultSite =
-          getDefaultSiteResponse.data as GetRecordResponse<AppGainforestOrganizationDefaultSite.Record>;
-        try {
-          validateRecordOrThrow(
-            defaultSite.value,
-            AppGainforestOrganizationDefaultSite
-          );
-        } catch {
-          defaultSite = null;
-        }
-      }
-
-      return {
-        locations: validRecords,
-        defaultLocation: defaultSite,
-      };
-    });
+/**
+ * Response type for getAllLocations
+ */
+export type GetAllLocationsResponse = {
+  locations: GetRecordResponse<AppCertifiedLocation.Record>[];
+  defaultLocation: GetRecordResponse<AppGainforestOrganizationDefaultSite.Record> | null;
 };
+
+/**
+ * Pure function to get all locations and the default location for a DID.
+ * Can be reused outside of tRPC context.
+ */
+export const getAllLocationsPure = async <T extends SupportedPDSDomain>(
+  did: string,
+  pdsDomain: T
+): Promise<GetAllLocationsResponse> => {
+  const agent = getReadAgent(pdsDomain);
+
+  // Fetch locations and default site in parallel
+  const [locationsResult, defaultSiteResult] = await Promise.all([
+    listRecords({
+      agent,
+      collection: LOCATION_COLLECTION,
+      repo: did,
+      validator: AppCertifiedLocation,
+      resourceName: "locations",
+      skipInvalid: true,
+    }),
+    tryCatch(
+      getRecord({
+        agent,
+        collection: DEFAULT_SITE_COLLECTION,
+        repo: did,
+        rkey: "self",
+        validator: AppGainforestOrganizationDefaultSite,
+        resourceName: "default location",
+      })
+    ),
+  ]);
+
+  // Default site might not exist, so we handle the error gracefully
+  const [defaultSite] = defaultSiteResult;
+
+  return {
+    locations: locationsResult.records,
+    defaultLocation: defaultSite ?? null,
+  };
+};
+
+/**
+ * Factory to create the tRPC procedure for getting all locations.
+ */
+export const getAllLocationsFactory = createDidQueryFactory(getAllLocationsPure);
