@@ -107,6 +107,7 @@
   "private": true,
   "devDependencies": {
     "@atproto/lex-cli": "^0.9.7",
+    "@changesets/cli": "^2.29.8",
     "@types/bun": "latest",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
