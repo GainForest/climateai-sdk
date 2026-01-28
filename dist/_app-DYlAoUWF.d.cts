@@ -1,8 +1,8 @@
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './project-B5S3nOat.js';
-import { S as SupportedPDSDomain, a as StoredSession, L as LoginResult, R as ResumeResult, b as LogoutResult, O as OrganizationWithActivities, c as GetAllClaimActivitiesResponse, d as GetAllLocationsResponse, D as DeleteRecordResponse } from './session-BJjwpb2l.js';
-import { M as Main$3 } from './activity-B4BTvcNK.js';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './collection-iPiupYR_.cjs';
+import { S as SupportedPDSDomain, a as StoredSession, L as LoginResult, R as ResumeResult, b as LogoutResult, O as OrganizationWithActivities, c as GetAllClaimActivitiesResponse, d as GetAllLocationsResponse, D as DeleteRecordResponse } from './session-BuEIqD5B.cjs';
+import { M as Main$3 } from './activity-DgaiG8Qy.cjs';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 import z from 'zod';
@@ -86,7 +86,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -223,26 +223,29 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             activity: {
                                 title: string;
                                 shortDescription: string;
-                                locations: {
+                                description?: string | undefined;
+                                locations?: {
                                     uri: string;
                                     cid: string;
                                     $type?: "com.atproto.repo.strongRef" | undefined;
-                                }[];
-                                workScopes: string[];
-                                startDate: string;
-                                endDate: string;
-                                contributors: string[];
-                                description?: string | undefined;
-                                project?: string | undefined;
+                                }[] | undefined;
+                                workScope?: string | undefined;
+                                startDate?: string | undefined;
+                                endDate?: string | undefined;
+                                contributors?: {
+                                    identity: string;
+                                    weight?: string | undefined;
+                                    role?: string | undefined;
+                                }[] | undefined;
                                 createdAt?: string | undefined;
                             };
-                            uploads: {
-                                image: {
+                            uploads?: {
+                                image?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
-                                };
-                            };
+                                } | undefined;
+                            } | undefined;
                         };
                         output: PutRecordResponse<Main$3>;
                         meta: object;
@@ -300,7 +303,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -362,7 +365,8 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                         };
                         uploads: {
                             shapefile: string | {
@@ -382,9 +386,10 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                             shapefile?: {
-                                $type: "app.gainforest.common.defs#smallBlob";
+                                $type: "org.hypercerts.defs#smallBlob";
                                 blob: {
                                     $type: "blob-ref-generator";
                                     ref: {
@@ -505,7 +510,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -642,26 +647,29 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             activity: {
                                 title: string;
                                 shortDescription: string;
-                                locations: {
+                                description?: string | undefined;
+                                locations?: {
                                     uri: string;
                                     cid: string;
                                     $type?: "com.atproto.repo.strongRef" | undefined;
-                                }[];
-                                workScopes: string[];
-                                startDate: string;
-                                endDate: string;
-                                contributors: string[];
-                                description?: string | undefined;
-                                project?: string | undefined;
+                                }[] | undefined;
+                                workScope?: string | undefined;
+                                startDate?: string | undefined;
+                                endDate?: string | undefined;
+                                contributors?: {
+                                    identity: string;
+                                    weight?: string | undefined;
+                                    role?: string | undefined;
+                                }[] | undefined;
                                 createdAt?: string | undefined;
                             };
-                            uploads: {
-                                image: {
+                            uploads?: {
+                                image?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
-                                };
-                            };
+                                } | undefined;
+                            } | undefined;
                         };
                         output: PutRecordResponse<Main$3>;
                         meta: object;
@@ -719,7 +727,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -781,7 +789,8 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                         };
                         uploads: {
                             shapefile: string | {
@@ -801,9 +810,10 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                             shapefile?: {
-                                $type: "app.gainforest.common.defs#smallBlob";
+                                $type: "org.hypercerts.defs#smallBlob";
                                 blob: {
                                     $type: "blob-ref-generator";
                                     ref: {

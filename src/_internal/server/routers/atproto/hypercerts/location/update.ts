@@ -20,10 +20,11 @@ const RESOURCE_NAME = "location" as const;
  * Input schema for location update
  */
 export const LocationUpdateInputSchema = z.object({
-  name: z.string().min(1, "Location name is required"),
+  name: z.string().optional(),
+  description: z.string().optional(),
   shapefile: z
     .object({
-      $type: z.literal("app.gainforest.common.defs#smallBlob"),
+      $type: z.literal("org.hypercerts.defs#smallBlob"),
       blob: BlobRefGeneratorSchema,
     })
     .optional(),
@@ -97,6 +98,7 @@ export const updateLocationPure = async (
   const location: AppCertifiedLocation.Record = {
     $type: COLLECTION,
     name: locationInput.name,
+    description: locationInput.description,
     lpVersion: "1.0.0",
     srs: "https://epsg.io/3857",
     locationType: "geojson-point",

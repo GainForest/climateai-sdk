@@ -35,29 +35,29 @@ var getBlobUrl = (did, imageData, pdsDomain) => {
     const encodedCid = encodeURIComponent(cid);
     return `https://${pdsDomain}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
   }
-  if (imageData.$type === "app.gainforest.common.defs#uri") {
-    const uri = imageData.uri;
-    return uri;
+  if (imageData.$type === "app.gainforest.common.defs#uri" || imageData.$type === "org.hypercerts.defs#uri") {
+    return imageData.uri;
   }
-  if (imageData.$type === "app.gainforest.common.defs#smallBlob" || imageData.$type === "app.gainforest.common.defs#largeBlob") {
-    const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsDomain);
+  if (imageData.$type === "org.hypercerts.defs#smallBlob" || imageData.$type === "org.hypercerts.defs#largeBlob") {
+    return getBlobUrl(did, imageData.blob, pdsDomain);
   }
-  if (imageData.$type === "app.gainforest.common.defs#smallImage" || imageData.$type === "app.gainforest.common.defs#largeImage") {
-    const image = imageData.image;
-    return getBlobUrl(did, image, pdsDomain);
+  if (imageData.$type === "org.hypercerts.defs#smallImage" || imageData.$type === "org.hypercerts.defs#largeImage") {
+    return getBlobUrl(did, imageData.image, pdsDomain);
+  }
+  if (imageData.$type === "app.gainforest.common.defs#image" || imageData.$type === "app.gainforest.common.defs#imageThumbnail") {
+    return getBlobUrl(did, imageData.file, pdsDomain);
   }
   if ("blob" in imageData) {
-    const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsDomain);
+    return getBlobUrl(did, imageData.blob, pdsDomain);
   }
   if ("image" in imageData) {
-    const image = imageData.image;
-    return getBlobUrl(did, image, pdsDomain);
+    return getBlobUrl(did, imageData.image, pdsDomain);
+  }
+  if ("file" in imageData) {
+    return getBlobUrl(did, imageData.file, pdsDomain);
   }
   if ("uri" in imageData) {
-    const uri = imageData.uri;
-    return uri;
+    return imageData.uri;
   }
   const imageDataTypeCheck = imageData;
   return imageDataTypeCheck;
@@ -431,21 +431,98 @@ var logoutFactory = (allowedPDSDomainSchema) => {
 function isObject2(v) {
   return v != null && typeof v === "object";
 }
-function is$type($type, id9, hash) {
-  return hash === "main" ? $type === id9 : (
+function is$type($type, id8, hash) {
+  return hash === "main" ? $type === id8 : (
     // $type === `${id}#${hash}`
-    typeof $type === "string" && $type.length === id9.length + 1 + hash.length && $type.charCodeAt(id9.length) === 35 && $type.startsWith(id9) && $type.endsWith(hash)
+    typeof $type === "string" && $type.length === id8.length + 1 + hash.length && $type.charCodeAt(id8.length) === 35 && $type.startsWith(id8) && $type.endsWith(hash)
   );
 }
-function is$typed(v, id9, hash) {
-  return isObject2(v) && "$type" in v && is$type(v.$type, id9, hash);
+function is$typed(v, id8, hash) {
+  return isObject2(v) && "$type" in v && is$type(v.$type, id8, hash);
 }
-function maybe$typed(v, id9, hash) {
-  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id9, hash) : true);
+function maybe$typed(v, id8, hash) {
+  return isObject2(v) && ("$type" in v ? v.$type === void 0 || is$type(v.$type, id8, hash) : true);
 }
 
 // lex-api/lexicons.ts
 var schemaDict = {
+  AppBskyRichtextFacet: {
+    lexicon: 1,
+    id: "app.bsky.richtext.facet",
+    defs: {
+      main: {
+        type: "object",
+        description: "Annotation of a sub-string within rich text.",
+        required: ["index", "features"],
+        properties: {
+          index: {
+            type: "ref",
+            ref: "lex:app.bsky.richtext.facet#byteSlice"
+          },
+          features: {
+            type: "array",
+            items: {
+              type: "union",
+              refs: [
+                "lex:app.bsky.richtext.facet#mention",
+                "lex:app.bsky.richtext.facet#link",
+                "lex:app.bsky.richtext.facet#tag"
+              ]
+            }
+          }
+        }
+      },
+      mention: {
+        type: "object",
+        description: "Facet feature for mention of another account. The text is usually a handle, including a '@' prefix, but the facet reference is a DID.",
+        required: ["did"],
+        properties: {
+          did: {
+            type: "string",
+            format: "did"
+          }
+        }
+      },
+      link: {
+        type: "object",
+        description: "Facet feature for a URL. The text URL may have been simplified or truncated, but the facet reference should be a complete URL.",
+        required: ["uri"],
+        properties: {
+          uri: {
+            type: "string",
+            format: "uri"
+          }
+        }
+      },
+      tag: {
+        type: "object",
+        description: "Facet feature for a hashtag. The text usually includes a '#' prefix, but the facet reference should not (except in the case of 'double hash tags').",
+        required: ["tag"],
+        properties: {
+          tag: {
+            type: "string",
+            maxLength: 640,
+            maxGraphemes: 64
+          }
+        }
+      },
+      byteSlice: {
+        type: "object",
+        description: "Specifies the sub-string range a facet feature applies to. Start index is inclusive, end index is exclusive. Indices are zero-indexed, counting bytes of the UTF-8 encoded text. NOTE: some languages, like Javascript, use UTF-16 or Unicode codepoints for string slice indexing; in these languages, convert to byte arrays before working with facets.",
+        required: ["byteStart", "byteEnd"],
+        properties: {
+          byteStart: {
+            type: "integer",
+            minimum: 0
+          },
+          byteEnd: {
+            type: "integer",
+            minimum: 0
+          }
+        }
+      }
+    }
+  },
   AppCertifiedBadgeAward: {
     lexicon: 1,
     id: "app.certified.badge.award",
@@ -580,9 +657,17 @@ var schemaDict = {
     description: "Common type definitions used across certified protocols.",
     defs: {
       did: {
-        type: "string",
-        format: "did",
-        description: "A Decentralized Identifier (DID) string."
+        type: "object",
+        description: "A Decentralized Identifier (DID) string.",
+        required: ["did"],
+        properties: {
+          did: {
+            type: "string",
+            format: "did",
+            description: "The DID string value.",
+            maxLength: 256
+          }
+        }
       }
     }
   },
@@ -625,9 +710,10 @@ var schemaDict = {
               type: "union",
               refs: [
                 "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallBlob"
+                "lex:org.hypercerts.defs#smallBlob",
+                "lex:app.certified.location#string"
               ],
-              description: "The location of where the work was performed as a URI or blob."
+              description: "The location of where the work was performed as a URI, blob, or inline string."
             },
             name: {
               type: "string",
@@ -648,81 +734,271 @@ var schemaDict = {
             }
           }
         }
+      },
+      string: {
+        type: "object",
+        required: ["string"],
+        description: "A location represented as a string, e.g. coordinates or a small GeoJSON string.",
+        properties: {
+          string: {
+            type: "string",
+            description: "The location string value",
+            maxLength: 1e4,
+            maxGraphemes: 1e3
+          }
+        }
       }
     }
   },
   AppGainforestCommonDefs: {
     lexicon: 1,
     id: "app.gainforest.common.defs",
+    description: "Shared type definitions for biodiversity and environmental data collection",
     defs: {
       uri: {
         type: "object",
         required: ["uri"],
-        description: "Object containing a URI to external data",
+        description: "Reference to external data via URI",
         properties: {
           uri: {
             type: "string",
             format: "uri",
             maxGraphemes: 1024,
-            description: "URI to external data"
+            description: "URI to external resource"
           }
         }
       },
-      smallBlob: {
+      image: {
         type: "object",
-        required: ["blob"],
-        description: "Object containing a blob to external data",
+        required: ["file"],
+        description: "Image file for photos, camera traps, drone stills, scanned documents",
         properties: {
-          blob: {
+          file: {
             type: "blob",
-            accept: ["*/*"],
-            maxSize: 10485760,
-            description: "Blob to external data (up to 10MB)"
+            accept: [
+              "image/jpeg",
+              "image/jpg",
+              "image/png",
+              "image/webp",
+              "image/heic",
+              "image/heif",
+              "image/tiff",
+              "image/tif",
+              "image/gif",
+              "image/bmp",
+              "image/svg+xml"
+            ],
+            maxSize: 20971520,
+            description: "Image up to 20MB. Supports JPEG, PNG, WebP, HEIC (phones), TIFF (scientific), GIF, BMP, SVG."
           }
         }
       },
-      largeBlob: {
+      imageThumbnail: {
         type: "object",
-        required: ["blob"],
-        description: "Object containing a blob to external data",
+        required: ["file"],
+        description: "Small image for thumbnails and previews",
         properties: {
-          blob: {
+          file: {
             type: "blob",
-            accept: ["*/*"],
+            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+            maxSize: 1048576,
+            description: "Thumbnail image up to 1MB"
+          }
+        }
+      },
+      video: {
+        type: "object",
+        required: ["file"],
+        description: "Video file for camera traps, drone footage, underwater video, behavioral observations",
+        properties: {
+          file: {
+            type: "blob",
+            accept: [
+              "video/mp4",
+              "video/quicktime",
+              "video/x-msvideo",
+              "video/webm",
+              "video/x-matroska",
+              "video/mpeg",
+              "video/3gpp",
+              "video/3gpp2"
+            ],
             maxSize: 104857600,
-            description: "Blob to external data (up to 100MB)"
+            description: "Video up to 100MB. Supports MP4, MOV, AVI, WebM, MKV, MPEG, 3GP."
           }
         }
       },
-      smallImage: {
+      audio: {
         type: "object",
-        required: ["image"],
-        description: "Object containing a small image",
+        required: ["file"],
+        description: "Audio file for bioacoustics, soundscapes, field recordings, species calls",
         properties: {
-          image: {
+          file: {
             type: "blob",
-            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+            accept: [
+              "audio/wav",
+              "audio/x-wav",
+              "audio/mpeg",
+              "audio/mp3",
+              "audio/mp4",
+              "audio/x-m4a",
+              "audio/aac",
+              "audio/flac",
+              "audio/x-flac",
+              "audio/ogg",
+              "audio/opus",
+              "audio/webm",
+              "audio/aiff",
+              "audio/x-aiff"
+            ],
+            maxSize: 104857600,
+            description: "Audio up to 100MB. Supports WAV, MP3, M4A, AAC, FLAC, OGG, Opus, WebM, AIFF."
+          }
+        }
+      },
+      spectrogram: {
+        type: "object",
+        required: ["file"],
+        description: "Spectrogram image - visual representation of audio frequency content",
+        properties: {
+          file: {
+            type: "blob",
+            accept: ["image/png", "image/jpeg", "image/jpg", "image/webp"],
             maxSize: 5242880,
-            description: "Image (up to 5MB)"
+            description: "Spectrogram image up to 5MB"
           }
         }
       },
-      largeImage: {
+      document: {
         type: "object",
-        required: ["image"],
-        description: "Object containing a large image",
+        required: ["file"],
+        description: "Document file for reports, field notes, permits, publications",
         properties: {
-          image: {
+          file: {
             type: "blob",
-            accept: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
+            accept: [
+              "application/pdf",
+              "text/plain",
+              "text/markdown",
+              "text/html",
+              "application/rtf",
+              "application/msword",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ],
+            maxSize: 20971520,
+            description: "Document up to 20MB. Supports PDF, TXT, Markdown, HTML, RTF, DOC, DOCX."
+          }
+        }
+      },
+      dataFile: {
+        type: "object",
+        required: ["file"],
+        description: "Structured data file for observations, measurements, exports",
+        properties: {
+          file: {
+            type: "blob",
+            accept: [
+              "text/csv",
+              "text/tab-separated-values",
+              "application/json",
+              "application/ld+json",
+              "application/xml",
+              "text/xml",
+              "application/vnd.ms-excel",
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              "application/vnd.oasis.opendocument.spreadsheet"
+            ],
+            maxSize: 52428800,
+            description: "Data file up to 50MB. Supports CSV, TSV, JSON, JSON-LD, XML, XLS, XLSX, ODS."
+          }
+        }
+      },
+      gpsTrack: {
+        type: "object",
+        required: ["file"],
+        description: "GPS track file for transects, survey routes, patrol paths",
+        properties: {
+          file: {
+            type: "blob",
+            accept: [
+              "application/gpx+xml",
+              "application/vnd.google-earth.kml+xml",
+              "application/vnd.google-earth.kmz",
+              "application/geo+json",
+              "application/json"
+            ],
             maxSize: 10485760,
-            description: "Image (up to 10MB)"
+            description: "GPS track up to 10MB. Supports GPX, KML, KMZ, GeoJSON."
+          }
+        }
+      },
+      geospatial: {
+        type: "object",
+        required: ["file"],
+        description: "Geospatial data file for maps, boundaries, habitat layers",
+        properties: {
+          file: {
+            type: "blob",
+            accept: [
+              "application/geo+json",
+              "application/json",
+              "application/vnd.google-earth.kml+xml",
+              "application/vnd.google-earth.kmz",
+              "application/geopackage+sqlite3",
+              "application/x-shapefile",
+              "application/zip",
+              "image/tiff",
+              "image/geotiff"
+            ],
+            maxSize: 104857600,
+            description: "Geospatial data up to 100MB. Supports GeoJSON, KML, KMZ, GeoPackage, Shapefile (zipped), GeoTIFF."
+          }
+        }
+      },
+      sensorData: {
+        type: "object",
+        required: ["file"],
+        description: "Sensor data file for environmental monitoring (temperature, humidity, light, etc.)",
+        properties: {
+          file: {
+            type: "blob",
+            accept: [
+              "text/csv",
+              "application/json",
+              "text/plain",
+              "application/x-netcdf",
+              "application/x-hdf5"
+            ],
+            maxSize: 52428800,
+            description: "Sensor data up to 50MB. Supports CSV, JSON, TXT, NetCDF, HDF5."
+          }
+        }
+      },
+      geneticData: {
+        type: "object",
+        required: ["file"],
+        description: "Genetic/genomic data file for eDNA, barcoding, sequencing results",
+        properties: {
+          file: {
+            type: "blob",
+            accept: [
+              "text/x-fasta",
+              "application/x-fasta",
+              "text/x-fastq",
+              "application/x-fastq",
+              "text/plain",
+              "text/csv",
+              "application/json"
+            ],
+            maxSize: 104857600,
+            description: "Genetic data up to 100MB. Supports FASTA, FASTQ, CSV, JSON."
           }
         }
       },
       indexedOrganization: {
         type: "object",
         required: ["id", "name"],
+        description: "Reference to an indexed organization",
         properties: {
           id: {
             type: "string",
@@ -732,6 +1008,1358 @@ var schemaDict = {
           name: {
             type: "string",
             description: "The name of the organization"
+          }
+        }
+      }
+    }
+  },
+  AppGainforestDwcDefs: {
+    lexicon: 1,
+    id: "app.gainforest.dwc.defs",
+    description: "Shared type definitions for Darwin Core aligned biodiversity records",
+    defs: {
+      geolocation: {
+        type: "object",
+        description: "A geographic point with uncertainty, following Darwin Core Location class",
+        required: ["decimalLatitude", "decimalLongitude"],
+        properties: {
+          decimalLatitude: {
+            type: "string",
+            description: "Geographic latitude in decimal degrees (WGS84). Positive values north of the Equator, negative south. Range: -90 to 90.",
+            maxGraphemes: 32
+          },
+          decimalLongitude: {
+            type: "string",
+            description: "Geographic longitude in decimal degrees (WGS84). Positive values east of the Greenwich Meridian, negative west. Range: -180 to 180.",
+            maxGraphemes: 32
+          },
+          coordinateUncertaintyInMeters: {
+            type: "integer",
+            description: "Horizontal distance from the coordinates describing the smallest circle containing the whole location. Zero is not valid.",
+            minimum: 1
+          },
+          geodeticDatum: {
+            type: "string",
+            description: "The ellipsoid, geodetic datum, or spatial reference system. Recommended: 'EPSG:4326' (WGS84)",
+            maxGraphemes: 64
+          }
+        }
+      },
+      taxonIdentification: {
+        type: "object",
+        description: "A taxonomic identification with provenance metadata",
+        required: ["scientificName"],
+        properties: {
+          scientificName: {
+            type: "string",
+            description: "The full scientific name including authorship and date",
+            maxGraphemes: 512
+          },
+          gbifTaxonKey: {
+            type: "string",
+            description: "GBIF backbone taxonomy key for the identified taxon",
+            maxGraphemes: 64
+          },
+          identifiedBy: {
+            type: "string",
+            description: "Person(s) who made the identification (pipe-delimited for multiple)",
+            maxGraphemes: 512
+          },
+          identifiedByID: {
+            type: "string",
+            description: "ORCID or other persistent identifier for the person(s) who identified (pipe-delimited)",
+            maxGraphemes: 512
+          },
+          dateIdentified: {
+            type: "string",
+            description: "Date the identification was made (ISO 8601)",
+            maxGraphemes: 64
+          },
+          identificationQualifier: {
+            type: "string",
+            description: "Uncertainty qualifier applied to the taxon name (e.g., 'cf. agrestis', 'aff. agrestis')",
+            maxGraphemes: 256
+          },
+          identificationRemarks: {
+            type: "string",
+            description: "Notes or comments about the identification",
+            maxGraphemes: 2048
+          }
+        }
+      },
+      basisOfRecordEnum: {
+        type: "string",
+        description: "The specific nature of the data record. Controlled vocabulary per Darwin Core.",
+        maxGraphemes: 64,
+        knownValues: [
+          "HumanObservation",
+          "MachineObservation",
+          "PreservedSpecimen",
+          "LivingSpecimen",
+          "FossilSpecimen",
+          "MaterialSample",
+          "MaterialEntity",
+          "MaterialCitation"
+        ]
+      },
+      occurrenceStatusEnum: {
+        type: "string",
+        description: "Statement about the presence or absence of a taxon at a location.",
+        maxGraphemes: 64,
+        knownValues: ["present", "absent"]
+      },
+      dublinCoreTypeEnum: {
+        type: "string",
+        description: "Dublin Core type vocabulary for the nature of the resource.",
+        maxGraphemes: 64,
+        knownValues: [
+          "PhysicalObject",
+          "StillImage",
+          "MovingImage",
+          "Sound",
+          "Text",
+          "Event",
+          "Dataset"
+        ]
+      },
+      nomenclaturalCodeEnum: {
+        type: "string",
+        description: "The nomenclatural code under which the scientific name is constructed.",
+        maxGraphemes: 64,
+        knownValues: ["ICZN", "ICN", "ICNP", "ICTV", "BioCode"]
+      },
+      sexEnum: {
+        type: "string",
+        description: "The sex of the biological individual(s) represented in the occurrence.",
+        maxGraphemes: 64,
+        knownValues: ["male", "female", "hermaphrodite"]
+      },
+      taxonRankEnum: {
+        type: "string",
+        description: "The taxonomic rank of the most specific name in the scientificName.",
+        maxGraphemes: 64,
+        knownValues: [
+          "kingdom",
+          "phylum",
+          "class",
+          "order",
+          "family",
+          "subfamily",
+          "genus",
+          "subgenus",
+          "species",
+          "subspecies",
+          "variety",
+          "form"
+        ]
+      }
+    }
+  },
+  AppGainforestDwcEvent: {
+    lexicon: 1,
+    id: "app.gainforest.dwc.event",
+    description: "A sampling event record aligned with Darwin Core Event class. Enables star-schema pattern where multiple occurrences reference a shared event context (location, protocol, effort).",
+    defs: {
+      main: {
+        type: "record",
+        description: "A sampling or collecting event. Multiple dwc.occurrence records can reference the same event via eventRef, sharing location and protocol metadata.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["eventID", "eventDate", "createdAt"],
+          properties: {
+            eventID: {
+              type: "string",
+              description: "An identifier for the event. Should be globally unique or unique within the dataset.",
+              maxGraphemes: 256
+            },
+            parentEventID: {
+              type: "string",
+              description: "An identifier for the broader event that this event is part of (e.g., a survey campaign that contains multiple transects).",
+              maxGraphemes: 256
+            },
+            parentEventRef: {
+              type: "string",
+              format: "at-uri",
+              description: "AT-URI reference to the parent app.gainforest.dwc.event record."
+            },
+            eventDate: {
+              type: "string",
+              description: "The date or date range during which the event occurred. ISO 8601 format (e.g., '2024-03-15', '2024-03-15/2024-03-17').",
+              maxGraphemes: 64
+            },
+            eventTime: {
+              type: "string",
+              description: "The time or time range during which the event occurred. ISO 8601 format (e.g., '06:30:00', '06:30:00/09:00:00').",
+              maxGraphemes: 64
+            },
+            habitat: {
+              type: "string",
+              description: "A category or description of the habitat in which the event occurred (e.g., 'primary tropical rainforest', 'degraded pasture', 'riparian zone').",
+              maxGraphemes: 512
+            },
+            samplingProtocol: {
+              type: "string",
+              description: "The names of, references to, or descriptions of the methods used during the event (e.g., 'camera trap array', 'line transect distance sampling', 'audio point count 10-min').",
+              maxGraphemes: 1024
+            },
+            sampleSizeValue: {
+              type: "string",
+              description: "A numeric value for a measurement of the size of a sample in the event (e.g., '20', '0.25').",
+              maxGraphemes: 64
+            },
+            sampleSizeUnit: {
+              type: "string",
+              description: "The unit of measurement for the sampleSizeValue (e.g., 'square meters', 'hectares', 'trap-nights').",
+              maxGraphemes: 128
+            },
+            samplingEffort: {
+              type: "string",
+              description: "The amount of effort expended during the event (e.g., '3 person-hours', '14 trap-nights', '2 km transect walked').",
+              maxGraphemes: 256
+            },
+            fieldNotes: {
+              type: "string",
+              description: "Notes or a reference to notes taken in the field about the event.",
+              maxGraphemes: 1e4
+            },
+            eventRemarks: {
+              type: "string",
+              description: "Comments or notes about the event.",
+              maxGraphemes: 5e3
+            },
+            locationID: {
+              type: "string",
+              description: "Identifier for the location where the event occurred.",
+              maxGraphemes: 256
+            },
+            decimalLatitude: {
+              type: "string",
+              description: "Geographic latitude in decimal degrees (WGS84). Range: -90 to 90.",
+              maxGraphemes: 32
+            },
+            decimalLongitude: {
+              type: "string",
+              description: "Geographic longitude in decimal degrees (WGS84). Range: -180 to 180.",
+              maxGraphemes: 32
+            },
+            geodeticDatum: {
+              type: "string",
+              description: "The spatial reference system. Recommended: 'EPSG:4326'.",
+              maxGraphemes: 64
+            },
+            coordinateUncertaintyInMeters: {
+              type: "integer",
+              description: "Uncertainty radius in meters around the coordinates.",
+              minimum: 1
+            },
+            country: {
+              type: "string",
+              description: "The name of the country.",
+              maxGraphemes: 128
+            },
+            countryCode: {
+              type: "string",
+              description: "ISO 3166-1 alpha-2 country code.",
+              minLength: 2,
+              maxLength: 2
+            },
+            stateProvince: {
+              type: "string",
+              description: "First-level administrative division.",
+              maxGraphemes: 256
+            },
+            county: {
+              type: "string",
+              description: "Second-level administrative division.",
+              maxGraphemes: 256
+            },
+            municipality: {
+              type: "string",
+              description: "Third-level administrative division.",
+              maxGraphemes: 256
+            },
+            locality: {
+              type: "string",
+              description: "Specific locality description.",
+              maxGraphemes: 1024
+            },
+            minimumElevationInMeters: {
+              type: "integer",
+              description: "Lower limit of elevation range in meters above sea level."
+            },
+            maximumElevationInMeters: {
+              type: "integer",
+              description: "Upper limit of elevation range in meters above sea level."
+            },
+            locationRemarks: {
+              type: "string",
+              description: "Comments about the location.",
+              maxGraphemes: 2048
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp of record creation in the ATProto PDS."
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestDwcMeasurement: {
+    lexicon: 1,
+    id: "app.gainforest.dwc.measurement",
+    description: "A measurement or fact record aligned with the Darwin Core MeasurementOrFact class. Extension record that links to an occurrence, enabling multiple measurements per organism (e.g., DBH, height, canopy cover for a tree).",
+    defs: {
+      main: {
+        type: "record",
+        description: "A measurement, fact, characteristic, or assertion about an occurrence. Multiple measurement records can reference the same occurrence, solving the Simple DwC one-measurement-per-record limitation.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: [
+            "occurrenceRef",
+            "measurementType",
+            "measurementValue",
+            "createdAt"
+          ],
+          properties: {
+            measurementID: {
+              type: "string",
+              description: "An identifier for the measurement. Should be unique within the dataset.",
+              maxGraphemes: 256
+            },
+            occurrenceRef: {
+              type: "string",
+              format: "at-uri",
+              description: "AT-URI reference to the app.gainforest.dwc.occurrence record this measurement belongs to."
+            },
+            occurrenceID: {
+              type: "string",
+              description: "The occurrenceID of the linked occurrence record (for cross-system interoperability).",
+              maxGraphemes: 256
+            },
+            measurementType: {
+              type: "string",
+              description: "The nature of the measurement, fact, characteristic, or assertion (e.g., 'DBH', 'tree height', 'canopy cover', 'tail length', 'body mass', 'soil pH', 'water temperature').",
+              maxGraphemes: 256
+            },
+            measurementValue: {
+              type: "string",
+              description: "The value of the measurement, fact, characteristic, or assertion (e.g., '45.2', 'present', 'blue').",
+              maxGraphemes: 1024
+            },
+            measurementUnit: {
+              type: "string",
+              description: "The units for the measurementValue (e.g., 'cm', 'm', 'kg', 'mm', '%', 'degrees Celsius').",
+              maxGraphemes: 64
+            },
+            measurementAccuracy: {
+              type: "string",
+              description: "The description of the potential error associated with the measurementValue (e.g., '0.5 cm', '5%').",
+              maxGraphemes: 256
+            },
+            measurementMethod: {
+              type: "string",
+              description: "The description of or reference to the method used to determine the measurement (e.g., 'diameter tape at 1.3m height', 'laser rangefinder', 'Bitterlich method').",
+              maxGraphemes: 1024
+            },
+            measurementDeterminedBy: {
+              type: "string",
+              description: "Person(s) who determined the measurement. Pipe-delimited for multiple.",
+              maxGraphemes: 512
+            },
+            measurementDeterminedDate: {
+              type: "string",
+              description: "The date the measurement was made. ISO 8601 format.",
+              maxGraphemes: 64
+            },
+            measurementRemarks: {
+              type: "string",
+              description: "Comments or notes accompanying the measurement.",
+              maxGraphemes: 5e3
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp of record creation in the ATProto PDS."
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestDwcOccurrence: {
+    lexicon: 1,
+    id: "app.gainforest.dwc.occurrence",
+    description: "A single biodiversity occurrence record aligned with Simple Darwin Core (TDWG Standard 450, version 2023-09-13). Represents one organism or group of organisms at a particular place and time.",
+    defs: {
+      main: {
+        type: "record",
+        description: "A biodiversity occurrence record following the Simple Darwin Core standard. Each record represents one occurrence of an organism at a location and time.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: [
+            "basisOfRecord",
+            "scientificName",
+            "eventDate",
+            "createdAt"
+          ],
+          properties: {
+            occurrenceID: {
+              type: "string",
+              description: "A globally unique identifier for the occurrence record. Recommended: a persistent URI (e.g., DOI, LSID, or UUID-based URI).",
+              maxGraphemes: 256
+            },
+            basisOfRecord: {
+              type: "string",
+              description: "The specific nature of the data record. Must be one of the Darwin Core class names.",
+              maxGraphemes: 64,
+              enum: [
+                "HumanObservation",
+                "MachineObservation",
+                "PreservedSpecimen",
+                "LivingSpecimen",
+                "FossilSpecimen",
+                "MaterialSample",
+                "MaterialEntity",
+                "MaterialCitation"
+              ]
+            },
+            dcType: {
+              type: "string",
+              description: "The Dublin Core type class that best describes the resource (dc:type).",
+              maxGraphemes: 64,
+              enum: [
+                "PhysicalObject",
+                "StillImage",
+                "MovingImage",
+                "Sound",
+                "Text",
+                "Event",
+                "Dataset"
+              ]
+            },
+            license: {
+              type: "string",
+              description: "A legal document giving official permission to do something with the record. Recommended: a Creative Commons URI (e.g., 'http://creativecommons.org/licenses/by/4.0/').",
+              maxGraphemes: 512
+            },
+            rightsHolder: {
+              type: "string",
+              description: "Person or organization owning or managing rights over the resource.",
+              maxGraphemes: 256
+            },
+            institutionCode: {
+              type: "string",
+              description: "The name or acronym of the institution having custody of the object(s) or information in the record.",
+              maxGraphemes: 256
+            },
+            collectionCode: {
+              type: "string",
+              description: "The name, acronym, or code identifying the collection or dataset from which the record was derived.",
+              maxGraphemes: 256
+            },
+            datasetName: {
+              type: "string",
+              description: "The name identifying the dataset from which the record was derived.",
+              maxGraphemes: 256
+            },
+            informationWithheld: {
+              type: "string",
+              description: "A description of what information is withheld from this record and why (e.g., 'coordinates generalized to protect endangered species').",
+              maxGraphemes: 1024
+            },
+            dataGeneralizations: {
+              type: "string",
+              description: "A description of actions taken to make the data less specific or complete (e.g., 'coordinates rounded to nearest 0.1 degree').",
+              maxGraphemes: 1024
+            },
+            references: {
+              type: "string",
+              format: "uri",
+              description: "A related resource that is referenced, cited, or otherwise pointed to by the record (URL)."
+            },
+            recordedBy: {
+              type: "string",
+              description: "Person(s) responsible for recording the occurrence in the field. Pipe-delimited for multiple (e.g., 'Jane Smith | John Doe').",
+              maxGraphemes: 512
+            },
+            recordedByID: {
+              type: "string",
+              description: "Persistent identifier(s) (e.g., ORCID) of the person(s) who recorded. Pipe-delimited for multiple.",
+              maxGraphemes: 512
+            },
+            individualCount: {
+              type: "integer",
+              description: "The number of individuals present at the time of the occurrence.",
+              minimum: 0
+            },
+            organismQuantity: {
+              type: "string",
+              description: "A number or enumeration value for the quantity of organisms (e.g., '27', '12.5', 'many').",
+              maxGraphemes: 64
+            },
+            organismQuantityType: {
+              type: "string",
+              description: "The type of quantification system used for organismQuantity (e.g., 'individuals', '% biomass', 'stems/ha').",
+              maxGraphemes: 128
+            },
+            sex: {
+              type: "string",
+              description: "The sex of the biological individual(s).",
+              maxGraphemes: 64,
+              enum: ["male", "female", "hermaphrodite"]
+            },
+            lifeStage: {
+              type: "string",
+              description: "The age class or life stage at the time of occurrence (e.g., 'adult', 'juvenile', 'larva', 'seedling', 'sapling').",
+              maxGraphemes: 128
+            },
+            reproductiveCondition: {
+              type: "string",
+              description: "The reproductive condition at the time of occurrence (e.g., 'flowering', 'fruiting', 'budding', 'pregnant').",
+              maxGraphemes: 128
+            },
+            behavior: {
+              type: "string",
+              description: "The behavior shown by the subject at the time of occurrence (e.g., 'foraging', 'nesting', 'roosting').",
+              maxGraphemes: 256
+            },
+            occurrenceStatus: {
+              type: "string",
+              description: "Statement about the presence or absence of a taxon at a location.",
+              maxGraphemes: 64,
+              enum: ["present", "absent"]
+            },
+            occurrenceRemarks: {
+              type: "string",
+              description: "Comments or notes about the occurrence.",
+              maxGraphemes: 5e3
+            },
+            associatedMedia: {
+              type: "string",
+              description: "Identifiers (URIs) of media associated with the occurrence. Pipe-delimited for multiple.",
+              maxGraphemes: 2048
+            },
+            associatedReferences: {
+              type: "string",
+              description: "Identifiers (URIs) of literature associated with the occurrence. Pipe-delimited for multiple.",
+              maxGraphemes: 2048
+            },
+            associatedSequences: {
+              type: "string",
+              description: "Identifiers (URIs) of genetic sequence information associated with the occurrence. Pipe-delimited for multiple.",
+              maxGraphemes: 2048
+            },
+            associatedOccurrences: {
+              type: "string",
+              description: "Identifiers of other occurrences associated with this one (e.g., parasite-host). Pipe-delimited.",
+              maxGraphemes: 2048
+            },
+            eventID: {
+              type: "string",
+              description: "Identifier for the sampling event. Can be used to group occurrences from the same event.",
+              maxGraphemes: 256
+            },
+            eventRef: {
+              type: "string",
+              format: "at-uri",
+              description: "AT-URI reference to an app.gainforest.dwc.event record (for star-schema linkage)."
+            },
+            eventDate: {
+              type: "string",
+              description: "The date or date-time (or interval) during which the occurrence was recorded. ISO 8601 format (e.g., '2024-03-15', '2024-03-15T10:30:00Z', '2024-03/2024-06').",
+              maxGraphemes: 64
+            },
+            eventTime: {
+              type: "string",
+              description: "The time of the event. ISO 8601 format (e.g., '14:30:00', '14:30:00+02:00').",
+              maxGraphemes: 64
+            },
+            habitat: {
+              type: "string",
+              description: "A description of the habitat in which the event occurred (e.g., 'tropical rainforest', 'mangrove swamp', 'montane cloud forest').",
+              maxGraphemes: 512
+            },
+            samplingProtocol: {
+              type: "string",
+              description: "The method or protocol used during the event (e.g., 'camera trap', 'point count', 'mist net', '20m x 20m plot survey', 'acoustic monitoring').",
+              maxGraphemes: 1024
+            },
+            samplingEffort: {
+              type: "string",
+              description: "The amount of effort expended during the event (e.g., '2 trap-nights', '30 minutes', '10 km transect').",
+              maxGraphemes: 256
+            },
+            fieldNotes: {
+              type: "string",
+              description: "Notes or reference to notes taken in the field about the event.",
+              maxGraphemes: 1e4
+            },
+            locationID: {
+              type: "string",
+              description: "Identifier for the location (e.g., a reference to a named site).",
+              maxGraphemes: 256
+            },
+            decimalLatitude: {
+              type: "string",
+              description: "Geographic latitude in decimal degrees (WGS84). Positive values are north of the Equator. Range: -90 to 90.",
+              maxGraphemes: 32
+            },
+            decimalLongitude: {
+              type: "string",
+              description: "Geographic longitude in decimal degrees (WGS84). Positive values are east of the Greenwich Meridian. Range: -180 to 180.",
+              maxGraphemes: 32
+            },
+            geodeticDatum: {
+              type: "string",
+              description: "The spatial reference system for the coordinates. Recommended: 'EPSG:4326' (WGS84).",
+              maxGraphemes: 64
+            },
+            coordinateUncertaintyInMeters: {
+              type: "integer",
+              description: "Horizontal distance (meters) from the given coordinates describing the smallest circle containing the whole location.",
+              minimum: 1
+            },
+            country: {
+              type: "string",
+              description: "The name of the country or major administrative unit.",
+              maxGraphemes: 128
+            },
+            countryCode: {
+              type: "string",
+              description: "The standard code for the country (ISO 3166-1 alpha-2).",
+              minLength: 2,
+              maxLength: 2
+            },
+            stateProvince: {
+              type: "string",
+              description: "The name of the next smaller administrative region than country.",
+              maxGraphemes: 256
+            },
+            county: {
+              type: "string",
+              description: "The full, unabbreviated name of the next smaller administrative region than stateProvince.",
+              maxGraphemes: 256
+            },
+            municipality: {
+              type: "string",
+              description: "The full, unabbreviated name of the next smaller administrative region than county.",
+              maxGraphemes: 256
+            },
+            locality: {
+              type: "string",
+              description: "The specific description of the place (e.g., '500m upstream of bridge on Rio Par\xE1').",
+              maxGraphemes: 1024
+            },
+            verbatimLocality: {
+              type: "string",
+              description: "The original textual description of the place as provided by the recorder.",
+              maxGraphemes: 1024
+            },
+            minimumElevationInMeters: {
+              type: "integer",
+              description: "The lower limit of the range of elevation (in meters above sea level)."
+            },
+            maximumElevationInMeters: {
+              type: "integer",
+              description: "The upper limit of the range of elevation (in meters above sea level)."
+            },
+            minimumDepthInMeters: {
+              type: "integer",
+              description: "The lesser depth of a range of depth below the local surface (in meters).",
+              minimum: 0
+            },
+            maximumDepthInMeters: {
+              type: "integer",
+              description: "The greater depth of a range of depth below the local surface (in meters).",
+              minimum: 0
+            },
+            locationRemarks: {
+              type: "string",
+              description: "Comments about the location.",
+              maxGraphemes: 2048
+            },
+            gbifTaxonKey: {
+              type: "string",
+              description: "GBIF backbone taxonomy key for the identified taxon. Retained for backward compatibility with existing GainForest workflows.",
+              maxGraphemes: 64
+            },
+            scientificName: {
+              type: "string",
+              description: "The full scientific name, with authorship and date if known (e.g., 'Centropyge flavicauda Fraser-Brunner 1933').",
+              maxGraphemes: 512
+            },
+            scientificNameAuthorship: {
+              type: "string",
+              description: "The authorship information for the scientific name (e.g., 'Fraser-Brunner 1933').",
+              maxGraphemes: 256
+            },
+            kingdom: {
+              type: "string",
+              description: "The full scientific name of the kingdom (e.g., 'Animalia', 'Plantae', 'Fungi').",
+              maxGraphemes: 128
+            },
+            phylum: {
+              type: "string",
+              description: "The full scientific name of the phylum or division.",
+              maxGraphemes: 128
+            },
+            class: {
+              type: "string",
+              description: "The full scientific name of the class.",
+              maxGraphemes: 128
+            },
+            order: {
+              type: "string",
+              description: "The full scientific name of the order.",
+              maxGraphemes: 128
+            },
+            family: {
+              type: "string",
+              description: "The full scientific name of the family.",
+              maxGraphemes: 128
+            },
+            genus: {
+              type: "string",
+              description: "The full scientific name of the genus.",
+              maxGraphemes: 128
+            },
+            specificEpithet: {
+              type: "string",
+              description: "The name of the species epithet of the scientificName.",
+              maxGraphemes: 128
+            },
+            infraspecificEpithet: {
+              type: "string",
+              description: "The name of the lowest or terminal infraspecific epithet.",
+              maxGraphemes: 128
+            },
+            taxonRank: {
+              type: "string",
+              description: "The taxonomic rank of the most specific name in scientificName.",
+              maxGraphemes: 64,
+              enum: [
+                "kingdom",
+                "phylum",
+                "class",
+                "order",
+                "family",
+                "subfamily",
+                "genus",
+                "subgenus",
+                "species",
+                "subspecies",
+                "variety",
+                "form"
+              ]
+            },
+            vernacularName: {
+              type: "string",
+              description: "A common or vernacular name for the taxon.",
+              maxGraphemes: 256
+            },
+            taxonomicStatus: {
+              type: "string",
+              description: "The status of the use of the scientificName (e.g., 'accepted', 'synonym', 'doubtful').",
+              maxGraphemes: 64
+            },
+            nomenclaturalCode: {
+              type: "string",
+              description: "The nomenclatural code under which the scientificName is constructed.",
+              maxGraphemes: 64,
+              enum: ["ICZN", "ICN", "ICNP", "ICTV", "BioCode"]
+            },
+            higherClassification: {
+              type: "string",
+              description: "A complete list of taxa names terminating at the rank immediately superior to the taxon. Pipe-delimited (e.g., 'Animalia|Chordata|Mammalia|Rodentia|Ctenomyidae|Ctenomys').",
+              maxGraphemes: 1024
+            },
+            identifiedBy: {
+              type: "string",
+              description: "Person(s) who assigned the taxon to the occurrence. Pipe-delimited for multiple.",
+              maxGraphemes: 512
+            },
+            identifiedByID: {
+              type: "string",
+              description: "Persistent identifier(s) (e.g., ORCID) of the person(s) who identified. Pipe-delimited.",
+              maxGraphemes: 512
+            },
+            dateIdentified: {
+              type: "string",
+              description: "The date on which the identification was made. ISO 8601 format.",
+              maxGraphemes: 64
+            },
+            identificationQualifier: {
+              type: "string",
+              description: "A brief phrase or standard term qualifying the identification (e.g., 'cf. agrestis', 'aff. agrestis').",
+              maxGraphemes: 256
+            },
+            identificationRemarks: {
+              type: "string",
+              description: "Comments or notes about the identification.",
+              maxGraphemes: 2048
+            },
+            previousIdentifications: {
+              type: "string",
+              description: "Previous assignments of names to the occurrence. Pipe-delimited.",
+              maxGraphemes: 2048
+            },
+            dynamicProperties: {
+              type: "string",
+              description: `Additional structured data as a valid JSON string (per Simple DwC Section 7.1). Example: '{"iucnStatus":"vulnerable","canopyCover":"85%"}'. Should be flattened to a single line with no non-printing characters.`,
+              maxGraphemes: 1e4
+            },
+            imageEvidence: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#image",
+              description: "Image evidence (photo, camera trap, drone still, scanned specimen, etc.)."
+            },
+            audioEvidence: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#audio",
+              description: "Audio evidence (bioacoustics, soundscape, species call, field recording, etc.)."
+            },
+            videoEvidence: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#video",
+              description: "Video evidence (camera trap, drone footage, underwater video, behavioral observation, etc.)."
+            },
+            spectrogramEvidence: {
+              type: "ref",
+              ref: "lex:app.gainforest.common.defs#spectrogram",
+              description: "Spectrogram image showing frequency analysis of audio recording."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp of record creation in the ATProto PDS."
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestEvaluatorDefs: {
+    lexicon: 1,
+    id: "app.gainforest.evaluator.defs",
+    description: "Shared type definitions for decentralized evaluator services. Evaluators attach structured, typed evaluation data to records (a more sophisticated evolution of the labeler pattern).",
+    defs: {
+      subjectRef: {
+        type: "object",
+        description: "Reference to a target record that is being evaluated.",
+        required: ["uri"],
+        properties: {
+          uri: {
+            type: "string",
+            format: "at-uri",
+            description: "AT-URI of the target record."
+          },
+          cid: {
+            type: "string",
+            format: "cid",
+            description: "CID pinning the exact version of the target record."
+          }
+        }
+      },
+      methodInfo: {
+        type: "object",
+        description: "Provenance metadata describing the method used to produce an evaluation.",
+        required: ["name"],
+        properties: {
+          name: {
+            type: "string",
+            maxGraphemes: 256,
+            description: "Human-readable name of the method or model (e.g., 'GainForest BioClassifier')."
+          },
+          version: {
+            type: "string",
+            maxGraphemes: 64,
+            description: "Version string of the method or model (e.g., '2.1.0')."
+          },
+          modelCheckpoint: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "Identifier for the specific model checkpoint used (e.g., date or hash)."
+          },
+          references: {
+            type: "array",
+            items: {
+              type: "string",
+              format: "uri"
+            },
+            maxLength: 10,
+            description: "URIs to papers, documentation, or repositories describing this method."
+          }
+        }
+      },
+      candidateTaxon: {
+        type: "object",
+        description: "A candidate taxon identification with confidence score and rank.",
+        required: ["scientificName", "confidence", "rank"],
+        properties: {
+          scientificName: {
+            type: "string",
+            maxGraphemes: 512,
+            description: "Full scientific name of the candidate taxon."
+          },
+          gbifTaxonKey: {
+            type: "string",
+            maxGraphemes: 64,
+            description: "GBIF backbone taxonomy key for the candidate."
+          },
+          confidence: {
+            type: "integer",
+            minimum: 0,
+            maximum: 1e3,
+            description: "Confidence score (0-1000, where 1000 = 100.0%)."
+          },
+          rank: {
+            type: "integer",
+            minimum: 1,
+            description: "Rank position among candidates (1 = best match)."
+          },
+          kingdom: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "Kingdom of the candidate taxon."
+          },
+          family: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "Family of the candidate taxon."
+          },
+          genus: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "Genus of the candidate taxon."
+          }
+        }
+      },
+      qualityFlag: {
+        type: "object",
+        description: "A single data quality flag indicating an issue with a specific field.",
+        required: ["field", "issue"],
+        properties: {
+          field: {
+            type: "string",
+            maxGraphemes: 64,
+            description: "The field name that has the quality issue."
+          },
+          issue: {
+            type: "string",
+            maxGraphemes: 256,
+            description: "Description of the quality issue."
+          },
+          severity: {
+            type: "string",
+            maxGraphemes: 64,
+            knownValues: ["error", "warning", "info"],
+            description: "Severity level of the quality issue."
+          }
+        }
+      },
+      derivedMeasurement: {
+        type: "object",
+        description: "A single measurement derived by an evaluator from source data.",
+        required: ["measurementType", "measurementValue"],
+        properties: {
+          measurementType: {
+            type: "string",
+            maxGraphemes: 256,
+            description: "The nature of the measurement (e.g., 'canopy cover', 'NDVI', 'tree height')."
+          },
+          measurementValue: {
+            type: "string",
+            maxGraphemes: 1024,
+            description: "The value of the measurement."
+          },
+          measurementUnit: {
+            type: "string",
+            maxGraphemes: 64,
+            description: "The units for the measurement value (e.g., '%', 'm', 'kg')."
+          },
+          measurementMethod: {
+            type: "string",
+            maxGraphemes: 1024,
+            description: "Description of the method used to obtain the measurement."
+          }
+        }
+      },
+      speciesIdResult: {
+        type: "object",
+        description: "AI or human species recognition result with ranked candidate identifications.",
+        required: ["candidates"],
+        properties: {
+          candidates: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.defs#candidateTaxon"
+            },
+            maxLength: 20,
+            description: "Ranked list of candidate species identifications."
+          },
+          inputFeature: {
+            type: "string",
+            maxGraphemes: 64,
+            description: "Which feature of the subject record was used as input (e.g., 'mediaEvidence')."
+          },
+          remarks: {
+            type: "string",
+            maxGraphemes: 2048,
+            description: "Additional notes about the species identification."
+          }
+        }
+      },
+      dataQualityResult: {
+        type: "object",
+        description: "Data quality assessment result with per-field quality flags.",
+        required: ["flags"],
+        properties: {
+          flags: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.defs#qualityFlag"
+            },
+            maxLength: 50,
+            description: "List of quality issues found in the record."
+          },
+          completenessScore: {
+            type: "integer",
+            minimum: 0,
+            maximum: 1e3,
+            description: "Overall completeness score (0-1000, where 1000 = 100.0%)."
+          },
+          remarks: {
+            type: "string",
+            maxGraphemes: 2048,
+            description: "Additional notes about the quality assessment."
+          }
+        }
+      },
+      verificationResult: {
+        type: "object",
+        description: "Expert verification result for a previous identification or evaluation.",
+        required: ["status"],
+        properties: {
+          status: {
+            type: "string",
+            maxGraphemes: 64,
+            knownValues: ["confirmed", "rejected", "uncertain"],
+            description: "Verification status: confirmed, rejected, or uncertain."
+          },
+          verifiedBy: {
+            type: "string",
+            maxGraphemes: 256,
+            description: "Name of the person who performed the verification."
+          },
+          verifiedByID: {
+            type: "string",
+            maxGraphemes: 256,
+            description: "Persistent identifier (e.g., ORCID) of the verifier."
+          },
+          remarks: {
+            type: "string",
+            maxGraphemes: 2048,
+            description: "Notes about the verification decision."
+          },
+          suggestedCorrections: {
+            type: "string",
+            maxGraphemes: 5e3,
+            description: "Suggested corrections if the original identification was rejected or uncertain."
+          }
+        }
+      },
+      classificationResult: {
+        type: "object",
+        description: "Generic categorical classification result (e.g., conservation priority, habitat type).",
+        required: ["category", "value"],
+        properties: {
+          category: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "The classification category (e.g., 'conservation-priority', 'habitat-type')."
+          },
+          value: {
+            type: "string",
+            maxGraphemes: 256,
+            description: "The assigned classification value (e.g., 'critical', 'tropical-rainforest')."
+          },
+          remarks: {
+            type: "string",
+            maxGraphemes: 2048,
+            description: "Additional notes about the classification."
+          }
+        }
+      },
+      measurementResult: {
+        type: "object",
+        description: "Derived measurements produced by an evaluator from source data (e.g., remote sensing metrics).",
+        required: ["measurements"],
+        properties: {
+          measurements: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.defs#derivedMeasurement"
+            },
+            maxLength: 20,
+            description: "List of derived measurements."
+          },
+          remarks: {
+            type: "string",
+            maxGraphemes: 2048,
+            description: "Additional notes about the measurements."
+          }
+        }
+      }
+    }
+  },
+  AppGainforestEvaluatorEvaluation: {
+    lexicon: 1,
+    id: "app.gainforest.evaluator.evaluation",
+    description: "An evaluation record published by an evaluator in their own repo. Contains structured, typed results about a target record (or batch of records). Discovered by AppViews via the atproto-accept-evaluators HTTP header pattern.",
+    defs: {
+      main: {
+        type: "record",
+        description: "A single evaluation produced by an evaluator service. Exactly one of 'subject' (single target) or 'subjects' (batch) must be provided.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["evaluationType", "createdAt"],
+          properties: {
+            subject: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.defs#subjectRef",
+              description: "Single target record being evaluated. Use this OR subjects, not both."
+            },
+            subjects: {
+              type: "array",
+              items: {
+                type: "ref",
+                ref: "lex:app.gainforest.evaluator.defs#subjectRef"
+              },
+              maxLength: 100,
+              description: "Batch evaluation: multiple target records sharing the same result. Use this OR subject, not both."
+            },
+            evaluationType: {
+              type: "string",
+              maxGraphemes: 64,
+              description: "Identifier for the type of evaluation (must match one declared in the evaluator's service record)."
+            },
+            result: {
+              type: "union",
+              description: "The typed evaluation result. The $type field determines which result schema is used.",
+              refs: [
+                "lex:app.gainforest.evaluator.defs#speciesIdResult",
+                "lex:app.gainforest.evaluator.defs#dataQualityResult",
+                "lex:app.gainforest.evaluator.defs#verificationResult",
+                "lex:app.gainforest.evaluator.defs#classificationResult",
+                "lex:app.gainforest.evaluator.defs#measurementResult"
+              ]
+            },
+            confidence: {
+              type: "integer",
+              minimum: 0,
+              maximum: 1e3,
+              description: "Overall confidence in this evaluation (0-1000, where 1000 = 100.0%)."
+            },
+            method: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.defs#methodInfo",
+              description: "Method/model provenance for this specific evaluation (overrides service-level method if set)."
+            },
+            neg: {
+              type: "boolean",
+              description: "If true, this is a negation/withdrawal of a previous evaluation (like label negation)."
+            },
+            supersedes: {
+              type: "string",
+              format: "at-uri",
+              description: "AT-URI of a previous evaluation record that this one supersedes (e.g., model re-run with improved version)."
+            },
+            dynamicProperties: {
+              type: "string",
+              maxGraphemes: 1e4,
+              description: "Additional structured data as a JSON string. Escape hatch for experimental result types before they are formalized into the union."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp of when this evaluation was produced."
+            }
+          }
+        }
+      }
+    }
+  },
+  AppGainforestEvaluatorService: {
+    lexicon: 1,
+    id: "app.gainforest.evaluator.service",
+    description: "Declaration record published at rkey 'self' to register an account as an evaluator service. Analogous to app.bsky.labeler.service for labelers.",
+    defs: {
+      main: {
+        type: "record",
+        description: "An evaluator service declaration. Publish at /app.gainforest.evaluator.service/self to declare this account as an evaluator.",
+        key: "literal:self",
+        record: {
+          type: "object",
+          required: ["policies", "createdAt"],
+          properties: {
+            policies: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.service#evaluatorPolicies",
+              description: "The evaluator's policies including supported evaluation types and access model."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp of when this evaluator service was declared."
+            }
+          }
+        }
+      },
+      evaluatorPolicies: {
+        type: "object",
+        description: "Policies declaring what this evaluator does and how it operates.",
+        required: ["evaluationTypes"],
+        properties: {
+          accessModel: {
+            type: "string",
+            maxGraphemes: 64,
+            knownValues: ["open", "subscription"],
+            description: "Whether this evaluator requires user subscription ('subscription') or processes all matching records ('open')."
+          },
+          evaluationTypes: {
+            type: "array",
+            items: {
+              type: "string",
+              maxGraphemes: 64
+            },
+            maxLength: 20,
+            description: "List of evaluation type identifiers this evaluator produces (e.g., 'species-id', 'data-quality')."
+          },
+          evaluationTypeDefinitions: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.service#evaluationTypeDefinition"
+            },
+            maxLength: 20,
+            description: "Detailed definitions for each evaluation type, including human-readable descriptions."
+          },
+          subjectCollections: {
+            type: "array",
+            items: {
+              type: "string",
+              maxGraphemes: 128
+            },
+            maxLength: 20,
+            description: "NSIDs of record collections this evaluator can evaluate (e.g., 'app.gainforest.dwc.occurrence')."
+          }
+        }
+      },
+      evaluationTypeDefinition: {
+        type: "object",
+        description: "Definition of a single evaluation type produced by this evaluator.",
+        required: ["identifier", "resultType"],
+        properties: {
+          identifier: {
+            type: "string",
+            maxGraphemes: 64,
+            description: "The evaluation type identifier (must match an entry in evaluationTypes)."
+          },
+          resultType: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "The lexicon reference for the result type (e.g., 'app.gainforest.evaluator.defs#speciesIdResult')."
+          },
+          method: {
+            type: "ref",
+            ref: "lex:app.gainforest.evaluator.defs#methodInfo",
+            description: "Default method info for this evaluation type (can be overridden per-evaluation)."
+          },
+          locales: {
+            type: "array",
+            items: {
+              type: "ref",
+              ref: "lex:app.gainforest.evaluator.service#evaluationTypeLocale"
+            },
+            maxLength: 20,
+            description: "Human-readable names and descriptions in various languages."
+          }
+        }
+      },
+      evaluationTypeLocale: {
+        type: "object",
+        description: "Localized name and description for an evaluation type.",
+        required: ["lang", "name", "description"],
+        properties: {
+          lang: {
+            type: "string",
+            maxGraphemes: 16,
+            description: "Language code (BCP-47, e.g., 'en', 'pt-BR')."
+          },
+          name: {
+            type: "string",
+            maxGraphemes: 128,
+            description: "Short human-readable name for this evaluation type."
+          },
+          description: {
+            type: "string",
+            maxGraphemes: 2048,
+            description: "Longer description of what this evaluation type does."
+          }
+        }
+      }
+    }
+  },
+  AppGainforestEvaluatorSubscription: {
+    lexicon: 1,
+    id: "app.gainforest.evaluator.subscription",
+    description: "A subscription record published by a user in their own repo to request evaluations from a specific evaluator service. The evaluator detects subscriptions via Jetstream and processes matching records. Deleting this record unsubscribes.",
+    defs: {
+      main: {
+        type: "record",
+        description: "User subscription to an evaluator service. Published by the user (not the evaluator) to declare they want evaluations.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["evaluator", "createdAt"],
+          properties: {
+            evaluator: {
+              type: "string",
+              format: "did",
+              description: "DID of the evaluator service to subscribe to."
+            },
+            collections: {
+              type: "array",
+              items: {
+                type: "string",
+                maxGraphemes: 128
+              },
+              maxLength: 20,
+              description: "Which of the user's record collections should be evaluated (NSIDs). Must be a subset of the evaluator's subjectCollections. If omitted, all supported collections are evaluated."
+            },
+            evaluationTypes: {
+              type: "array",
+              items: {
+                type: "string",
+                maxGraphemes: 64
+              },
+              maxLength: 20,
+              description: "Which evaluation types the user wants. If omitted, all types the evaluator supports are applied."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Timestamp of when this subscription was created."
+            }
           }
         }
       }
@@ -821,25 +2449,23 @@ var schemaDict = {
               maxLength: 255
             },
             shortDescription: {
-              type: "string",
-              description: "The description of the organization or project",
-              minLength: 50,
-              maxLength: 2e3
+              type: "ref",
+              ref: "lex:app.bsky.richtext.facet",
+              description: "The description of the organization or project"
             },
             longDescription: {
-              type: "string",
-              description: "The long description of the organization or project in richtext",
-              minLength: 50,
-              maxLength: 5e3
+              type: "ref",
+              ref: "lex:pub.leaflet.pages.linearDocument",
+              description: "The long description of the organization or project in richtext"
             },
             coverImage: {
               type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallImage",
+              ref: "lex:org.hypercerts.defs#smallImage",
               description: "Cover image for the organization"
             },
             logo: {
               type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallImage",
+              ref: "lex:org.hypercerts.defs#smallImage",
               description: "Logo for the organization"
             },
             objectives: {
@@ -873,7 +2499,7 @@ var schemaDict = {
             visibility: {
               type: "string",
               description: "The visibility of the organization or project in the Green Globe",
-              enum: ["Public", "Hidden"]
+              enum: ["Public", "Unlisted"]
             },
             createdAt: {
               type: "string",
@@ -947,7 +2573,7 @@ var schemaDict = {
           properties: {
             dendogram: {
               type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallBlob",
+              ref: "lex:org.hypercerts.defs#smallBlob",
               description: "An SVG of the dendogram uploaded as blob"
             },
             createdAt: {
@@ -966,7 +2592,7 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A declaration of a fauna observation for an organization",
+        description: "DEPRECATED: Use app.gainforest.dwc.occurrence instead. A declaration of a fauna observation for an organization.",
         key: "tid",
         record: {
           type: "object",
@@ -996,7 +2622,7 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A declaration of a flora observation for an organization",
+        description: "DEPRECATED: Use app.gainforest.dwc.occurrence instead. A declaration of a flora observation for an organization.",
         key: "tid",
         record: {
           type: "object",
@@ -1034,7 +2660,7 @@ var schemaDict = {
           properties: {
             shapefile: {
               type: "ref",
-              ref: "lex:app.gainforest.common.defs#smallBlob",
+              ref: "lex:org.hypercerts.defs#smallBlob",
               description: "A blob pointing to a shapefile of the measured trees cluster"
             },
             createdAt: {
@@ -1053,7 +2679,7 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A declaration of a fauna prediction for an organization",
+        description: "DEPRECATED: Use app.gainforest.dwc.occurrence with basisOfRecord='MachineObservation' instead. A declaration of a fauna prediction for an organization.",
         key: "tid",
         record: {
           type: "object",
@@ -1083,7 +2709,7 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A declaration of a flora prediction for an organization",
+        description: "DEPRECATED: Use app.gainforest.dwc.occurrence with basisOfRecord='MachineObservation' instead. A declaration of a flora prediction for an organization.",
         key: "tid",
         record: {
           type: "object",
@@ -1138,13 +2764,7 @@ var schemaDict = {
         key: "any",
         record: {
           type: "object",
-          required: [
-            "title",
-            "shortDescription",
-            "createdAt",
-            "startDate",
-            "endDate"
-          ],
+          required: ["title", "shortDescription", "createdAt"],
           properties: {
             title: {
               type: "string",
@@ -1153,15 +2773,31 @@ var schemaDict = {
             },
             shortDescription: {
               type: "string",
-              description: "Short blurb of the impact work done.",
+              description: "Short summary of this activity claim, suitable for previews and list views. Rich text annotations may be provided via `shortDescriptionFacets`.",
               maxLength: 3e3,
               maxGraphemes: 300
             },
+            shortDescriptionFacets: {
+              type: "array",
+              description: "Rich text annotations for `shortDescription` (mentions, URLs, hashtags, etc).",
+              items: {
+                type: "ref",
+                ref: "lex:app.bsky.richtext.facet"
+              }
+            },
             description: {
               type: "string",
-              description: "Optional longer description of the impact work done.",
+              description: "Optional longer description of this activity claim, including context or interpretation. Rich text annotations may be provided via `descriptionFacets`.",
               maxLength: 3e4,
               maxGraphemes: 3e3
+            },
+            descriptionFacets: {
+              type: "array",
+              description: "Rich text annotations for `description` (mentions, URLs, hashtags, etc).",
+              items: {
+                type: "ref",
+                ref: "lex:app.bsky.richtext.facet"
+              }
             },
             image: {
               type: "union",
@@ -1172,8 +2808,12 @@ var schemaDict = {
               description: "The hypercert visual representation as a URI or image blob."
             },
             workScope: {
-              type: "ref",
-              ref: "lex:org.hypercerts.claim.activity#workScope"
+              type: "union",
+              refs: [
+                "lex:com.atproto.repo.strongRef",
+                "lex:org.hypercerts.claim.activity#workScopeString"
+              ],
+              description: "Work scope definition. Either a strongRef to a work-scope logic record (structured, nested logic), or a free-form string for simple or legacy scopes. The work scope record should conform to the org.hypercerts.helper.workScopeTag lexicon."
             },
             startDate: {
               type: "string",
@@ -1185,12 +2825,12 @@ var schemaDict = {
               format: "datetime",
               description: "When the work ended"
             },
-            contributions: {
+            contributors: {
               type: "array",
-              description: "A strong reference to the contributions done to create the impact in the hypercerts. The record referenced must conform with the lexicon org.hypercerts.claim.contribution.",
+              description: "An array of contributor objects, each containing contributor information, weight, and contribution details.",
               items: {
                 type: "ref",
-                ref: "lex:com.atproto.repo.strongRef"
+                ref: "lex:org.hypercerts.claim.activity#contributor"
               }
             },
             rights: {
@@ -1206,11 +2846,6 @@ var schemaDict = {
                 ref: "lex:com.atproto.repo.strongRef"
               }
             },
-            project: {
-              type: "string",
-              format: "at-uri",
-              description: "A reference (AT-URI) to the project record that this activity is part of. The record referenced must conform with the lexicon org.hypercerts.claim.project. This activity must also be referenced by the project, establishing a bidirectional link."
-            },
             createdAt: {
               type: "string",
               format: "datetime",
@@ -1219,48 +2854,154 @@ var schemaDict = {
           }
         }
       },
-      workScope: {
+      contributor: {
         type: "object",
-        description: "Logical scope of the work using label-based conditions. All labels in `withinAllOf` must apply; at least one label in `withinAnyOf` must apply if provided; no label in `withinNoneOf` may apply.",
+        required: ["contributorIdentity"],
         properties: {
-          withinAllOf: {
-            type: "array",
-            description: "Labels that MUST all hold for the scope to apply.",
-            items: {
-              type: "string"
-            },
-            maxLength: 100
+          contributorIdentity: {
+            type: "union",
+            refs: [
+              "lex:org.hypercerts.claim.activity#contributorIdentity",
+              "lex:com.atproto.repo.strongRef"
+            ],
+            description: "Contributor identity as a string (DID or identifier) via org.hypercerts.claim.activity#contributorIdentity, or a strong reference to a contributor information record."
           },
-          withinAnyOf: {
-            type: "array",
-            description: "Labels of which AT LEAST ONE must hold (optional). If omitted or empty, imposes no additional condition.",
-            items: {
-              type: "string"
-            },
-            maxLength: 100
+          contributionWeight: {
+            type: "string",
+            description: "The relative weight/importance of this contribution (stored as a string to avoid float precision issues). Must be a positive numeric value. Weights do not need to sum to a specific total; normalization can be performed by the consuming application as needed."
           },
-          withinNoneOf: {
-            type: "array",
-            description: "Labels that MUST NOT hold for the scope to apply.",
-            items: {
-              type: "string"
-            },
-            maxLength: 100
+          contributionDetails: {
+            type: "union",
+            refs: [
+              "lex:org.hypercerts.claim.activity#contributorRole",
+              "lex:com.atproto.repo.strongRef"
+            ],
+            description: "Contribution details as a string via org.hypercerts.claim.activity#contributorRole, or a strong reference to a contribution details record."
           }
         }
       },
-      activityWeight: {
+      contributorIdentity: {
         type: "object",
-        required: ["activity", "weight"],
+        description: "Contributor information as a string (DID or identifier).",
+        required: ["identity"],
         properties: {
-          activity: {
-            type: "ref",
-            ref: "lex:com.atproto.repo.strongRef",
-            description: "A strong reference to a hypercert activity record. This activity must conform to the lexicon org.hypercerts.claim.activity"
-          },
-          weight: {
+          identity: {
             type: "string",
-            description: "The relative weight/importance of this hypercert activity (stored as a string to avoid float precision issues). Weights can be any positive numeric values and do not need to sum to a specific total; normalization can be performed by the consuming application as needed."
+            description: "The contributor identity string (DID or identifier).",
+            maxLength: 1e3,
+            maxGraphemes: 100
+          }
+        }
+      },
+      contributorRole: {
+        type: "object",
+        description: "Contribution details as a string.",
+        required: ["role"],
+        properties: {
+          role: {
+            type: "string",
+            description: "The contribution role or details.",
+            maxLength: 1e3,
+            maxGraphemes: 100
+          }
+        }
+      },
+      workScopeString: {
+        type: "object",
+        description: "A free-form string describing the work scope for simple or legacy scopes.",
+        required: ["scope"],
+        properties: {
+          scope: {
+            type: "string",
+            description: "The work scope description string.",
+            maxLength: 1e3,
+            maxGraphemes: 100
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimAttachment: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.attachment",
+    defs: {
+      main: {
+        type: "record",
+        description: "An attachment providing commentary, context, evidence, or documentary material related to a hypercert record (e.g. an activity, project, claim, or evaluation).",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["title", "content", "createdAt"],
+          properties: {
+            subjects: {
+              type: "array",
+              description: "References to the subject(s) the attachment is connected to\u2014this may be an activity claim, outcome claim, measurement, evaluation, or even another attachment. This is optional as the attachment can exist before the claim is recorded.",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              },
+              maxLength: 100
+            },
+            contentType: {
+              type: "string",
+              maxLength: 64,
+              description: "The type of attachment, e.g. report, audit, evidence, testimonial, methodology, etc."
+            },
+            content: {
+              type: "array",
+              description: "The files, documents, or external references included in this attachment record.",
+              items: {
+                type: "union",
+                refs: [
+                  "lex:org.hypercerts.defs#uri",
+                  "lex:org.hypercerts.defs#smallBlob"
+                ]
+              },
+              maxLength: 100
+            },
+            title: {
+              type: "string",
+              maxLength: 256,
+              description: "Title of this attachment."
+            },
+            shortDescription: {
+              type: "string",
+              description: "Short summary of this attachment, suitable for previews and list views. Rich text annotations may be provided via `shortDescriptionFacets`.",
+              maxLength: 3e3,
+              maxGraphemes: 300
+            },
+            shortDescriptionFacets: {
+              type: "array",
+              description: "Rich text annotations for `shortDescription` (mentions, URLs, hashtags, etc).",
+              items: {
+                type: "ref",
+                ref: "lex:app.bsky.richtext.facet"
+              }
+            },
+            description: {
+              type: "string",
+              description: "Optional longer description of this attachment, including context or interpretation. Rich text annotations may be provided via `descriptionFacets`.",
+              maxLength: 3e4,
+              maxGraphemes: 3e3
+            },
+            descriptionFacets: {
+              type: "array",
+              description: "Rich text annotations for `description` (mentions, URLs, hashtags, etc).",
+              items: {
+                type: "ref",
+                ref: "lex:app.bsky.richtext.facet"
+              }
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the location where this attachment's subject matter occurred. The record referenced must conform with the lexicon app.certified.location."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created."
+            }
           }
         }
       }
@@ -1272,12 +3013,16 @@ var schemaDict = {
     defs: {
       main: {
         type: "record",
-        description: "A collection/group of hypercerts that have a specific property.",
+        description: "A collection/group of items (activities and/or other collections). Collections support recursive nesting.",
         key: "tid",
         record: {
           type: "object",
-          required: ["title", "activities", "createdAt"],
+          required: ["title", "items", "createdAt"],
           properties: {
+            type: {
+              type: "string",
+              description: "The type of this collection. Possible fields can be 'favorites', 'project', or any other type of collection."
+            },
             title: {
               type: "string",
               description: "The title of this collection",
@@ -1288,27 +3033,41 @@ var schemaDict = {
               type: "string",
               maxLength: 3e3,
               maxGraphemes: 300,
-              description: "A short description of this collection"
+              description: "Short summary of this collection, suitable for previews and list views"
+            },
+            description: {
+              type: "ref",
+              ref: "lex:pub.leaflet.pages.linearDocument#main",
+              description: "Rich-text description, represented as a Leaflet linear document."
             },
             avatar: {
-              type: "blob",
-              description: "Primary avatar image representing this collection across apps and views; typically a square image.",
-              accept: ["image/png", "image/jpeg"],
-              maxSize: 1e6
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallImage"
+              ],
+              description: "The collection's avatar/profile image as a URI or image blob."
             },
-            coverPhoto: {
-              type: "blob",
-              description: "The cover photo of this collection.",
-              accept: ["image/png", "image/jpeg"],
-              maxSize: 1e6
+            banner: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#largeImage"
+              ],
+              description: "Larger horizontal image to display behind the collection view."
             },
-            activities: {
+            items: {
               type: "array",
-              description: "Array of activities with their associated weights in this collection",
+              description: "Array of items in this collection with optional weights.",
               items: {
                 type: "ref",
-                ref: "lex:org.hypercerts.claim.activity#activityWeight"
+                ref: "lex:org.hypercerts.claim.collection#item"
               }
+            },
+            location: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "A strong reference to the location where this collection's activities were performed. The record referenced must conform with the lexicon app.certified.location."
             },
             createdAt: {
               type: "string",
@@ -1317,38 +3076,46 @@ var schemaDict = {
             }
           }
         }
+      },
+      item: {
+        type: "object",
+        required: ["itemIdentifier"],
+        properties: {
+          itemIdentifier: {
+            type: "ref",
+            ref: "lex:com.atproto.repo.strongRef",
+            description: "Strong reference to an item in this collection. Items can be activities (org.hypercerts.claim.activity) and/or other collections (org.hypercerts.claim.collection)."
+          },
+          itemWeight: {
+            type: "string",
+            description: "Optional weight for this item (positive numeric value stored as string). Weights do not need to sum to a specific total; normalization can be performed by the consuming application as needed."
+          }
+        }
       }
     }
   },
-  OrgHypercertsClaimContribution: {
+  OrgHypercertsClaimContributionDetails: {
     lexicon: 1,
-    id: "org.hypercerts.claim.contribution",
+    id: "org.hypercerts.claim.contributionDetails",
     defs: {
       main: {
         type: "record",
-        description: "A contribution made toward a hypercert's impact.",
+        description: "Details about a specific contribution including role, description, and timeframe.",
         key: "tid",
         record: {
           type: "object",
-          required: ["contributors", "createdAt"],
+          required: ["createdAt"],
           properties: {
             role: {
               type: "string",
-              description: "Role or title of the contributor(s).",
+              description: "Role or title of the contributor.",
               maxLength: 100
             },
-            contributors: {
-              type: "array",
-              description: "List of the contributors (names, pseudonyms, or DIDs). If multiple contributors are stored in the same hypercertContribution, then they would have the exact same role.",
-              items: {
-                type: "string"
-              }
-            },
-            description: {
+            contributionDescription: {
               type: "string",
-              description: "What the contribution concretely achieved",
-              maxLength: 2e3,
-              maxGraphemes: 500
+              description: "What the contribution concretely was.",
+              maxLength: 1e4,
+              maxGraphemes: 1e3
             },
             startDate: {
               type: "string",
@@ -1358,12 +3125,51 @@ var schemaDict = {
             endDate: {
               type: "string",
               format: "datetime",
-              description: "When this contribution finished.  This should be a subset of the hypercert timeframe."
+              description: "When this contribution finished. This should be a subset of the hypercert timeframe."
             },
             createdAt: {
               type: "string",
               format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
+              description: "Client-declared timestamp when this record was originally created."
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsClaimContributorInformation: {
+    lexicon: 1,
+    id: "org.hypercerts.claim.contributorInformation",
+    defs: {
+      main: {
+        type: "record",
+        description: "Contributor information including identifier, display name, and image.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["createdAt"],
+          properties: {
+            identifier: {
+              type: "string",
+              description: "DID or a URI to a social profile of the contributor."
+            },
+            displayName: {
+              type: "string",
+              description: "Display name of the contributor.",
+              maxLength: 100
+            },
+            image: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallImage"
+              ],
+              description: "The contributor visual representation as a URI or image blob."
+            },
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created."
             }
           }
         }
@@ -1429,7 +3235,7 @@ var schemaDict = {
             },
             measurements: {
               type: "array",
-              description: "Optional references to the measurements that contributed to this evaluation. The record(s) referenced must conform with the lexicon org.hypercerts.claim.measurement ",
+              description: "Optional references to the measurements that contributed to this evaluation. The record(s) referenced must conform with the lexicon org.hypercerts.claim.measurement",
               items: {
                 type: "ref",
                 ref: "lex:com.atproto.repo.strongRef"
@@ -1462,63 +3268,6 @@ var schemaDict = {
       }
     }
   },
-  OrgHypercertsClaimEvidence: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.evidence",
-    defs: {
-      main: {
-        type: "record",
-        description: "A piece of evidence related to a hypercert record (e.g. an activity, project, claim, or evaluation). Evidence may support, clarify, or challenge the referenced subject.",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["content", "title", "createdAt"],
-          properties: {
-            subject: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the record this evidence relates to (e.g. an activity, project, claim, or evaluation)."
-            },
-            content: {
-              type: "union",
-              refs: [
-                "lex:org.hypercerts.defs#uri",
-                "lex:org.hypercerts.defs#smallBlob"
-              ],
-              description: "A piece of evidence (URI or blob) related to the subject record; it may support, clarify, or challenge a hypercert claim."
-            },
-            title: {
-              type: "string",
-              maxLength: 256,
-              description: "Title to describe the nature of the evidence."
-            },
-            shortDescription: {
-              type: "string",
-              maxLength: 3e3,
-              maxGraphemes: 300,
-              description: "Short description explaining what this evidence shows."
-            },
-            description: {
-              type: "string",
-              description: "Longer description describing the evidence in more detail.",
-              maxLength: 3e4,
-              maxGraphemes: 3e3
-            },
-            relationType: {
-              type: "string",
-              description: "How this evidence relates to the subject.",
-              knownValues: ["supports", "challenges", "clarifies"]
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
   OrgHypercertsClaimMeasurement: {
     lexicon: 1,
     id: "org.hypercerts.claim.measurement",
@@ -1529,31 +3278,46 @@ var schemaDict = {
         key: "tid",
         record: {
           type: "object",
-          required: ["measurers", "metric", "value", "createdAt"],
+          required: ["metric", "unit", "value", "createdAt"],
           properties: {
             subject: {
               type: "ref",
               ref: "lex:com.atproto.repo.strongRef",
               description: "A strong reference to the record this measurement refers to (e.g. an activity, project, or claim)."
             },
-            measurers: {
-              type: "array",
-              description: "DIDs of the entity (or entities) that measured this data",
-              items: {
-                type: "ref",
-                ref: "lex:app.certified.defs#did"
-              },
-              maxLength: 100
-            },
             metric: {
               type: "string",
-              description: "The metric being measured",
+              description: "The metric being measured, e.g. forest area restored, number of users, etc.",
               maxLength: 500
+            },
+            unit: {
+              type: "string",
+              description: "The unit of the measured value (e.g. kg CO\u2082e, hectares, %, index score).",
+              maxLength: 50
             },
             value: {
               type: "string",
-              description: "The measured value",
+              description: "The measured numeric value.",
               maxLength: 500
+            },
+            startDate: {
+              type: "string",
+              format: "datetime",
+              description: "The start date and time when the measurement began."
+            },
+            endDate: {
+              type: "string",
+              format: "datetime",
+              description: "The end date and time when the measurement ended. If it was a one time measurement, the endDate should be equal to the startDate."
+            },
+            locations: {
+              type: "array",
+              description: "Optional geographic references related to where the measurement was taken. Each referenced record must conform with the app.certified.location lexicon.",
+              items: {
+                type: "ref",
+                ref: "lex:com.atproto.repo.strongRef"
+              },
+              maxLength: 100
             },
             methodType: {
               type: "string",
@@ -1574,74 +3338,28 @@ var schemaDict = {
               },
               maxLength: 50
             },
-            location: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to the location where the measurement was taken. The record referenced must conform with the lexicon app.certified.location"
-            },
-            createdAt: {
-              type: "string",
-              format: "datetime",
-              description: "Client-declared timestamp when this record was originally created"
-            }
-          }
-        }
-      }
-    }
-  },
-  OrgHypercertsClaimProject: {
-    lexicon: 1,
-    id: "org.hypercerts.claim.project",
-    defs: {
-      main: {
-        type: "record",
-        description: "A project that can include multiple activities, each of which may be linked to at most one project.",
-        key: "tid",
-        record: {
-          type: "object",
-          required: ["title", "shortDescription", "createdAt"],
-          properties: {
-            title: {
-              type: "string",
-              description: "Title of this project",
-              maxLength: 800,
-              maxGraphemes: 80
-            },
-            shortDescription: {
-              type: "string",
-              maxLength: 3e3,
-              maxGraphemes: 300,
-              description: "Short summary of this project, suitable for previews and list views."
-            },
-            description: {
-              type: "ref",
-              ref: "lex:pub.leaflet.pages.linearDocument#main",
-              description: "Rich-text description of this project, represented as a Leaflet linear document."
-            },
-            avatar: {
-              type: "blob",
-              description: "Primary avatar image representing this project across apps and views; typically a square logo or project identity image.",
-              accept: ["image/png", "image/jpeg"],
-              maxSize: 1e6
-            },
-            coverPhoto: {
-              type: "blob",
-              description: "The cover photo of this project.",
-              accept: ["image/png", "image/jpeg"],
-              maxSize: 1e6
-            },
-            activities: {
+            measurers: {
               type: "array",
-              description: "Array of activities with their associated weights in this project",
+              description: "DIDs of the entity (or entities) that measured this data",
               items: {
                 type: "ref",
-                ref: "lex:org.hypercerts.claim.activity#activityWeight"
-              }
+                ref: "lex:app.certified.defs#did"
+              },
+              maxLength: 100
             },
-            location: {
-              type: "ref",
-              ref: "lex:com.atproto.repo.strongRef",
-              description: "A strong reference to a location record describing where the work for this project took place. The referenced record must conform to the app.certified.location lexicon."
+            comment: {
+              type: "string",
+              description: "Short comment of this measurement, suitable for previews and list views. Rich text annotations may be provided via `commentFacets`.",
+              maxLength: 3e3,
+              maxGraphemes: 300
+            },
+            commentFacets: {
+              type: "array",
+              description: "Rich text annotations for `comment` (mentions, URLs, hashtags, etc).",
+              items: {
+                type: "ref",
+                ref: "lex:app.bsky.richtext.facet"
+              }
             },
             createdAt: {
               type: "string",
@@ -1833,6 +3551,71 @@ var schemaDict = {
               type: "string",
               format: "datetime",
               description: "Client-declared timestamp when this receipt record was created."
+            }
+          }
+        }
+      }
+    }
+  },
+  OrgHypercertsHelperWorkScopeTag: {
+    lexicon: 1,
+    id: "org.hypercerts.helper.workScopeTag",
+    defs: {
+      main: {
+        type: "record",
+        description: "A reusable scope atom for work scope logic expressions. Scopes can represent topics, languages, domains, deliverables, methods, regions, tags, or other categorical labels.",
+        key: "tid",
+        record: {
+          type: "object",
+          required: ["createdAt", "key", "label"],
+          properties: {
+            createdAt: {
+              type: "string",
+              format: "datetime",
+              description: "Client-declared timestamp when this record was originally created"
+            },
+            key: {
+              type: "string",
+              description: "Lowercase, hyphenated machine-readable key for this scope (e.g., 'ipfs', 'go-lang', 'filecoin').",
+              maxLength: 120
+            },
+            label: {
+              type: "string",
+              description: "Human-readable label for this scope.",
+              maxLength: 200
+            },
+            kind: {
+              type: "string",
+              description: "Category type of this scope. Recommended values: topic, language, domain, method, tag.",
+              maxLength: 50
+            },
+            description: {
+              type: "string",
+              description: "Optional longer description of this scope.",
+              maxLength: 1e4,
+              maxGraphemes: 1e3
+            },
+            parent: {
+              type: "ref",
+              ref: "lex:com.atproto.repo.strongRef",
+              description: "Optional strong reference to a parent scope record for taxonomy/hierarchy support."
+            },
+            aliases: {
+              type: "array",
+              items: {
+                type: "string",
+                maxLength: 200
+              },
+              maxLength: 50,
+              description: "Optional array of alternative names or identifiers for this scope."
+            },
+            externalReference: {
+              type: "union",
+              refs: [
+                "lex:org.hypercerts.defs#uri",
+                "lex:org.hypercerts.defs#smallBlob"
+              ],
+              description: "Optional external reference for this scope as a URI or blob."
             }
           }
         }
@@ -2380,11 +4163,11 @@ var schemaDict = {
 };
 var schemas = Object.values(schemaDict);
 var lexicons = new lexicon.Lexicons(schemas);
-function validate(v, id9, hash, requiredType) {
-  return (requiredType ? is$typed : maybe$typed)(v, id9, hash) ? lexicons.validate(`${id9}#${hash}`, v) : {
+function validate(v, id8, hash, requiredType) {
+  return (requiredType ? is$typed : maybe$typed)(v, id8, hash) ? lexicons.validate(`${id8}#${hash}`, v) : {
     success: false,
     error: new lexicon.ValidationError(
-      `Must be an object with "${hash === "main" ? id9 : `${id9}#${hash}`}" $type property`
+      `Must be an object with "${hash === "main" ? id8 : `${id8}#${hash}`}" $type property`
     )
   };
 }
@@ -2394,8 +4177,10 @@ var location_exports = {};
 __export(location_exports, {
   isMain: () => isMain,
   isRecord: () => isMain,
+  isString: () => isString,
   validateMain: () => validateMain,
-  validateRecord: () => validateMain
+  validateRecord: () => validateMain,
+  validateString: () => validateString
 });
 var is$typed2 = is$typed;
 var validate2 = validate;
@@ -2406,6 +4191,13 @@ function isMain(v) {
 }
 function validateMain(v) {
   return validate2(v, id, hashMain, true);
+}
+var hashString = "string";
+function isString(v) {
+  return is$typed2(v, id, hashString);
+}
+function validateString(v) {
+  return validate2(v, id, hashString);
 }
 
 // lex-api/types/app/gainforest/organization/defaultSite.ts
@@ -2487,14 +4279,18 @@ function validateMain5(v) {
 // lex-api/types/org/hypercerts/claim/activity.ts
 var activity_exports = {};
 __export(activity_exports, {
-  isActivityWeight: () => isActivityWeight,
+  isContributor: () => isContributor,
+  isContributorIdentity: () => isContributorIdentity,
+  isContributorRole: () => isContributorRole,
   isMain: () => isMain6,
   isRecord: () => isMain6,
-  isWorkScope: () => isWorkScope,
-  validateActivityWeight: () => validateActivityWeight,
+  isWorkScopeString: () => isWorkScopeString,
+  validateContributor: () => validateContributor,
+  validateContributorIdentity: () => validateContributorIdentity,
+  validateContributorRole: () => validateContributorRole,
   validateMain: () => validateMain6,
   validateRecord: () => validateMain6,
-  validateWorkScope: () => validateWorkScope
+  validateWorkScopeString: () => validateWorkScopeString
 });
 var is$typed7 = is$typed;
 var validate7 = validate;
@@ -2506,32 +4302,48 @@ function isMain6(v) {
 function validateMain6(v) {
   return validate7(v, id6, hashMain6, true);
 }
-var hashWorkScope = "workScope";
-function isWorkScope(v) {
-  return is$typed7(v, id6, hashWorkScope);
+var hashContributor = "contributor";
+function isContributor(v) {
+  return is$typed7(v, id6, hashContributor);
 }
-function validateWorkScope(v) {
-  return validate7(v, id6, hashWorkScope);
+function validateContributor(v) {
+  return validate7(v, id6, hashContributor);
 }
-var hashActivityWeight = "activityWeight";
-function isActivityWeight(v) {
-  return is$typed7(v, id6, hashActivityWeight);
+var hashContributorIdentity = "contributorIdentity";
+function isContributorIdentity(v) {
+  return is$typed7(v, id6, hashContributorIdentity);
 }
-function validateActivityWeight(v) {
-  return validate7(v, id6, hashActivityWeight);
+function validateContributorIdentity(v) {
+  return validate7(v, id6, hashContributorIdentity);
+}
+var hashContributorRole = "contributorRole";
+function isContributorRole(v) {
+  return is$typed7(v, id6, hashContributorRole);
+}
+function validateContributorRole(v) {
+  return validate7(v, id6, hashContributorRole);
+}
+var hashWorkScopeString = "workScopeString";
+function isWorkScopeString(v) {
+  return is$typed7(v, id6, hashWorkScopeString);
+}
+function validateWorkScopeString(v) {
+  return validate7(v, id6, hashWorkScopeString);
 }
 
-// lex-api/types/org/hypercerts/claim/contribution.ts
-var contribution_exports = {};
-__export(contribution_exports, {
+// lex-api/types/org/hypercerts/claim/collection.ts
+var collection_exports = {};
+__export(collection_exports, {
+  isItem: () => isItem,
   isMain: () => isMain7,
   isRecord: () => isMain7,
+  validateItem: () => validateItem,
   validateMain: () => validateMain7,
   validateRecord: () => validateMain7
 });
 var is$typed8 = is$typed;
 var validate8 = validate;
-var id7 = "org.hypercerts.claim.contribution";
+var id7 = "org.hypercerts.claim.collection";
 var hashMain7 = "main";
 function isMain7(v) {
   return is$typed8(v, id7, hashMain7);
@@ -2539,24 +4351,12 @@ function isMain7(v) {
 function validateMain7(v) {
   return validate8(v, id7, hashMain7, true);
 }
-
-// lex-api/types/org/hypercerts/claim/project.ts
-var project_exports = {};
-__export(project_exports, {
-  isMain: () => isMain8,
-  isRecord: () => isMain8,
-  validateMain: () => validateMain8,
-  validateRecord: () => validateMain8
-});
-var is$typed9 = is$typed;
-var validate9 = validate;
-var id8 = "org.hypercerts.claim.project";
-var hashMain8 = "main";
-function isMain8(v) {
-  return is$typed9(v, id8, hashMain8);
+var hashItem = "item";
+function isItem(v) {
+  return is$typed8(v, id7, hashItem);
 }
-function validateMain8(v) {
-  return validate9(v, id8, hashMain8, true);
+function validateItem(v) {
+  return validate8(v, id7, hashItem);
 }
 var createErrorMessage = {
   fetchFailed: (resource) => `Failed to fetch ${resource}.`,
@@ -2905,21 +4705,24 @@ var checkOwnershipByAtUri = (atUri, userDid) => {
 
 // src/_internal/server/routers/atproto/hypercerts/claim/activity/create.ts
 var ACTIVITY_COLLECTION = "org.hypercerts.claim.activity";
-var CONTRIBUTION_COLLECTION = "org.hypercerts.claim.contribution";
+var ContributorInputSchema = z8__default.default.object({
+  identity: z8__default.default.string().min(1, "Contributor identity is required"),
+  weight: z8__default.default.string().optional(),
+  role: z8__default.default.string().optional()
+});
 var ClaimActivityInputSchema = z8__default.default.object({
   title: z8__default.default.string().min(1, "Title is required"),
   shortDescription: z8__default.default.string().min(1, "Short description is required"),
   description: z8__default.default.string().optional(),
-  locations: StrongRefSchema.array().min(1, "At least one location is required"),
-  project: z8__default.default.string().optional(),
-  workScopes: z8__default.default.array(z8__default.default.string()).min(1, "At least one work scope is required"),
-  startDate: z8__default.default.string(),
-  endDate: z8__default.default.string(),
-  contributors: z8__default.default.array(z8__default.default.string()).min(1, "At least one contributor is required"),
+  locations: StrongRefSchema.array().optional(),
+  workScope: z8__default.default.string().optional(),
+  startDate: z8__default.default.string().optional(),
+  endDate: z8__default.default.string().optional(),
+  contributors: z8__default.default.array(ContributorInputSchema).optional(),
   createdAt: z8__default.default.string().optional()
 });
 var ClaimActivityUploadsSchema = z8__default.default.object({
-  image: FileGeneratorSchema
+  image: FileGeneratorSchema.optional()
 });
 var uploadFile = async (fileGenerator, agent) => {
   const file = new File(
@@ -2930,6 +4733,20 @@ var uploadFile = async (fileGenerator, agent) => {
   const response = await agent.uploadBlob(file);
   return toBlobRefGenerator(response.data.blob);
 };
+var transformContributors = (contributors) => {
+  return contributors.map((c) => ({
+    $type: "org.hypercerts.claim.activity#contributor",
+    contributorIdentity: {
+      $type: "org.hypercerts.claim.activity#contributorIdentity",
+      identity: c.identity
+    },
+    contributionWeight: c.weight,
+    contributionDetails: c.role ? {
+      $type: "org.hypercerts.claim.activity#contributorRole",
+      role: c.role
+    } : void 0
+  }));
+};
 var createClaimActivityPure = async (agent, activityInput, uploads) => {
   const did = agent.did;
   if (!did) {
@@ -2938,52 +4755,50 @@ var createClaimActivityPure = async (agent, activityInput, uploads) => {
       message: "You are not authorized to perform this action."
     });
   }
-  for (const location of activityInput.locations) {
-    if (!checkOwnershipByAtUri(location.uri, did)) {
-      throw new server.TRPCError({
-        code: "FORBIDDEN",
-        message: "One of the locations being referenced is not owned by you."
-      });
+  if (activityInput.locations) {
+    for (const location of activityInput.locations) {
+      if (!checkOwnershipByAtUri(location.uri, did)) {
+        throw new server.TRPCError({
+          code: "FORBIDDEN",
+          message: "One of the locations being referenced is not owned by you."
+        });
+      }
     }
   }
-  if (activityInput.project) {
-    if (!checkOwnershipByAtUri(activityInput.project, did)) {
+  let imageBlob = void 0;
+  if (uploads?.image) {
+    const [imageBlobRef, uploadError] = await tryCatch(
+      uploadFile(uploads.image, agent)
+    );
+    if (uploadError !== null || !imageBlobRef) {
       throw new server.TRPCError({
-        code: "FORBIDDEN",
-        message: "The project being referenced is not owned by you."
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to upload the activity image.",
+        cause: uploadError
       });
     }
-  }
-  const [imageBlobRef, uploadError] = await tryCatch(
-    uploadFile(uploads.image, agent)
-  );
-  if (uploadError !== null || !imageBlobRef) {
-    throw new server.TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to upload the activity image.",
-      cause: uploadError
-    });
+    imageBlob = {
+      $type: "org.hypercerts.defs#smallImage",
+      image: toBlobRef(imageBlobRef)
+    };
   }
   const activity = {
     $type: ACTIVITY_COLLECTION,
     title: activityInput.title,
     shortDescription: activityInput.shortDescription,
     description: activityInput.description,
-    image: {
-      $type: "org.hypercerts.defs#smallImage",
-      image: toBlobRef(imageBlobRef)
-    },
-    location: activityInput.locations,
-    project: activityInput.project,
-    workScope: {
-      $type: "org.hypercerts.claim.activity#workScope",
-      withinAnyOf: activityInput.workScopes
-    },
+    image: imageBlob,
+    locations: activityInput.locations,
+    workScope: activityInput.workScope ? {
+      $type: "org.hypercerts.claim.activity#workScopeString",
+      scope: activityInput.workScope
+    } : void 0,
     startDate: activityInput.startDate,
     endDate: activityInput.endDate,
+    contributors: activityInput.contributors ? transformContributors(activityInput.contributors) : void 0,
     createdAt: activityInput.createdAt ?? (/* @__PURE__ */ new Date()).toISOString()
   };
-  const activityResult = await createRecord({
+  return createRecord({
     agent,
     collection: ACTIVITY_COLLECTION,
     repo: did,
@@ -2991,40 +4806,11 @@ var createClaimActivityPure = async (agent, activityInput, uploads) => {
     validator: activity_exports,
     resourceName: "claim activity"
   });
-  const contribution = {
-    $type: CONTRIBUTION_COLLECTION,
-    hypercert: {
-      $type: "com.atproto.repo.strongRef",
-      uri: activityResult.uri,
-      cid: activityResult.cid
-    },
-    role: "Contributor",
-    contributors: activityInput.contributors,
-    createdAt: (/* @__PURE__ */ new Date()).toISOString()
-  };
-  const [, contributionError] = await tryCatch(
-    createRecord({
-      agent,
-      collection: CONTRIBUTION_COLLECTION,
-      repo: did,
-      record: contribution,
-      validator: contribution_exports,
-      resourceName: "contribution"
-    })
-  );
-  if (contributionError !== null) {
-    throw new server.TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to create the contribution record.",
-      cause: contributionError
-    });
-  }
-  return activityResult;
 };
 var createClaimActivityFactory = createMutationFactory(
   {
     activity: ClaimActivityInputSchema,
-    uploads: ClaimActivityUploadsSchema
+    uploads: ClaimActivityUploadsSchema.optional()
   },
   (agent, input) => createClaimActivityPure(agent, input.activity, input.uploads)
 );
@@ -3037,7 +4823,7 @@ var ObjectivesSchema = z8__default.default.enum([
   "Community",
   "Other"
 ]);
-var VisibilitySchema = z8__default.default.enum(["Public", "Hidden"]);
+var VisibilitySchema = z8__default.default.enum(["Public", "Unlisted"]);
 var OrganizationInfoInputSchema = z8__default.default.object({
   displayName: z8__default.default.string().min(1, "Display name is required"),
   shortDescription: z8__default.default.string().min(1, "Short description is required"),
@@ -3058,14 +4844,35 @@ var OrganizationInfoUploadsSchema = z8__default.default.object({
 var createOrUpdateOrganizationInfoPure = async (agent, did, infoInput, uploads) => {
   const logoBlob = uploads?.logo ? (await uploadFileAsBlobPure(uploads.logo, agent)).blob : infoInput.logo ? toBlobRef(infoInput.logo) : void 0;
   const coverImageBlob = uploads?.coverImage ? (await uploadFileAsBlobPure(uploads.coverImage, agent)).blob : infoInput.coverImage ? toBlobRef(infoInput.coverImage) : void 0;
+  const shortDescription = {
+    $type: "app.bsky.richtext.facet",
+    index: {
+      $type: "app.bsky.richtext.facet#byteSlice",
+      byteStart: 0,
+      byteEnd: Buffer.byteLength(infoInput.shortDescription, "utf8")
+    },
+    features: []
+  };
+  const longDescription = {
+    $type: "pub.leaflet.pages.linearDocument",
+    blocks: [
+      {
+        $type: "pub.leaflet.pages.linearDocument#block",
+        block: {
+          $type: "pub.leaflet.blocks.text",
+          plaintext: infoInput.longDescription
+        }
+      }
+    ]
+  };
   const info = {
     $type: COLLECTION5,
     displayName: infoInput.displayName,
-    shortDescription: infoInput.shortDescription,
-    longDescription: infoInput.longDescription,
+    shortDescription,
+    longDescription,
     website: infoInput.website,
-    logo: logoBlob ? { $type: "app.gainforest.common.defs#smallImage", image: logoBlob } : void 0,
-    coverImage: coverImageBlob ? { $type: "app.gainforest.common.defs#smallImage", image: coverImageBlob } : void 0,
+    logo: logoBlob ? { $type: "org.hypercerts.defs#smallImage", image: logoBlob } : void 0,
+    coverImage: coverImageBlob ? { $type: "org.hypercerts.defs#smallImage", image: coverImageBlob } : void 0,
     objectives: infoInput.objectives,
     startDate: infoInput.startDate,
     country: infoInput.country,
@@ -3789,7 +5596,8 @@ var COLLECTION7 = "app.certified.location";
 var RESOURCE_NAME7 = "location";
 var MAX_FILE_SIZE = 10 * 1024 * 1024;
 var LocationInputSchema = z8__default.default.object({
-  name: z8__default.default.string().min(1, "Location name is required")
+  name: z8__default.default.string().optional(),
+  description: z8__default.default.string().optional()
 });
 var LocationUploadsSchema = z8__default.default.object({
   shapefile: z8__default.default.union([z8__default.default.string().url(), FileGeneratorSchema])
@@ -3821,6 +5629,7 @@ var createLocationPure = async (agent, locationInput, uploads, rkey) => {
   const location = {
     $type: COLLECTION7,
     name: locationInput.name,
+    description: locationInput.description,
     lpVersion: "1.0.0",
     srs: "https://epsg.io/3857",
     locationType: "geojson-point",
@@ -3851,9 +5660,10 @@ var createLocationFactory = createMutationFactory(
 var COLLECTION8 = "app.certified.location";
 var RESOURCE_NAME8 = "location";
 var LocationUpdateInputSchema = z8__default.default.object({
-  name: z8__default.default.string().min(1, "Location name is required"),
+  name: z8__default.default.string().optional(),
+  description: z8__default.default.string().optional(),
   shapefile: z8__default.default.object({
-    $type: z8__default.default.literal("app.gainforest.common.defs#smallBlob"),
+    $type: z8__default.default.literal("org.hypercerts.defs#smallBlob"),
     blob: BlobRefGeneratorSchema
   }).optional()
 });
@@ -3898,6 +5708,7 @@ var updateLocationPure = async (agent, rkey, locationInput, uploads) => {
   const location = {
     $type: COLLECTION8,
     name: locationInput.name,
+    description: locationInput.description,
     lpVersion: "1.0.0",
     srs: "https://epsg.io/3857",
     locationType: "geojson-point",
@@ -4329,7 +6140,7 @@ var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
     }
     validateRecordOrThrow(
       getResponse.data.value,
-      project_exports
+      collection_exports
     );
     console.log("\u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F THIS ENDPOINT IS NOT IMPLEMENTED YET \u26A0\uFE0F\u26A0\uFE0F\u26A0\uFE0F");
     return true;
@@ -4353,37 +6164,39 @@ var getLayerPure = async (did, rkey, pdsDomain) => {
 var getLayerFactory = createDidRkeyQueryFactory(getLayerPure);
 
 // src/_internal/server/routers/atproto/hypercerts/claim/project/get.ts
-var COLLECTION12 = "org.hypercerts.claim.project";
-var RESOURCE_NAME12 = "project";
-var getProjectPure = async (did, rkey, pdsDomain) => {
+var COLLECTION12 = "org.hypercerts.claim.collection";
+var RESOURCE_NAME12 = "collection";
+var getCollectionPure = async (did, rkey, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   return getRecord({
     agent,
     collection: COLLECTION12,
     repo: did,
     rkey,
-    validator: project_exports,
+    validator: collection_exports,
     resourceName: RESOURCE_NAME12
   });
 };
-var getProjectFactory = createDidRkeyQueryFactory(getProjectPure);
+var getCollectionFactory = createDidRkeyQueryFactory(getCollectionPure);
+var getProjectFactory = getCollectionFactory;
 
 // src/_internal/server/routers/atproto/hypercerts/claim/project/getAll.ts
-var COLLECTION13 = "org.hypercerts.claim.project";
-var RESOURCE_NAME13 = "projects";
-var getAllProjectsPure = async (did, pdsDomain) => {
+var COLLECTION13 = "org.hypercerts.claim.collection";
+var RESOURCE_NAME13 = "collections";
+var getAllCollectionsPure = async (did, pdsDomain) => {
   const agent = getReadAgent(pdsDomain);
   const result = await listRecords({
     agent,
     collection: COLLECTION13,
     repo: did,
-    validator: project_exports,
+    validator: collection_exports,
     resourceName: RESOURCE_NAME13,
     skipInvalid: true
   });
   return result.records;
 };
-var getAllProjectsFactory = createDidQueryFactory(getAllProjectsPure);
+var getAllCollectionsFactory = createDidQueryFactory(getAllCollectionsPure);
+var getAllProjectsFactory = getAllCollectionsFactory;
 
 // src/_internal/server/routers/atproto/gainforest/organization/layer/getAll.ts
 var COLLECTION14 = "app.gainforest.organization.layer";

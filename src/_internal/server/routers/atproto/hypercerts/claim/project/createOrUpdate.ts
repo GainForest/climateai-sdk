@@ -1,7 +1,7 @@
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import {
-  OrgHypercertsClaimProject,
+  OrgHypercertsClaimCollection,
   PubLeafletBlocksText,
   PubLeafletPagesLinearDocument,
 } from "@/../lex-api";
@@ -13,52 +13,53 @@ import {
   toBlobRef,
   toFile,
 } from "@/_internal/zod-schemas";
-import { ActivityWeightSchema } from "@/_internal/zod-schemas/activity-weight";
+import { CollectionItemSchema } from "@/_internal/zod-schemas/activity-weight";
 import { StrongRefSchema } from "@/_internal/zod-schemas/strongref";
 import { uploadFileAsBlobPure } from "../../../common/uploadFileAsBlob";
 import type { Agent } from "@atproto/api";
 import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
 
-const COLLECTION = "org.hypercerts.claim.project" as const;
-const RESOURCE_NAME = "project" as const;
+const COLLECTION = "org.hypercerts.claim.collection" as const;
+const RESOURCE_NAME = "collection" as const;
 
 /**
- * Input schema for project creation/update
+ * Input schema for collection creation/update
  */
-export const ProjectInputSchema = z.object({
+export const CollectionInputSchema = z.object({
+  type: z.string().optional(),
   title: z.string().min(1, "Title is required"),
-  shortDescription: z.string().min(1, "Short description is required"),
+  shortDescription: z.string().optional(),
   description: z.string().optional(),
   avatar: BlobRefGeneratorSchema.optional(),
-  coverPhoto: BlobRefGeneratorSchema.optional(),
-  activities: z.array(ActivityWeightSchema).optional(),
+  banner: BlobRefGeneratorSchema.optional(),
+  items: z.array(CollectionItemSchema).min(1, "At least one item is required"),
   location: StrongRefSchema.optional(),
   createdAt: z.string().optional(),
 });
 
-export type ProjectInput = z.infer<typeof ProjectInputSchema>;
+export type CollectionInput = z.infer<typeof CollectionInputSchema>;
 
 /**
- * Upload schema for project
+ * Upload schema for collection
  */
-export const ProjectUploadsSchema = z.object({
+export const CollectionUploadsSchema = z.object({
   avatar: FileGeneratorSchema.optional(),
-  coverPhoto: FileGeneratorSchema.optional(),
+  banner: FileGeneratorSchema.optional(),
 });
 
-export type ProjectUploads = z.infer<typeof ProjectUploadsSchema>;
+export type CollectionUploads = z.infer<typeof CollectionUploadsSchema>;
 
 /**
- * Pure function to create or update a project.
+ * Pure function to create or update a collection.
  * Can be reused outside of tRPC context.
  */
-export const createOrUpdateProjectPure = async (
+export const createOrUpdateCollectionPure = async (
   agent: Agent,
   did: string,
-  projectInput: ProjectInput,
-  uploads: ProjectUploads,
+  collectionInput: CollectionInput,
+  uploads: CollectionUploads,
   rkey?: string
-): Promise<PutRecordResponse<OrgHypercertsClaimProject.Record>> => {
+): Promise<PutRecordResponse<OrgHypercertsClaimCollection.Record>> => {
   if (!agent.did) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -68,7 +69,7 @@ export const createOrUpdateProjectPure = async (
 
   // Build description as linear document if provided
   const descriptionLinearDocument: PubLeafletPagesLinearDocument.Main | undefined =
-    projectInput.description
+    collectionInput.description
       ? {
           $type: "pub.leaflet.pages.linearDocument",
           blocks: [
@@ -76,7 +77,7 @@ export const createOrUpdateProjectPure = async (
               $type: "pub.leaflet.pages.linearDocument#block",
               block: {
                 $type: "pub.leaflet.blocks.text",
-                plaintext: projectInput.description,
+                plaintext: collectionInput.description,
               } satisfies PubLeafletBlocksText.Main,
             } satisfies PubLeafletPagesLinearDocument.Block,
           ],
@@ -85,55 +86,83 @@ export const createOrUpdateProjectPure = async (
 
   // Upload images if provided
   const avatarBlob = uploads.avatar
-    ? (await uploadFileAsBlobPure(await toFile(uploads.avatar), agent)).blob
-    : projectInput.avatar
-      ? toBlobRef(projectInput.avatar)
+    ? {
+        $type: "org.hypercerts.defs#smallImage" as const,
+        image: (await uploadFileAsBlobPure(await toFile(uploads.avatar), agent)).blob,
+      }
+    : collectionInput.avatar
+      ? {
+          $type: "org.hypercerts.defs#smallImage" as const,
+          image: toBlobRef(collectionInput.avatar),
+        }
       : undefined;
 
-  const coverPhotoBlob = uploads.coverPhoto
-    ? (await uploadFileAsBlobPure(await toFile(uploads.coverPhoto), agent)).blob
-    : projectInput.coverPhoto
-      ? toBlobRef(projectInput.coverPhoto)
+  const bannerBlob = uploads.banner
+    ? {
+        $type: "org.hypercerts.defs#largeImage" as const,
+        image: (await uploadFileAsBlobPure(await toFile(uploads.banner), agent)).blob,
+      }
+    : collectionInput.banner
+      ? {
+          $type: "org.hypercerts.defs#largeImage" as const,
+          image: toBlobRef(collectionInput.banner),
+        }
       : undefined;
 
-  const project: OrgHypercertsClaimProject.Record = {
+  // Transform items to proper format
+  const items: OrgHypercertsClaimCollection.Item[] = collectionInput.items.map((item) => ({
+    $type: "org.hypercerts.claim.collection#item" as const,
+    itemIdentifier: item.itemIdentifier,
+    itemWeight: item.itemWeight,
+  }));
+
+  const collection: OrgHypercertsClaimCollection.Record = {
     $type: COLLECTION,
-    title: projectInput.title,
-    shortDescription: projectInput.shortDescription,
+    type: collectionInput.type,
+    title: collectionInput.title,
+    shortDescription: collectionInput.shortDescription,
     description: descriptionLinearDocument,
     avatar: avatarBlob,
-    coverPhoto: coverPhotoBlob,
-    activities: projectInput.activities,
-    location: projectInput.location,
-    createdAt: projectInput.createdAt ?? new Date().toISOString(),
+    banner: bannerBlob,
+    items,
+    location: collectionInput.location,
+    createdAt: collectionInput.createdAt ?? new Date().toISOString(),
   };
 
   return createOrUpdateRecord({
     agent,
     collection: COLLECTION,
     repo: did,
-    record: project,
-    validator: OrgHypercertsClaimProject,
+    record: collection,
+    validator: OrgHypercertsClaimCollection,
     resourceName: RESOURCE_NAME,
     rkey,
   });
 };
 
 /**
- * Factory to create the tRPC procedure for creating/updating a project.
+ * Factory to create the tRPC procedure for creating/updating a collection.
  */
-export const createOrUpdateProjectFactory = createMutationFactory(
+export const createOrUpdateCollectionFactory = createMutationFactory(
   {
-    project: ProjectInputSchema,
-    uploads: ProjectUploadsSchema,
+    collection: CollectionInputSchema,
+    uploads: CollectionUploadsSchema,
     rkey: z.string().optional(),
   },
   (agent, input) =>
-    createOrUpdateProjectPure(
+    createOrUpdateCollectionPure(
       agent,
       input.did,
-      input.project,
+      input.collection,
       input.uploads,
       input.rkey
     )
 );
+
+// Backwards compatibility exports
+export const ProjectInputSchema = CollectionInputSchema;
+export type ProjectInput = CollectionInput;
+export const ProjectUploadsSchema = CollectionUploadsSchema;
+export type ProjectUploads = CollectionUploads;
+export const createOrUpdateProjectPure = createOrUpdateCollectionPure;
+export const createOrUpdateProjectFactory = createOrUpdateCollectionFactory;

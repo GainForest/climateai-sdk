@@ -13,29 +13,29 @@ var getBlobUrl = (did, imageData, pdsDomain) => {
     const encodedCid = encodeURIComponent(cid);
     return `https://${pdsDomain}/xrpc/com.atproto.sync.getBlob?did=${did}&cid=${encodedCid}`;
   }
-  if (imageData.$type === "app.gainforest.common.defs#uri") {
-    const uri = imageData.uri;
-    return uri;
+  if (imageData.$type === "app.gainforest.common.defs#uri" || imageData.$type === "org.hypercerts.defs#uri") {
+    return imageData.uri;
   }
-  if (imageData.$type === "app.gainforest.common.defs#smallBlob" || imageData.$type === "app.gainforest.common.defs#largeBlob") {
-    const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsDomain);
+  if (imageData.$type === "org.hypercerts.defs#smallBlob" || imageData.$type === "org.hypercerts.defs#largeBlob") {
+    return getBlobUrl(did, imageData.blob, pdsDomain);
   }
-  if (imageData.$type === "app.gainforest.common.defs#smallImage" || imageData.$type === "app.gainforest.common.defs#largeImage") {
-    const image = imageData.image;
-    return getBlobUrl(did, image, pdsDomain);
+  if (imageData.$type === "org.hypercerts.defs#smallImage" || imageData.$type === "org.hypercerts.defs#largeImage") {
+    return getBlobUrl(did, imageData.image, pdsDomain);
+  }
+  if (imageData.$type === "app.gainforest.common.defs#image" || imageData.$type === "app.gainforest.common.defs#imageThumbnail") {
+    return getBlobUrl(did, imageData.file, pdsDomain);
   }
   if ("blob" in imageData) {
-    const blob = imageData.blob;
-    return getBlobUrl(did, blob, pdsDomain);
+    return getBlobUrl(did, imageData.blob, pdsDomain);
   }
   if ("image" in imageData) {
-    const image = imageData.image;
-    return getBlobUrl(did, image, pdsDomain);
+    return getBlobUrl(did, imageData.image, pdsDomain);
+  }
+  if ("file" in imageData) {
+    return getBlobUrl(did, imageData.file, pdsDomain);
   }
   if ("uri" in imageData) {
-    const uri = imageData.uri;
-    return uri;
+    return imageData.uri;
   }
   const imageDataTypeCheck = imageData;
   return imageDataTypeCheck;

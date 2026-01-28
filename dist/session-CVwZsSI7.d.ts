@@ -1,9 +1,8 @@
 import { JwtPayload } from '@atproto/oauth-client-node';
 import { a as $Typed } from './utils-BtB-jULs.js';
-import { d as Main, e as Main$1, M as Main$3, a as Main$4, b as Main$5, c as Main$6, U as Uri, B as SmallImage, L as LargeImage, S as SmallBlob, C as LargeBlob } from './project-B5S3nOat.js';
-import { b as BlobRefGenerator } from './blobref-e8ss-bC-.js';
+import { M as Main$2, B as BlobRef, U as Uri$1, S as SmallBlob, e as LargeBlob, c as SmallImage, L as LargeImage } from './activity-BHO9ElRW.js';
 import { z } from 'zod';
-import { M as Main$2, B as BlobRef } from './activity-B4BTvcNK.js';
+import { d as Main, e as Main$1, M as Main$3, a as Main$4, b as Main$5, c as Main$6, U as Uri, I as Image, D as ImageThumbnail } from './collection-DOapNLRU.js';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
 import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
 import * as _atproto_api_dist_client_types_com_atproto_server_getSession from '@atproto/api/dist/client/types/com/atproto/server/getSession';
@@ -161,7 +160,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -298,26 +297,29 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             activity: {
                                 title: string;
                                 shortDescription: string;
-                                locations: {
+                                description?: string | undefined;
+                                locations?: {
                                     uri: string;
                                     cid: string;
                                     $type?: "com.atproto.repo.strongRef" | undefined;
-                                }[];
-                                workScopes: string[];
-                                startDate: string;
-                                endDate: string;
-                                contributors: string[];
-                                description?: string | undefined;
-                                project?: string | undefined;
+                                }[] | undefined;
+                                workScope?: string | undefined;
+                                startDate?: string | undefined;
+                                endDate?: string | undefined;
+                                contributors?: {
+                                    identity: string;
+                                    weight?: string | undefined;
+                                    role?: string | undefined;
+                                }[] | undefined;
                                 createdAt?: string | undefined;
                             };
-                            uploads: {
-                                image: {
+                            uploads?: {
+                                image?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
-                                };
-                            };
+                                } | undefined;
+                            } | undefined;
                         };
                         output: PutRecordResponse<Main$2>;
                         meta: object;
@@ -375,7 +377,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -437,7 +439,8 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                         };
                         uploads: {
                             shapefile: string | {
@@ -457,9 +460,10 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                             shapefile?: {
-                                $type: "app.gainforest.common.defs#smallBlob";
+                                $type: "org.hypercerts.defs#smallBlob";
                                 blob: {
                                     $type: "blob-ref-generator";
                                     ref: {
@@ -579,7 +583,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -716,26 +720,29 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             activity: {
                                 title: string;
                                 shortDescription: string;
-                                locations: {
+                                description?: string | undefined;
+                                locations?: {
                                     uri: string;
                                     cid: string;
                                     $type?: "com.atproto.repo.strongRef" | undefined;
-                                }[];
-                                workScopes: string[];
-                                startDate: string;
-                                endDate: string;
-                                contributors: string[];
-                                description?: string | undefined;
-                                project?: string | undefined;
+                                }[] | undefined;
+                                workScope?: string | undefined;
+                                startDate?: string | undefined;
+                                endDate?: string | undefined;
+                                contributors?: {
+                                    identity: string;
+                                    weight?: string | undefined;
+                                    role?: string | undefined;
+                                }[] | undefined;
                                 createdAt?: string | undefined;
                             };
-                            uploads: {
-                                image: {
+                            uploads?: {
+                                image?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
-                                };
-                            };
+                                } | undefined;
+                            } | undefined;
                         };
                         output: PutRecordResponse<Main$2>;
                         meta: object;
@@ -793,7 +800,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -855,7 +862,8 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                         };
                         uploads: {
                             shapefile: string | {
@@ -875,9 +883,10 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                             shapefile?: {
-                                $type: "app.gainforest.common.defs#smallBlob";
+                                $type: "org.hypercerts.defs#smallBlob";
                                 blob: {
                                     $type: "blob-ref-generator";
                                     ref: {
@@ -929,7 +938,14 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
         };
     }>>;
     utilities: {
-        getBlobUrl: (did: string, imageData: string | BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
+        getBlobUrl: (did: string, imageData: string | {
+            $type: "blob-ref-generator";
+            ref: {
+                $link: string;
+            };
+            mimeType: string;
+            size: number;
+        } | Uri | Image | BlobRef | ImageThumbnail | Uri$1 | SmallBlob | LargeBlob | SmallImage | LargeImage | $Typed<Uri$1 | SmallBlob | LargeBlob | SmallImage | LargeImage> | $Typed<Uri | Image | ImageThumbnail>, pdsDomain: T) => string;
         parseAtUri: (atUri: string) => {
             did: string;
             collection: string;

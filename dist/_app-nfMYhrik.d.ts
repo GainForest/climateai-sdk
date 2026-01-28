@@ -1,90 +1,15 @@
-import { JwtPayload } from '@atproto/oauth-client-node';
-import { a as $Typed } from './utils-BtB-jULs.cjs';
-import { d as Main, e as Main$1, M as Main$3, a as Main$4, b as Main$5, c as Main$6, U as Uri, B as SmallImage, L as LargeImage, S as SmallBlob, C as LargeBlob } from './project-DIS_R7JL.cjs';
-import { b as BlobRefGenerator } from './blobref-e8ss-bC-.cjs';
-import { z } from 'zod';
-import { M as Main$2, B as BlobRef } from './activity-BWO0-2j_.cjs';
 import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
-import * as _atproto_api_dist_client_types_com_atproto_server_getSession from '@atproto/api/dist/client/types/com/atproto/server/getSession';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './collection-DOapNLRU.js';
+import { S as SupportedPDSDomain, a as StoredSession, L as LoginResult, R as ResumeResult, b as LogoutResult, O as OrganizationWithActivities, c as GetAllClaimActivitiesResponse, d as GetAllLocationsResponse, D as DeleteRecordResponse } from './session-CVwZsSI7.js';
+import { M as Main$3 } from './activity-BHO9ElRW.js';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
+import z from 'zod';
 
-type DeleteRecordResponse = {
-    success: true;
-};
-
-/**
- * Response type for getAllLocations
- */
-type GetAllLocationsResponse = {
-    locations: GetRecordResponse<Main>[];
-    defaultLocation: GetRecordResponse<Main$1> | null;
-};
-
-/**
- * Response type for getAllClaimActivities
- */
-type GetAllClaimActivitiesResponse = {
-    activities: GetRecordResponse<Main$2>[];
-};
-
-/**
- * Organization with its activities
- */
-type OrganizationWithActivities = {
-    repo: {
-        did: string;
-    };
-    organizationInfo: Main$3;
-    activities: GetRecordResponse<Main$2>[];
-};
-
-/**
- * Result of a successful logout
- */
-type LogoutResult = {
-    success: true;
-};
-
-interface StoredSession extends JwtPayload {
-    accessJwt: string;
-    refreshJwt: string;
-    did: string;
-    handle: string;
-}
-declare function getSessionFromRequest(service?: SupportedPDSDomain): Promise<StoredSession | null>;
-
-/**
- * Result of a successful session resume
- */
-type ResumeResult = {
-    did: string;
-    handle: string;
-    service: SupportedPDSDomain;
-};
-/**
- * Helper to create a credential session from stored session data.
- */
-declare const resumeCredentialSession: (service: SupportedPDSDomain, sessionData: StoredSession) => Promise<_atproto_api_dist_client_types_com_atproto_server_getSession.Response>;
-
-/**
- * Result of a successful login
- */
-type LoginResult = {
-    did: string;
-    handle: string;
-    service: SupportedPDSDomain;
-};
-
-declare const supportedDomains: readonly ["climateai.org", "hypercerts.org"];
-declare const supportedPDSDomainSchema: z.ZodEnum<{
-    "climateai.org": "climateai.org";
-    "hypercerts.org": "hypercerts.org";
-}>;
-type SupportedPDSDomain = (typeof supportedDomains)[number];
-declare class GainforestSDK<T extends SupportedPDSDomain> {
+declare class AppRouterFactory<T extends SupportedPDSDomain> {
     allowedPDSDomains: T[];
+    allowedPDSDomainSchema: z.ZodEnum<{ [k_1 in T]: k_1; } extends infer T_1 ? { [k in keyof T_1]: T_1[k]; } : never>;
     appRouter: _trpc_server.TRPCBuiltRouter<{
         ctx: {
             session: StoredSession | null;
@@ -148,7 +73,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$3>;
+                        output: GetRecordResponse<Main>;
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -161,7 +86,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -195,7 +120,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main$3>;
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -206,7 +131,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>;
+                        output: GetRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -214,7 +139,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>[];
+                        output: GetRecordResponse<Main$1>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -230,7 +155,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             };
                             rkey?: string | undefined;
                         };
-                        output: PutRecordResponse<Main$4>;
+                        output: PutRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -261,7 +186,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 did: string;
                                 pdsDomain: Record<T, T>[T];
                             };
-                            output: GetRecordResponse<Main$5>;
+                            output: GetRecordResponse<Main$2>;
                             meta: object;
                         }>;
                         addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -298,28 +223,31 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             activity: {
                                 title: string;
                                 shortDescription: string;
-                                locations: {
+                                description?: string | undefined;
+                                locations?: {
                                     uri: string;
                                     cid: string;
                                     $type?: "com.atproto.repo.strongRef" | undefined;
-                                }[];
-                                workScopes: string[];
-                                startDate: string;
-                                endDate: string;
-                                contributors: string[];
-                                description?: string | undefined;
-                                project?: string | undefined;
+                                }[] | undefined;
+                                workScope?: string | undefined;
+                                startDate?: string | undefined;
+                                endDate?: string | undefined;
+                                contributors?: {
+                                    identity: string;
+                                    weight?: string | undefined;
+                                    role?: string | undefined;
+                                }[] | undefined;
                                 createdAt?: string | undefined;
                             };
-                            uploads: {
-                                image: {
+                            uploads?: {
+                                image?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
-                                };
-                            };
+                                } | undefined;
+                            } | undefined;
                         };
-                        output: PutRecordResponse<Main$2>;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
@@ -335,7 +263,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$2>;
+                        output: GetRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -354,7 +282,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$6>;
+                        output: GetRecordResponse<Main$4>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -362,7 +290,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$6>[];
+                        output: GetRecordResponse<Main$4>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -375,7 +303,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -409,7 +337,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main$3>;
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -421,7 +349,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main>;
+                    output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 getAll: _trpc_server.TRPCQueryProcedure<{
@@ -437,7 +365,8 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                         };
                         uploads: {
                             shapefile: string | {
@@ -448,7 +377,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         };
                         rkey?: string | undefined;
                     };
-                    output: PutRecordResponse<Main>;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 update: _trpc_server.TRPCMutationProcedure<{
@@ -457,9 +386,10 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                             shapefile?: {
-                                $type: "app.gainforest.common.defs#smallBlob";
+                                $type: "org.hypercerts.defs#smallBlob";
                                 blob: {
                                     $type: "blob-ref-generator";
                                     ref: {
@@ -478,7 +408,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             } | undefined;
                         } | undefined;
                     };
-                    output: PutRecordResponse<Main>;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
@@ -495,7 +425,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$1>;
+                    output: GetRecordResponse<Main$6>;
                     meta: object;
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
@@ -504,12 +434,13 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         locationAtUri: string;
                     };
-                    output: PutRecordResponse<Main$1>;
+                    output: PutRecordResponse<Main$6>;
                     meta: object;
                 }>;
             };
         };
     }>>;
+    constructor(_allowedPDSDomains: T[]);
     getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
@@ -566,7 +497,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$3>;
+                        output: GetRecordResponse<Main>;
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -579,7 +510,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -613,7 +544,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main$3>;
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -624,7 +555,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>;
+                        output: GetRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -632,7 +563,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>[];
+                        output: GetRecordResponse<Main$1>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -648,7 +579,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             };
                             rkey?: string | undefined;
                         };
-                        output: PutRecordResponse<Main$4>;
+                        output: PutRecordResponse<Main$1>;
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -679,7 +610,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 did: string;
                                 pdsDomain: Record<T, T>[T];
                             };
-                            output: GetRecordResponse<Main$5>;
+                            output: GetRecordResponse<Main$2>;
                             meta: object;
                         }>;
                         addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -716,28 +647,31 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             activity: {
                                 title: string;
                                 shortDescription: string;
-                                locations: {
+                                description?: string | undefined;
+                                locations?: {
                                     uri: string;
                                     cid: string;
                                     $type?: "com.atproto.repo.strongRef" | undefined;
-                                }[];
-                                workScopes: string[];
-                                startDate: string;
-                                endDate: string;
-                                contributors: string[];
-                                description?: string | undefined;
-                                project?: string | undefined;
+                                }[] | undefined;
+                                workScope?: string | undefined;
+                                startDate?: string | undefined;
+                                endDate?: string | undefined;
+                                contributors?: {
+                                    identity: string;
+                                    weight?: string | undefined;
+                                    role?: string | undefined;
+                                }[] | undefined;
                                 createdAt?: string | undefined;
                             };
-                            uploads: {
-                                image: {
+                            uploads?: {
+                                image?: {
                                     name: string;
                                     type: string;
                                     dataBase64: string;
-                                };
-                            };
+                                } | undefined;
+                            } | undefined;
                         };
-                        output: PutRecordResponse<Main$2>;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
@@ -753,7 +687,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$2>;
+                        output: GetRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -772,7 +706,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$6>;
+                        output: GetRecordResponse<Main$4>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -780,7 +714,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$6>[];
+                        output: GetRecordResponse<Main$4>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -793,7 +727,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 longDescription: string;
                                 objectives: ("Conservation" | "Research" | "Education" | "Community" | "Other")[];
                                 country: string;
-                                visibility: "Public" | "Hidden";
+                                visibility: "Public" | "Unlisted";
                                 website?: string | undefined;
                                 logo?: {
                                     $type: "blob-ref-generator";
@@ -827,7 +761,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main$3>;
+                        output: PutRecordResponse<Main>;
                         meta: object;
                     }>;
                 };
@@ -839,7 +773,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main>;
+                    output: GetRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 getAll: _trpc_server.TRPCQueryProcedure<{
@@ -855,7 +789,8 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                         };
                         uploads: {
                             shapefile: string | {
@@ -866,7 +801,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         };
                         rkey?: string | undefined;
                     };
-                    output: PutRecordResponse<Main>;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 update: _trpc_server.TRPCMutationProcedure<{
@@ -875,9 +810,10 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         rkey: string;
                         site: {
-                            name: string;
+                            name?: string | undefined;
+                            description?: string | undefined;
                             shapefile?: {
-                                $type: "app.gainforest.common.defs#smallBlob";
+                                $type: "org.hypercerts.defs#smallBlob";
                                 blob: {
                                     $type: "blob-ref-generator";
                                     ref: {
@@ -896,7 +832,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                             } | undefined;
                         } | undefined;
                     };
-                    output: PutRecordResponse<Main>;
+                    output: PutRecordResponse<Main$5>;
                     meta: object;
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
@@ -913,7 +849,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$1>;
+                    output: GetRecordResponse<Main$6>;
                     meta: object;
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
@@ -922,21 +858,13 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         locationAtUri: string;
                     };
-                    output: PutRecordResponse<Main$1>;
+                    output: PutRecordResponse<Main$6>;
                     meta: object;
                 }>;
             };
         };
     }>>;
-    utilities: {
-        getBlobUrl: (did: string, imageData: string | BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
-        parseAtUri: (atUri: string) => {
-            did: string;
-            collection: string;
-            rkey: string;
-        };
-    };
-    constructor(_allowedPDSDomains: T[]);
 }
+type AppRouter<T extends SupportedPDSDomain> = AppRouterFactory<T>["appRouter"];
 
-export { type DeleteRecordResponse as D, GainforestSDK as G, type LoginResult as L, type OrganizationWithActivities as O, type ResumeResult as R, type SupportedPDSDomain as S, type StoredSession as a, type LogoutResult as b, type GetAllClaimActivitiesResponse as c, type GetAllLocationsResponse as d, getSessionFromRequest as g, resumeCredentialSession as r, supportedPDSDomainSchema as s };
+export type { AppRouter as A };

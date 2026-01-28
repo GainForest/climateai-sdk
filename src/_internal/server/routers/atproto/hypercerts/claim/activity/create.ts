@@ -1,10 +1,7 @@
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import type { Agent } from "@atproto/api";
-import {
-  OrgHypercertsClaimActivity,
-  OrgHypercertsClaimContribution,
-} from "@/../lex-api";
+import { OrgHypercertsClaimActivity } from "@/../lex-api";
 import { tryCatch } from "@/_internal/lib/tryCatch";
 import { createRecord } from "@/_internal/server/utils/atproto-crud";
 import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
@@ -18,7 +15,17 @@ import { checkOwnershipByAtUri } from "@/_internal/server/utils/ownership";
 import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
 
 const ACTIVITY_COLLECTION = "org.hypercerts.claim.activity" as const;
-const CONTRIBUTION_COLLECTION = "org.hypercerts.claim.contribution" as const;
+
+/**
+ * Contributor input schema matching the new lexicon structure
+ */
+export const ContributorInputSchema = z.object({
+  identity: z.string().min(1, "Contributor identity is required"),
+  weight: z.string().optional(),
+  role: z.string().optional(),
+});
+
+export type ContributorInput = z.infer<typeof ContributorInputSchema>;
 
 /**
  * Input schema for claim activity creation
@@ -27,14 +34,11 @@ export const ClaimActivityInputSchema = z.object({
   title: z.string().min(1, "Title is required"),
   shortDescription: z.string().min(1, "Short description is required"),
   description: z.string().optional(),
-  locations: StrongRefSchema.array().min(1, "At least one location is required"),
-  project: z.string().optional(),
-  workScopes: z.array(z.string()).min(1, "At least one work scope is required"),
-  startDate: z.string(),
-  endDate: z.string(),
-  contributors: z
-    .array(z.string())
-    .min(1, "At least one contributor is required"),
+  locations: StrongRefSchema.array().optional(),
+  workScope: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  contributors: z.array(ContributorInputSchema).optional(),
   createdAt: z.string().optional(),
 });
 
@@ -44,7 +48,7 @@ export type ClaimActivityInput = z.infer<typeof ClaimActivityInputSchema>;
  * Upload schema for claim activity
  */
 export const ClaimActivityUploadsSchema = z.object({
-  image: FileGeneratorSchema,
+  image: FileGeneratorSchema.optional(),
 });
 
 export type ClaimActivityUploads = z.infer<typeof ClaimActivityUploadsSchema>;
@@ -63,13 +67,35 @@ const uploadFile = async (fileGenerator: FileGenerator, agent: Agent) => {
 };
 
 /**
- * Pure function to create a claim activity with contribution.
+ * Transform contributor input to lexicon format
+ */
+const transformContributors = (
+  contributors: ContributorInput[]
+): OrgHypercertsClaimActivity.Contributor[] => {
+  return contributors.map((c) => ({
+    $type: "org.hypercerts.claim.activity#contributor" as const,
+    contributorIdentity: {
+      $type: "org.hypercerts.claim.activity#contributorIdentity" as const,
+      identity: c.identity,
+    },
+    contributionWeight: c.weight,
+    contributionDetails: c.role
+      ? {
+          $type: "org.hypercerts.claim.activity#contributorRole" as const,
+          role: c.role,
+        }
+      : undefined,
+  }));
+};
+
+/**
+ * Pure function to create a claim activity.
  * Can be reused outside of tRPC context.
  */
 export const createClaimActivityPure = async (
   agent: Agent,
   activityInput: ClaimActivityInput,
-  uploads: ClaimActivityUploads
+  uploads?: ClaimActivityUploads
 ): Promise<PutRecordResponse<OrgHypercertsClaimActivity.Record>> => {
   const did = agent.did;
   if (!did) {
@@ -79,59 +105,60 @@ export const createClaimActivityPure = async (
     });
   }
 
-  // Validate ownership of referenced records
-  for (const location of activityInput.locations) {
-    if (!checkOwnershipByAtUri(location.uri, did)) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "One of the locations being referenced is not owned by you.",
-      });
+  // Validate ownership of referenced location records
+  if (activityInput.locations) {
+    for (const location of activityInput.locations) {
+      if (!checkOwnershipByAtUri(location.uri, did)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "One of the locations being referenced is not owned by you.",
+        });
+      }
     }
   }
 
-  if (activityInput.project) {
-    if (!checkOwnershipByAtUri(activityInput.project, did)) {
+  // Upload the image if provided
+  let imageBlob: OrgHypercertsClaimActivity.Record["image"] = undefined;
+  if (uploads?.image) {
+    const [imageBlobRef, uploadError] = await tryCatch(
+      uploadFile(uploads.image, agent)
+    );
+    if (uploadError !== null || !imageBlobRef) {
       throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "The project being referenced is not owned by you.",
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to upload the activity image.",
+        cause: uploadError,
       });
     }
+    imageBlob = {
+      $type: "org.hypercerts.defs#smallImage",
+      image: toBlobRef(imageBlobRef),
+    };
   }
 
-  // Upload the image
-  const [imageBlobRef, uploadError] = await tryCatch(
-    uploadFile(uploads.image, agent)
-  );
-  if (uploadError !== null || !imageBlobRef) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to upload the activity image.",
-      cause: uploadError,
-    });
-  }
-
-  // Create the activity record
+  // Build the activity record
   const activity: OrgHypercertsClaimActivity.Record = {
     $type: ACTIVITY_COLLECTION,
     title: activityInput.title,
     shortDescription: activityInput.shortDescription,
     description: activityInput.description,
-    image: {
-      $type: "org.hypercerts.defs#smallImage",
-      image: toBlobRef(imageBlobRef),
-    },
-    location: activityInput.locations,
-    project: activityInput.project,
-    workScope: {
-      $type: "org.hypercerts.claim.activity#workScope",
-      withinAnyOf: activityInput.workScopes,
-    },
+    image: imageBlob,
+    locations: activityInput.locations,
+    workScope: activityInput.workScope
+      ? {
+          $type: "org.hypercerts.claim.activity#workScopeString",
+          scope: activityInput.workScope,
+        }
+      : undefined,
     startDate: activityInput.startDate,
     endDate: activityInput.endDate,
+    contributors: activityInput.contributors
+      ? transformContributors(activityInput.contributors)
+      : undefined,
     createdAt: activityInput.createdAt ?? new Date().toISOString(),
   };
 
-  const activityResult = await createRecord({
+  return createRecord({
     agent,
     collection: ACTIVITY_COLLECTION,
     repo: did,
@@ -139,40 +166,6 @@ export const createClaimActivityPure = async (
     validator: OrgHypercertsClaimActivity,
     resourceName: "claim activity",
   });
-
-  // Create the contribution record
-  const contribution: OrgHypercertsClaimContribution.Record = {
-    $type: CONTRIBUTION_COLLECTION,
-    hypercert: {
-      $type: "com.atproto.repo.strongRef",
-      uri: activityResult.uri,
-      cid: activityResult.cid,
-    },
-    role: "Contributor",
-    contributors: activityInput.contributors,
-    createdAt: new Date().toISOString(),
-  };
-
-  const [, contributionError] = await tryCatch(
-    createRecord({
-      agent,
-      collection: CONTRIBUTION_COLLECTION,
-      repo: did,
-      record: contribution,
-      validator: OrgHypercertsClaimContribution,
-      resourceName: "contribution",
-    })
-  );
-
-  if (contributionError !== null) {
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to create the contribution record.",
-      cause: contributionError,
-    });
-  }
-
-  return activityResult;
 };
 
 /**
@@ -181,7 +174,7 @@ export const createClaimActivityPure = async (
 export const createClaimActivityFactory = createMutationFactory(
   {
     activity: ClaimActivityInputSchema,
-    uploads: ClaimActivityUploadsSchema,
+    uploads: ClaimActivityUploadsSchema.optional(),
   },
   (agent, input) => createClaimActivityPure(agent, input.activity, input.uploads)
 );

@@ -17,7 +17,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
  * Input schema for location creation
  */
 export const LocationInputSchema = z.object({
-  name: z.string().min(1, "Location name is required"),
+  name: z.string().optional(),
+  description: z.string().optional(),
 });
 
 export type LocationInput = z.infer<typeof LocationInputSchema>;
@@ -79,6 +80,7 @@ export const createLocationPure = async (
   const location: AppCertifiedLocation.Record = {
     $type: COLLECTION,
     name: locationInput.name,
+    description: locationInput.description,
     lpVersion: "1.0.0",
     srs: "https://epsg.io/3857",
     locationType: "geojson-point",

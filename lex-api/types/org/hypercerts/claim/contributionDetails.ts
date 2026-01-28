@@ -12,21 +12,19 @@ import {
 
 const is$typed = _is$typed,
   validate = _validate
-const id = 'org.hypercerts.claim.contribution'
+const id = 'org.hypercerts.claim.contributionDetails'
 
 export interface Main {
-  $type: 'org.hypercerts.claim.contribution'
-  /** Role or title of the contributor(s). */
+  $type: 'org.hypercerts.claim.contributionDetails'
+  /** Role or title of the contributor. */
   role?: string
-  /** List of the contributors (names, pseudonyms, or DIDs). If multiple contributors are stored in the same hypercertContribution, then they would have the exact same role. */
-  contributors: string[]
-  /** What the contribution concretely achieved */
-  description?: string
+  /** What the contribution concretely was. */
+  contributionDescription?: string
   /** When this contribution started. This should be a subset of the hypercert timeframe. */
   startDate?: string
-  /** When this contribution finished.  This should be a subset of the hypercert timeframe. */
+  /** When this contribution finished. This should be a subset of the hypercert timeframe. */
   endDate?: string
-  /** Client-declared timestamp when this record was originally created */
+  /** Client-declared timestamp when this record was originally created. */
   createdAt: string
   [k: string]: unknown
 }
