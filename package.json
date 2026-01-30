@@ -1,7 +1,7 @@
 {
-  "name": "climateai-sdk",
+  "name": "gainforest-sdk-nextjs",
   "version": "0.1.0",
-  "description": "ClimateAI SDK",
+  "description": "Gainforest SDK for Next.js - Type-safe tRPC SDK for ATProto PDS integration",
   "license": "MIT",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

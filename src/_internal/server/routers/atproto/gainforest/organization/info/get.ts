@@ -1,66 +1,33 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
-import { tryCatch } from "@/_internal/lib/tryCatch";
-import { XRPCError } from "@atproto/xrpc";
-import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { AppGainforestOrganizationInfo } from "@/../lex-api";
 import { getReadAgent } from "@/_internal/server/utils/agent";
-import { xrpcErrorToTRPCError } from "@/_internal/server/utils/classify-xrpc-error";
-import { TRPCError } from "@trpc/server";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { AppGainforestOrganizationInfo } from "@/../lex-api";
+import { getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createDidQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
+import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 
+const COLLECTION = "app.gainforest.organization.info" as const;
+const RESOURCE_NAME = "organization info" as const;
+
+/**
+ * Pure function to get organization info by DID.
+ * Can be reused outside of tRPC context.
+ */
 export const getOrganizationInfoPure = async <T extends SupportedPDSDomain>(
   did: string,
   pdsDomain: T
-) => {
+): Promise<GetRecordResponse<AppGainforestOrganizationInfo.Record>> => {
   const agent = getReadAgent(pdsDomain);
-  const getRecordPromise = agent.com.atproto.repo.getRecord({
-    collection: "app.gainforest.organization.info",
+  return getRecord({
+    agent,
+    collection: COLLECTION,
     repo: did,
     rkey: "self",
+    validator: AppGainforestOrganizationInfo,
+    resourceName: RESOURCE_NAME,
   });
-  const [response, error] = await tryCatch(getRecordPromise);
-
-  if (error) {
-    console.log(
-      "FETCHING_ORG_INFO_ERROR:",
-      JSON.stringify({ did, pdsDomain, error })
-    );
-    if (error instanceof XRPCError) {
-      const trpcError = xrpcErrorToTRPCError(error);
-      throw trpcError;
-    } else {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unknown error occurred.",
-      });
-    }
-  }
-
-  if (response.success !== true) {
-    console.log(
-      "FETCHING_ORG_INFO_ERROR: response.success is not true",
-      JSON.stringify({ did, pdsDomain })
-    );
-    throw new TRPCError({
-      code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to get organization info.",
-    });
-  }
-
-  validateRecordOrThrow(response.data.value, AppGainforestOrganizationInfo);
-
-  console.log("FETCHING_ORG_INFO_SUCCESS", JSON.stringify({ did, pdsDomain }));
-  return response.data as GetRecordResponse<AppGainforestOrganizationInfo.Record>;
 };
 
-export const getOrganizationInfoFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(z.object({ did: z.string(), pdsDomain: allowedPDSDomainSchema }))
-    .query(async ({ input }) => {
-      return await getOrganizationInfoPure(input.did, input.pdsDomain);
-    });
-};
+/**
+ * Factory to create the tRPC procedure for getting organization info.
+ */
+export const getOrganizationInfoFactory = createDidQueryFactory(getOrganizationInfoPure);

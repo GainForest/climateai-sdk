@@ -1,15 +1,18 @@
-import { protectedProcedure } from "@/_internal/server/trpc";
-import z, { file } from "zod";
-import { getWriteAgent } from "@/_internal/server/utils/agent";
-import type { SupportedPDSDomain } from "@/_internal/index";
+import z from "zod";
+import { TRPCError } from "@trpc/server";
+import { tryCatch } from "@/_internal/lib/tryCatch";
+import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
 import {
   FileGeneratorSchema,
   toFile,
   type FileGenerator,
 } from "@/_internal/zod-schemas/file";
-import { BlobRef, type Agent } from "@atproto/api";
-import { TRPCError } from "@trpc/server";
+import type { Agent } from "@atproto/api";
 
+/**
+ * Pure function to upload a file as a blob.
+ * Can be reused outside of tRPC context.
+ */
 export const uploadFileAsBlobPure = async (
   file: File | FileGenerator,
   agent: Agent
@@ -20,31 +23,33 @@ export const uploadFileAsBlobPure = async (
   } else {
     fileToUpload = await toFile(file);
   }
-  const response = await agent.uploadBlob(fileToUpload);
 
-  if (response.success !== true) {
+  const [response, error] = await tryCatch(agent.uploadBlob(fileToUpload));
+
+  if (error !== null) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to upload file as blob.",
+      message: "Failed to upload file.",
+      cause: error,
     });
   }
+
+  if (response === null || response.success !== true) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to upload file.",
+    });
+  }
+
   return response.data;
 };
 
-export const uploadFileAsBlobFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return protectedProcedure
-    .input(
-      z.object({
-        file: FileGeneratorSchema,
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
-      const response = await uploadFileAsBlobPure(input.file, agent);
-
-      return response;
-    });
-};
+/**
+ * Factory to create the tRPC procedure for uploading a file as blob.
+ */
+export const uploadFileAsBlobFactory = createMutationFactory(
+  {
+    file: FileGeneratorSchema,
+  },
+  (agent, input) => uploadFileAsBlobPure(input.file, agent)
+);
