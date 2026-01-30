@@ -1,23 +1,52 @@
-import { S as SupportedPDSDomain, a as StoredSession } from './index-DeueK3FL.cjs';
-export { g as getSessionFromRequest } from './index-DeueK3FL.cjs';
-import * as _atproto_api_dist_client_types_com_atproto_server_getSession from '@atproto/api/dist/client/types/com/atproto/server/getSession';
-import './utils-BRYtkma9.cjs';
-import 'zod';
-import './info-B-l-_nUN.cjs';
-import './activity-D02N0lQZ.cjs';
-import 'multiformats/cid';
-import './blobref-e8ss-bC-.cjs';
-import '@atproto/api';
-import '@trpc/server/unstable-core-do-not-import';
-import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
-import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
-import '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
-import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import './response-types-DkRV5jYn.cjs';
-import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
-import '@trpc/server';
-import '@atproto/oauth-client-node';
+import { A as AppSessionData } from './config-eXJj8SMU.cjs';
+import 'iron-session';
 
-declare const resumeCredentialSession: (service: SupportedPDSDomain, sessionData: StoredSession) => Promise<_atproto_api_dist_client_types_com_atproto_server_getSession.Response>;
+/**
+ * Gets the current app session from the iron-session cookie.
+ * Returns the session data if a valid session exists, or a default empty session.
+ *
+ * @returns The current session data
+ *
+ * @example
+ * ```typescript
+ * const session = await getAppSession();
+ * if (session.isLoggedIn && session.did) {
+ *   // User is authenticated
+ *   const oauthSession = await sdk.restoreSession(session.did);
+ * }
+ * ```
+ */
+declare function getAppSession(): Promise<AppSessionData>;
+/**
+ * Saves user data to the iron-session cookie.
+ * Call this after successful OAuth callback to persist the user's identity.
+ *
+ * @param data - The session data to save (did, handle, isLoggedIn)
+ *
+ * @example
+ * ```typescript
+ * // After OAuth callback
+ * const oauthSession = await sdk.callback(params);
+ * await saveAppSession({
+ *   did: oauthSession.sub,
+ *   handle: oauthSession.handle,
+ *   isLoggedIn: true,
+ * });
+ * ```
+ */
+declare function saveAppSession(data: Partial<AppSessionData>): Promise<void>;
+/**
+ * Clears the iron-session cookie, logging the user out.
+ * Note: This only clears the cookie - the OAuth session in Supabase
+ * should be cleared separately if needed.
+ *
+ * @example
+ * ```typescript
+ * // On logout
+ * await clearAppSession();
+ * // Optionally also clear the OAuth session from Supabase
+ * ```
+ */
+declare function clearAppSession(): Promise<void>;
 
-export { StoredSession, resumeCredentialSession };
+export { AppSessionData, clearAppSession, getAppSession, saveAppSession };

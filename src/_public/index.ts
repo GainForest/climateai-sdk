@@ -2,5 +2,10 @@ export * from "../_internal";
 
 import { ClimateAiSDK as SDKInternal } from "../_internal";
 
-const sdkInternal = new SDKInternal(["climateai.org", "hypercerts.org"]);
-const serverCallerInternal = sdkInternal.getServerCaller();
+/**
+ * Pre-configured ClimateAI SDK instance for climateai.org and hypercerts.org domains.
+ *
+ * Note: The getServerCaller method now requires an ATProtoSDK instance.
+ * See @climateai/sdk/oauth for OAuth configuration utilities.
+ */
+const sdkInternal = new SDKInternal(["climateai.org", "gainforest.id"]);

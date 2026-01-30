@@ -1,23 +1,50 @@
-import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
+import { $ as $Typed } from './utils-BRYtkma9.cjs';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6, U as Uri, S as SmallImage, L as LargeImage, f as SmallBlob, g as LargeBlob } from './info-B-l-_nUN.cjs';
+import { b as BlobRefGenerator } from './blobref-e8ss-bC-.cjs';
+import { z } from 'zod';
+import { M as Main$3, B as BlobRef } from './activity-D02N0lQZ.cjs';
+import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
-import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6 } from './info-5wTP3IAZ.js';
-import { M as Main$3 } from './activity-BuClHKQ6.js';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
 import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
-import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
+import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
-import { S as SupportedPDSDomain, a as StoredSession } from './index-CL9079bl.js';
-import z from 'zod';
+import { ATProtoSDK } from '@hypercerts-org/sdk-core';
+import { A as AppSessionData } from './config-eXJj8SMU.cjs';
 
-declare class AppRouterFactory<T extends SupportedPDSDomain> {
+/**
+ * Creates the tRPC context for each request.
+ * Apps must provide the ATProto SDK instance configured with their stores.
+ *
+ * @param opts.sdk - The ATProto SDK instance (required for authenticated operations)
+ * @param opts.req - Optional request object
+ * @param opts.allowedPDSDomains - List of allowed PDS domains
+ */
+declare function createContext<T extends SupportedPDSDomain>(opts: {
+    sdk: ATProtoSDK;
+    req?: Request;
     allowedPDSDomains: T[];
-    allowedPDSDomainSchema: z.ZodEnum<{ [k_1 in T]: k_1; } extends infer T_1 ? { [k in keyof T_1]: T_1[k]; } : never>;
+}): Promise<{
+    session: AppSessionData;
+    sdk: ATProtoSDK;
+}>;
+type TrpcContext = {
+    session: AppSessionData;
+    sdk: ATProtoSDK;
+};
+
+declare const supportedDomains: readonly ["climateai.org", "gainforest.id"];
+declare const supportedPDSDomainSchema: z.ZodEnum<{
+    "climateai.org": "climateai.org";
+    "gainforest.id": "gainforest.id";
+}>;
+type SupportedPDSDomain = (typeof supportedDomains)[number];
+declare class ClimateAiSDK<T extends SupportedPDSDomain> {
+    allowedPDSDomains: T[];
     appRouter: _trpc_server.TRPCBuiltRouter<{
-        ctx: {
-            session: StoredSession | null;
-        };
+        ctx: TrpcContext;
         meta: object;
         errorShape: _trpc_server.TRPCDefaultErrorShape;
         transformer: true;
@@ -43,41 +70,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 meta: object;
             }>;
         };
-        auth: {
-            login: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    handlePrefix: string;
-                    service: Record<T, T>[T];
-                    password: string;
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            resume: _trpc_server.TRPCQueryProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            logout: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    success: boolean;
-                };
-                meta: object;
-            }>;
-        };
         gainforest: {
             organization: {
                 info: {
@@ -179,7 +171,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         output: {
                             uri: string;
                             cid: string;
-                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            validationStatus: "unknown" | (string & {}) | "valid" | undefined;
                             value: Main$1;
                         };
                         meta: object;
@@ -480,8 +472,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
             };
         };
     }>>;
-    constructor(_allowedPDSDomains: T[]);
-    getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: (sdk: ATProtoSDK) => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
@@ -503,41 +494,6 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                 meta: object;
             }>;
         };
-        auth: {
-            login: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    handlePrefix: string;
-                    service: Record<T, T>[T];
-                    password: string;
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            resume: _trpc_server.TRPCQueryProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            logout: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    success: boolean;
-                };
-                meta: object;
-            }>;
-        };
         gainforest: {
             organization: {
                 info: {
@@ -639,7 +595,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         output: {
                             uri: string;
                             cid: string;
-                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            validationStatus: "unknown" | (string & {}) | "valid" | undefined;
                             value: Main$1;
                         };
                         meta: object;
@@ -940,7 +896,15 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
             };
         };
     }>>;
+    utilities: {
+        getBlobUrl: (did: string, imageData: string | BlobRef | BlobRefGenerator | $Typed<Uri | SmallImage | LargeImage | SmallBlob | LargeBlob> | Uri | SmallImage | LargeImage | SmallBlob | LargeBlob, pdsDomain: T) => string;
+        parseAtUri: (atUri: string) => {
+            did: string;
+            collection: string;
+            rkey: string;
+        };
+    };
+    constructor(_allowedPDSDomains: T[]);
 }
-type AppRouter<T extends SupportedPDSDomain> = AppRouterFactory<T>["appRouter"];
 
-export type { AppRouter as A };
+export { ClimateAiSDK as C, type SupportedPDSDomain as S, type TrpcContext as T, createContext as c, supportedPDSDomainSchema as s };

@@ -1,19 +1,19 @@
 'use strict';
 
-var z12 = require('zod');
+var z9 = require('zod');
 var api = require('@atproto/api');
 var server = require('@trpc/server');
-var headers = require('next/headers');
-var jose = require('jose');
 var superjson = require('superjson');
 var cid = require('multiformats/cid');
+var ironSession = require('iron-session');
+var headers = require('next/headers');
 var xrpc = require('@atproto/xrpc');
 var lexicon = require('@atproto/lexicon');
 var turf = require('@turf/turf');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
-var z12__default = /*#__PURE__*/_interopDefault(z12);
+var z9__default = /*#__PURE__*/_interopDefault(z9);
 var superjson__default = /*#__PURE__*/_interopDefault(superjson);
 
 var __defProp = Object.defineProperty;
@@ -72,108 +72,13 @@ var parseAtUri = (atUri) => {
   const rkey = splitUri.at(2) ?? "self";
   return { did, collection, rkey };
 };
-
-// src/_internal/lib/tryCatch.ts
-var tryCatch = async (promise) => {
-  try {
-    const result = await promise;
-    return [result, null];
-  } catch (error) {
-    return [null, error];
-  }
-};
-var resumeFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12__default.default.object({
-      service: allowedPDSDomainSchema
-    })
-  ).query(async ({ input }) => {
-    const session = await getSessionFromRequest(input.service);
-    if (!session) {
-      throw new server.TRPCError({
-        code: "UNAUTHORIZED",
-        message: "No session found"
-      });
-    }
-    const credentialSession = new api.CredentialSession(
-      new URL(`https://${input.service}`)
-    );
-    const resumeSessionPromise = credentialSession.resumeSession({
-      accessJwt: session.accessJwt,
-      refreshJwt: session.refreshJwt,
-      handle: session.handle,
-      did: session.did,
-      active: true
-    });
-    const [resumeSessionResult, resumeSessionError] = await tryCatch(resumeSessionPromise);
-    if (resumeSessionError) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to resume session",
-        cause: resumeSessionError
-      });
-    }
-    if (!resumeSessionResult.success) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to resume session",
-        cause: "Session could not be resumed successfully"
-      });
-    }
-    return {
-      did: resumeSessionResult.data.did,
-      handle: resumeSessionResult.data.handle,
-      service: input.service
-    };
-  });
-};
-
-// src/_internal/server/session.ts
-var SECRET_KEY = new TextEncoder().encode(
-  process.env.COOKIE_SECRET || "your-secret-key-min-32-chars-long"
-);
-async function encrypt(payload) {
-  return await new jose.SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(SECRET_KEY);
-}
-async function decrypt(token) {
-  try {
-    const { payload } = await jose.jwtVerify(token, SECRET_KEY);
-    return payload;
-  } catch {
-    return null;
-  }
-}
-async function getSessionFromRequest(service = "climateai.org") {
-  const cookieStore = await headers.cookies();
-  const encryptedSession = cookieStore.get(`${service}_session`);
-  if (!encryptedSession) {
-    return null;
-  }
-  return await decrypt(encryptedSession.value);
-}
-async function saveSession(session, service = "climateai.org") {
-  const cookieStore = await headers.cookies();
-  const encrypted = await encrypt(session);
-  cookieStore.set(`${service}_session`, encrypted, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30,
-    path: "/"
-  });
-  return encrypted;
-}
-async function clearSession(service = "climateai.org") {
-  const cookieStore = await headers.cookies();
-  cookieStore.delete(`${service}_session`);
-}
-var BlobRefGeneratorSchema = z12__default.default.object({
-  $type: z12__default.default.literal("blob-ref-generator"),
-  ref: z12__default.default.object({
-    $link: z12__default.default.string()
+var BlobRefGeneratorSchema = z9__default.default.object({
+  $type: z9__default.default.literal("blob-ref-generator"),
+  ref: z9__default.default.object({
+    $link: z9__default.default.string()
   }),
-  mimeType: z12__default.default.string(),
-  size: z12__default.default.number()
+  mimeType: z9__default.default.string(),
+  size: z9__default.default.number()
 });
 var toBlobRef = (input) => {
   const validCID = cid.CID.parse(
@@ -238,11 +143,52 @@ var customTransformer = {
   }
 };
 
+// src/_internal/oauth/iron-session/config.ts
+var DEFAULT_MAX_AGE = 60 * 60 * 24 * 30;
+var DEFAULT_COOKIE_NAME = "climateai_session";
+function getSessionOptions() {
+  const cookieSecret = process.env.COOKIE_SECRET;
+  if (!cookieSecret) {
+    throw new Error(
+      "COOKIE_SECRET environment variable is required for iron-session"
+    );
+  }
+  if (cookieSecret.length < 32) {
+    throw new Error("COOKIE_SECRET must be at least 32 characters long");
+  }
+  return {
+    password: cookieSecret,
+    cookieName: process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME,
+    cookieOptions: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: DEFAULT_MAX_AGE,
+      path: "/"
+    }
+  };
+}
+
+// src/_internal/oauth/iron-session/helpers.ts
+async function getAppSession() {
+  const cookieStore = await headers.cookies();
+  const session = await ironSession.getIronSession(
+    cookieStore,
+    getSessionOptions()
+  );
+  return {
+    did: session.did,
+    handle: session.handle,
+    isLoggedIn: session.isLoggedIn ?? false
+  };
+}
+
 // src/_internal/server/trpc.ts
 async function createContext(opts) {
-  const session = opts?.req ? await getSessionFromRequest(opts.allowedPDSDomains[0]) : null;
+  const session = await getAppSession();
   return {
-    session
+    session,
+    sdk: opts.sdk
   };
 }
 var t = server.initTRPC.context().create({
@@ -251,47 +197,46 @@ var t = server.initTRPC.context().create({
 var createTRPCRouter = t.router;
 var publicProcedure = t.procedure;
 var protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session) {
+  if (!ctx.session.isLoggedIn || !ctx.session.did) {
     throw new server.TRPCError({
       code: "UNAUTHORIZED",
       message: "You must be logged in"
     });
   }
-  return next({ ctx });
+  return next({
+    ctx: {
+      ...ctx,
+      // Narrow the session type to guarantee did is defined
+      session: ctx.session
+    }
+  });
 });
 var getReadAgent = (pdsDomain) => {
   return new api.Agent({
     service: new URL(`https://${pdsDomain}`)
   });
 };
-var getWriteAgent = async (pdsDomain) => {
-  const session = await getSessionFromRequest(pdsDomain);
-  if (!session)
+var getWriteAgent = async (sdk, _pdsDomain) => {
+  const appSession = await getAppSession();
+  if (!appSession.isLoggedIn || !appSession.did) {
     throw new server.TRPCError({
       code: "UNAUTHORIZED",
-      message: "You are not authorized."
+      message: "You are not authorized. Please log in."
     });
-  const credentialSession = new api.CredentialSession(
-    new URL(`https://${pdsDomain}`)
-  );
-  const result = await credentialSession.resumeSession({
-    accessJwt: session.accessJwt,
-    refreshJwt: session.refreshJwt,
-    handle: session.handle,
-    did: session.did,
-    active: true
-  });
-  if (!result.success)
+  }
+  const oauthSession = await sdk.restoreSession(appSession.did);
+  if (!oauthSession) {
     throw new server.TRPCError({
       code: "UNAUTHORIZED",
-      message: "Failed to resume session."
+      message: "Session expired or not found. Please log in again."
     });
-  return new api.Agent(credentialSession);
+  }
+  return new api.Agent(oauthSession);
 };
-var FileGeneratorSchema = z12__default.default.object({
-  name: z12__default.default.string(),
-  type: z12__default.default.string(),
-  dataBase64: z12__default.default.string()
+var FileGeneratorSchema = z9__default.default.object({
+  name: z9__default.default.string(),
+  type: z9__default.default.string(),
+  dataBase64: z9__default.default.string()
 });
 var toFile = async (fileGenerator) => {
   const file2 = new File(
@@ -319,63 +264,25 @@ var uploadFileAsBlobPure = async (file2, agent) => {
 };
 var uploadFileAsBlobFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12__default.default.object({
+    z9__default.default.object({
       file: FileGeneratorSchema,
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     const response = await uploadFileAsBlobPure(input.file, agent);
     return response;
   });
 };
-var loginFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12__default.default.object({
-      handlePrefix: z12__default.default.string().regex(/^^[a-zA-Z0-9-]+$/),
-      // alphanumerics and hyphens only
-      service: allowedPDSDomainSchema,
-      password: z12__default.default.string()
-    })
-  ).mutation(async ({ input }) => {
-    const session = new api.CredentialSession(
-      new URL(`https://${input.service}`)
-    );
-    const result = await session.login({
-      identifier: `${input.handlePrefix}.${input.service}`,
-      password: input.password
-    });
-    if (!result.success) {
-      throw new server.TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Login failed"
-      });
-    }
-    const context = {
-      accessJwt: result.data.accessJwt,
-      refreshJwt: result.data.refreshJwt,
-      did: result.data.did,
-      handle: result.data.handle
-    };
-    await saveSession(context, input.service);
-    return {
-      did: context.did,
-      handle: context.handle,
-      service: input.service
-    };
-  });
-};
-var logoutFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(
-    z12__default.default.object({
-      service: allowedPDSDomainSchema
-    })
-  ).mutation(async ({ input }) => {
-    await clearSession(input.service);
-    return {
-      success: true
-    };
-  });
+
+// src/_internal/lib/tryCatch.ts
+var tryCatch = async (promise) => {
+  try {
+    const result = await promise;
+    return [result, null];
+  } catch (error) {
+    return [null, error];
+  }
 };
 
 // lex-api/util.ts
@@ -2590,15 +2497,15 @@ var getOrganizationInfoPure = async (did, pdsDomain) => {
   return response.data;
 };
 var getOrganizationInfoFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(z12.z.object({ did: z12.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(z9.z.object({ did: z9.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     return await getOrganizationInfoPure(input.did, input.pdsDomain);
   });
 };
 var getSiteFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
+      rkey: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2620,8 +2527,8 @@ var getSiteFactory = (allowedPDSDomainSchema) => {
 };
 var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
+    z9__default.default.object({
+      did: z9__default.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2643,8 +2550,8 @@ var getDefaultProjectSiteFactory = (allowedPDSDomainSchema) => {
 };
 var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
+    z9__default.default.object({
+      did: z9__default.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -2665,10 +2572,10 @@ var getMeasuredTreesFactory = (allowedPDSDomainSchema) => {
     return response.data;
   });
 };
-var StrongRefSchema = z12__default.default.object({
-  $type: z12__default.default.literal("com.atproto.repo.strongRef").optional(),
-  uri: z12__default.default.string().regex(/^at:\/\//),
-  cid: z12__default.default.string()
+var StrongRefSchema = z9__default.default.object({
+  $type: z9__default.default.literal("com.atproto.repo.strongRef").optional(),
+  uri: z9__default.default.string().regex(/^at:\/\//),
+  cid: z9__default.default.string()
 });
 
 // src/_internal/server/utils/ownership.ts
@@ -2692,28 +2599,28 @@ var uploadFile = async (fileGenerator, agent) => {
 };
 var createClaimActivityFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12__default.default.object({
-      activity: z12__default.default.object({
-        title: z12__default.default.string(),
-        shortDescription: z12__default.default.string(),
-        description: z12__default.default.string().optional(),
+    z9__default.default.object({
+      activity: z9__default.default.object({
+        title: z9__default.default.string(),
+        shortDescription: z9__default.default.string(),
+        description: z9__default.default.string().optional(),
         locations: StrongRefSchema.array(),
-        project: z12__default.default.string().optional(),
-        workScopes: z12__default.default.array(z12__default.default.string()),
-        startDate: z12__default.default.string(),
-        endDate: z12__default.default.string(),
-        contributors: z12__default.default.array(z12__default.default.string()).refine((v) => v.length > 0, {
+        project: z9__default.default.string().optional(),
+        workScopes: z9__default.default.array(z9__default.default.string()),
+        startDate: z9__default.default.string(),
+        endDate: z9__default.default.string(),
+        contributors: z9__default.default.array(z9__default.default.string()).refine((v) => v.length > 0, {
           message: "At least one contributor is required"
         }),
-        createdAt: z12__default.default.string().optional()
+        createdAt: z9__default.default.string().optional()
       }),
-      uploads: z12__default.default.object({
+      uploads: z9__default.default.object({
         image: FileGeneratorSchema
       }),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     const did = agent.did;
     if (!did) {
       throw new server.TRPCError({
@@ -2820,17 +2727,17 @@ var createClaimActivityFactory = (allowedPDSDomainSchema) => {
 };
 var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
-      info: z12__default.default.object({
-        displayName: z12__default.default.string(),
-        shortDescription: z12__default.default.string(),
-        longDescription: z12__default.default.string(),
-        website: z12__default.default.string().optional(),
+    z9__default.default.object({
+      did: z9__default.default.string(),
+      info: z9__default.default.object({
+        displayName: z9__default.default.string(),
+        shortDescription: z9__default.default.string(),
+        longDescription: z9__default.default.string(),
+        website: z9__default.default.string().optional(),
         logo: BlobRefGeneratorSchema.optional(),
         coverImage: BlobRefGeneratorSchema.optional(),
-        objectives: z12__default.default.array(
-          z12__default.default.enum([
+        objectives: z9__default.default.array(
+          z9__default.default.enum([
             "Conservation",
             "Research",
             "Education",
@@ -2838,19 +2745,19 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
             "Other"
           ])
         ),
-        startDate: z12__default.default.string().optional(),
-        country: z12__default.default.string(),
-        visibility: z12__default.default.enum(["Public", "Hidden"]),
-        createdAt: z12__default.default.string().optional()
+        startDate: z9__default.default.string().optional(),
+        country: z9__default.default.string(),
+        visibility: z9__default.default.enum(["Public", "Hidden"]),
+        createdAt: z9__default.default.string().optional()
       }),
-      uploads: z12__default.default.object({
+      uploads: z9__default.default.object({
         logo: FileGeneratorSchema.optional(),
         coverImage: FileGeneratorSchema.optional()
       }).optional(),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     const logoBlob = input.uploads?.logo ? (await uploadFileAsBlobPure(input.uploads.logo, agent)).blob : input.info.logo ? toBlobRef(input.info.logo) : void 0;
     const coverImageBlob = input.uploads?.coverImage ? (await uploadFileAsBlobPure(input.uploads.coverImage, agent)).blob : input.info.coverImage ? toBlobRef(input.info.coverImage) : void 0;
     const info = {
@@ -2892,7 +2799,7 @@ var createOrUpdateOrganizationInfoFactory = (allowedPDSDomainSchema) => {
     };
   });
 };
-var LayerTypeEnum = z12__default.default.enum([
+var LayerTypeEnum = z9__default.default.enum([
   "geojson_points",
   "geojson_points_trees",
   "geojson_line",
@@ -2903,20 +2810,20 @@ var LayerTypeEnum = z12__default.default.enum([
 ]);
 var createOrUpdateLayerFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12__default.default.object({
-      did: z12__default.default.string(),
-      rkey: z12__default.default.string().optional(),
-      layer: z12__default.default.object({
-        name: z12__default.default.string(),
+    z9__default.default.object({
+      did: z9__default.default.string(),
+      rkey: z9__default.default.string().optional(),
+      layer: z9__default.default.object({
+        name: z9__default.default.string(),
         type: LayerTypeEnum,
-        uri: z12__default.default.string(),
-        description: z12__default.default.string().optional(),
-        createdAt: z12__default.default.string().optional()
+        uri: z9__default.default.string(),
+        description: z9__default.default.string().optional(),
+        createdAt: z9__default.default.string().optional()
       }),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     const layer = {
       $type: "app.gainforest.organization.layer",
       name: input.layer.name,
@@ -2955,7 +2862,7 @@ var createOrUpdateLayerFactory = (allowedPDSDomainSchema) => {
   });
 };
 var getAllSitesFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(z12.z.object({ did: z12.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(z9.z.object({ did: z9.z.string(), pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const listSitesTryCatchPromise = tryCatch(
       agent.com.atproto.repo.listRecords({
@@ -3641,18 +3548,18 @@ async function processGeojsonFileOrThrow(file2) {
 // src/_internal/server/routers/atproto/hypercerts/site/create.ts
 var createSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      rkey: z12.z.string().optional(),
-      site: z12.z.object({
-        name: z12.z.string().min(1)
+    z9.z.object({
+      rkey: z9.z.string().optional(),
+      site: z9.z.object({
+        name: z9.z.string().min(1)
       }),
-      uploads: z12.z.object({
-        shapefile: z12.z.union([z12.z.url(), FileGeneratorSchema])
+      uploads: z9.z.object({
+        shapefile: z9.z.union([z9.z.url(), FileGeneratorSchema])
       }),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     if (!agent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -3701,22 +3608,22 @@ var createSiteFactory = (allowedPDSDomainSchema) => {
 };
 var updateSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      rkey: z12.z.string(),
-      site: z12.z.object({
-        name: z12.z.string().min(1),
-        shapefile: z12.z.object({
-          $type: z12.z.literal("app.gainforest.common.defs#smallBlob"),
+    z9.z.object({
+      rkey: z9.z.string(),
+      site: z9.z.object({
+        name: z9.z.string().min(1),
+        shapefile: z9.z.object({
+          $type: z9.z.literal("app.gainforest.common.defs#smallBlob"),
           blob: BlobRefGeneratorSchema
         }).optional()
       }),
-      uploads: z12.z.object({
+      uploads: z9.z.object({
         shapefile: FileGeneratorSchema.optional()
       }).optional(),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     if (!agent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -3781,12 +3688,12 @@ var updateSiteFactory = (allowedPDSDomainSchema) => {
 };
 var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12__default.default.object({
-      siteAtUri: z12__default.default.string(),
+    z9__default.default.object({
+      siteAtUri: z9__default.default.string(),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     if (!agent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -3836,9 +3743,9 @@ var setDefaultSiteFactory = (allowedPDSDomainSchema) => {
 };
 var deleteSiteFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12__default.default.object({ siteAtUri: z12__default.default.string(), pdsDomain: allowedPDSDomainSchema })
-  ).mutation(async ({ input }) => {
-    const agent = await getWriteAgent(input.pdsDomain);
+    z9__default.default.object({ siteAtUri: z9__default.default.string(), pdsDomain: allowedPDSDomainSchema })
+  ).mutation(async ({ input, ctx }) => {
+    const agent = await getWriteAgent(ctx.sdk);
     if (!agent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -3921,8 +3828,8 @@ var getAllClaimActivitiesPure = async (did, pdsDomain) => {
 };
 var getAllClaimActivitiesFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -3932,7 +3839,7 @@ var getAllClaimActivitiesFactory = (allowedPDSDomainSchema) => {
 
 // src/_internal/server/routers/atproto/hypercerts/claim/activity/getAllAcrossOrgs.ts
 var getAllClaimActivitiesAcrossOrganizationsFactory = (allowedPDSDomainSchema) => {
-  return publicProcedure.input(z12.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
+  return publicProcedure.input(z9.z.object({ pdsDomain: allowedPDSDomainSchema })).query(async ({ input }) => {
     const agent = getReadAgent(input.pdsDomain);
     const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
       agent.com.atproto.sync.listRepos({
@@ -4035,9 +3942,9 @@ var getClaimActivityPure = async (did, rkey, pdsDomain) => {
 };
 var getCliamActivityFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
+      rkey: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -4074,9 +3981,9 @@ var getCertifiedLocationPure = async (did, rkey, pdsDomain) => {
 };
 var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
+      rkey: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -4089,15 +3996,15 @@ var getCertifiedLocationFactory = (allowedPDSDomainSchema) => {
 };
 var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      measuredTreesClusterUris: z12.z.array(z12.z.string()).min(1),
+    z9.z.object({
+      did: z9.z.string(),
+      projectRkey: z9.z.string(),
+      measuredTreesClusterUris: z9.z.array(z9.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
+  ).mutation(async ({ input, ctx }) => {
     const readAgent = getReadAgent(input.pdsDomain);
-    const writeAgent = await getWriteAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(ctx.sdk);
     if (!writeAgent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -4156,15 +4063,15 @@ var addMeasuredTreesClusterToProjectFactory = (allowedPDSDomainSchema) => {
 };
 var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      measuredTreesClusterUris: z12.z.array(z12.z.string()).min(1),
+    z9.z.object({
+      did: z9.z.string(),
+      projectRkey: z9.z.string(),
+      measuredTreesClusterUris: z9.z.array(z9.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
+  ).mutation(async ({ input, ctx }) => {
     const readAgent = getReadAgent(input.pdsDomain);
-    const writeAgent = await getWriteAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(ctx.sdk);
     if (!writeAgent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -4188,15 +4095,15 @@ var removeMeasuredTreesClusterFromProjectFactory = (allowedPDSDomainSchema) => {
 };
 var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      layerUris: z12.z.array(z12.z.string()).min(1),
+    z9.z.object({
+      did: z9.z.string(),
+      projectRkey: z9.z.string(),
+      layerUris: z9.z.array(z9.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
+  ).mutation(async ({ input, ctx }) => {
     const readAgent = getReadAgent(input.pdsDomain);
-    const writeAgent = await getWriteAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(ctx.sdk);
     if (!writeAgent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -4255,15 +4162,15 @@ var addLayersToProjectFactory = (allowedPDSDomainSchema) => {
 };
 var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
   return protectedProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      projectRkey: z12.z.string(),
-      layerUris: z12.z.array(z12.z.string()).min(1),
+    z9.z.object({
+      did: z9.z.string(),
+      projectRkey: z9.z.string(),
+      layerUris: z9.z.array(z9.z.string()).min(1),
       pdsDomain: allowedPDSDomainSchema
     })
-  ).mutation(async ({ input }) => {
+  ).mutation(async ({ input, ctx }) => {
     const readAgent = getReadAgent(input.pdsDomain);
-    const writeAgent = await getWriteAgent(input.pdsDomain);
+    const writeAgent = await getWriteAgent(ctx.sdk);
     if (!writeAgent.did) {
       throw new server.TRPCError({
         code: "UNAUTHORIZED",
@@ -4291,9 +4198,9 @@ var removeLayersFromProjectFactory = (allowedPDSDomainSchema) => {
 };
 var getLayerFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
+      rkey: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -4323,9 +4230,9 @@ var getLayerFactory = (allowedPDSDomainSchema) => {
 };
 var getProjectFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
-      rkey: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
+      rkey: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -4355,8 +4262,8 @@ var getProjectFactory = (allowedPDSDomainSchema) => {
 };
 var getAllProjectsFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -4393,8 +4300,8 @@ var getAllProjectsFactory = (allowedPDSDomainSchema) => {
 };
 var getAllLayersFactory = (allowedPDSDomainSchema) => {
   return publicProcedure.input(
-    z12.z.object({
-      did: z12.z.string(),
+    z9.z.object({
+      did: z9.z.string(),
       pdsDomain: allowedPDSDomainSchema
     })
   ).query(async ({ input }) => {
@@ -4439,22 +4346,24 @@ var AppRouterFactory = class {
     __publicField(this, "allowedPDSDomains");
     __publicField(this, "allowedPDSDomainSchema");
     __publicField(this, "appRouter");
-    __publicField(this, "getServerCaller", () => {
+    /**
+     * Creates a server-side caller for the tRPC router.
+     * Apps must provide the ATProto SDK instance configured with their stores.
+     *
+     * @param sdk - The ATProto SDK instance
+     * @returns A callable server-side tRPC client
+     */
+    __publicField(this, "getServerCaller", (sdk) => {
       return this.appRouter.createCaller(
-        async () => await createContext({ allowedPDSDomains: this.allowedPDSDomains })
+        async () => await createContext({ sdk, allowedPDSDomains: this.allowedPDSDomains })
       );
     });
     this.allowedPDSDomains = _allowedPDSDomains;
-    this.allowedPDSDomainSchema = z12__default.default.enum(this.allowedPDSDomains);
+    this.allowedPDSDomainSchema = z9__default.default.enum(this.allowedPDSDomains);
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
         uploadFileAsBlob: uploadFileAsBlobFactory(this.allowedPDSDomainSchema)
-      },
-      auth: {
-        login: loginFactory(this.allowedPDSDomainSchema),
-        resume: resumeFactory(this.allowedPDSDomainSchema),
-        logout: logoutFactory(this.allowedPDSDomainSchema)
       },
       gainforest: {
         organization: {
@@ -4526,9 +4435,9 @@ var AppRouterFactory = class {
 };
 
 // src/_internal/index.ts
-var supportedDomains = ["climateai.org", "hypercerts.org"];
-var supportedPDSDomainSchema = z12.z.enum(supportedDomains);
-var supportedPDSDomainsSchema = z12.z.array(supportedPDSDomainSchema);
+var supportedDomains = ["climateai.org", "gainforest.id"];
+var supportedPDSDomainSchema = z9.z.enum(supportedDomains);
+var supportedPDSDomainsSchema = z9.z.array(supportedPDSDomainSchema);
 var ClimateAiSDK = class {
   constructor(_allowedPDSDomains) {
     __publicField(this, "allowedPDSDomains");
@@ -4557,8 +4466,7 @@ var ClimateAiSDK = class {
 };
 
 // src/_public/index.ts
-var sdkInternal = new ClimateAiSDK(["climateai.org", "hypercerts.org"]);
-sdkInternal.getServerCaller();
+new ClimateAiSDK(["climateai.org", "gainforest.id"]);
 
 exports.ClimateAiSDK = ClimateAiSDK;
 exports.createContext = createContext;

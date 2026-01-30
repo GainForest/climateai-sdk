@@ -1,7 +1,7 @@
 import * as _trpc_client from '@trpc/client';
-import { A as AppRouter } from './_app-Byo_miuz.js';
-import { S as SupportedPDSDomain } from './index-CL9079bl.js';
-import '@trpc/server/unstable-core-do-not-import';
+import { AppRouter } from './index.js';
+import { S as SupportedPDSDomain } from './index-CgHM_GBe.js';
+import 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import './info-5wTP3IAZ.js';
@@ -14,9 +14,11 @@ import '@atproto/api/dist/client/types/com/atproto/repo/createRecord';
 import './response-types-DkRV5jYn.js';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
+import '@hypercerts-org/sdk-core';
 import './blobref-e8ss-bC-.js';
 import '@atproto/api';
-import '@atproto/oauth-client-node';
+import './config-eXJj8SMU.js';
+import 'iron-session';
 
 declare const createTRPCClient: <T extends SupportedPDSDomain>(trpcEndpoint: string) => _trpc_client.TRPCClient<AppRouter<T>>;
 

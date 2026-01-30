@@ -41,8 +41,8 @@ export const uploadFileAsBlobFactory = <T extends SupportedPDSDomain>(
         pdsDomain: allowedPDSDomainSchema,
       })
     )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
+    .mutation(async ({ input, ctx }) => {
+      const agent = await getWriteAgent(ctx.sdk);
       const response = await uploadFileAsBlobPure(input.file, agent);
 
       return response;

@@ -1,44 +1,73 @@
+import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
-import { CredentialSession } from '@atproto/api';
-import '@trpc/server';
-import 'zod';
 
-// src/_internal/server/session.ts
-var resumeCredentialSession = (service, sessionData) => {
-  const credentialSession = new CredentialSession(
-    new URL(`https://${service}`)
-  );
-  return credentialSession.resumeSession({
-    accessJwt: sessionData.accessJwt,
-    refreshJwt: sessionData.refreshJwt,
-    handle: sessionData.handle,
-    did: sessionData.did,
-    active: true
-  });
-};
+// src/_internal/oauth/iron-session/helpers.ts
 
-// src/_internal/server/session.ts
-var SECRET_KEY = new TextEncoder().encode(
-  process.env.COOKIE_SECRET || "your-secret-key-min-32-chars-long"
-);
-async function decrypt(token) {
-  try {
-    const { payload } = await jwtVerify(token, SECRET_KEY);
-    return payload;
-  } catch {
-    return null;
+// src/_internal/oauth/iron-session/config.ts
+var DEFAULT_MAX_AGE = 60 * 60 * 24 * 30;
+var DEFAULT_COOKIE_NAME = "climateai_session";
+function getSessionOptions() {
+  const cookieSecret = process.env.COOKIE_SECRET;
+  if (!cookieSecret) {
+    throw new Error(
+      "COOKIE_SECRET environment variable is required for iron-session"
+    );
   }
+  if (cookieSecret.length < 32) {
+    throw new Error("COOKIE_SECRET must be at least 32 characters long");
+  }
+  return {
+    password: cookieSecret,
+    cookieName: process.env.COOKIE_NAME || DEFAULT_COOKIE_NAME,
+    cookieOptions: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: DEFAULT_MAX_AGE,
+      path: "/"
+    }
+  };
 }
-async function getSessionFromRequest(service = "climateai.org") {
+
+// src/_internal/oauth/iron-session/helpers.ts
+async function getAppSession() {
   const cookieStore = await cookies();
-  const encryptedSession = cookieStore.get(`${service}_session`);
-  if (!encryptedSession) {
-    return null;
+  const session = await getIronSession(
+    cookieStore,
+    getSessionOptions()
+  );
+  return {
+    did: session.did,
+    handle: session.handle,
+    isLoggedIn: session.isLoggedIn ?? false
+  };
+}
+async function saveAppSession(data) {
+  const cookieStore = await cookies();
+  const session = await getIronSession(
+    cookieStore,
+    getSessionOptions()
+  );
+  if (data.did !== void 0) {
+    session.did = data.did;
   }
-  return await decrypt(encryptedSession.value);
+  if (data.handle !== void 0) {
+    session.handle = data.handle;
+  }
+  if (data.isLoggedIn !== void 0) {
+    session.isLoggedIn = data.isLoggedIn;
+  }
+  await session.save();
+}
+async function clearAppSession() {
+  const cookieStore = await cookies();
+  const session = await getIronSession(
+    cookieStore,
+    getSessionOptions()
+  );
+  session.destroy();
 }
 
-export { getSessionFromRequest, resumeCredentialSession };
+export { clearAppSession, getAppSession, saveAppSession };
 //# sourceMappingURL=session.js.map
 //# sourceMappingURL=session.js.map

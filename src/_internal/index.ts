@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { getBlobUrl, parseAtUri } from "./utilities/atproto";
 import { AppRouterFactory, type AppRouter } from "./server/routers/_app";
+import type { ATProtoSDK } from "@hypercerts-org/sdk-core";
 
-const supportedDomains = ["climateai.org", "hypercerts.org"] as const;
+const supportedDomains = ["climateai.org", "gainforest.id"] as const;
 export const supportedPDSDomainSchema = z.enum(supportedDomains);
 const supportedPDSDomainsSchema = z.array(supportedPDSDomainSchema);
 export type SupportedPDSDomain = (typeof supportedDomains)[number];
@@ -38,5 +39,5 @@ export class ClimateAiSDK<T extends SupportedPDSDomain> {
   }
 }
 
-export type { AppRouter };
+export type { AppRouter, ATProtoSDK };
 export { createContext } from "./server/trpc";

@@ -52,8 +52,8 @@ export const createOrUpdateOrganizationInfoFactory = <
         pdsDomain: allowedPDSDomainSchema,
       })
     )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
+    .mutation(async ({ input, ctx }) => {
+      const agent = await getWriteAgent(ctx.sdk);
       const logoBlob =
         input.uploads?.logo ?
           (await uploadFileAsBlobPure(input.uploads.logo, agent)).blob

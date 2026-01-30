@@ -1,8 +1,5 @@
 import { createContext, createTRPCRouter, publicProcedure } from "../trpc";
 import { uploadFileAsBlobFactory } from "./atproto/common/uploadFileAsBlob";
-import { loginFactory } from "./atproto/auth/login";
-import { resumeFactory } from "./atproto/auth/resume";
-import { logoutFactory } from "./atproto/auth/logout";
 import { getOrganizationInfoFactory } from "./atproto/gainforest/organization/info/get";
 import { getSiteFactory } from "./atproto/hypercerts/site/get";
 import { getDefaultProjectSiteFactory } from "./atproto/hypercerts/site/getDefault";
@@ -27,9 +24,11 @@ import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
 import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
+import type { ATProtoSDK } from "@hypercerts-org/sdk-core";
 import z from "zod";
 import { getAllLayersFactory } from "./atproto/gainforest/organization/layer/getAll";
 import { getAllClaimActivitiesFactory } from "./atproto/hypercerts/claim/activity/getAll";
+
 export class AppRouterFactory<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public allowedPDSDomainSchema;
@@ -43,11 +42,6 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
         uploadFileAsBlob: uploadFileAsBlobFactory(this.allowedPDSDomainSchema),
-      },
-      auth: {
-        login: loginFactory(this.allowedPDSDomainSchema),
-        resume: resumeFactory(this.allowedPDSDomainSchema),
-        logout: logoutFactory(this.allowedPDSDomainSchema),
       },
       gainforest: {
         organization: {
@@ -117,10 +111,17 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
     });
   }
 
-  getServerCaller = () => {
+  /**
+   * Creates a server-side caller for the tRPC router.
+   * Apps must provide the ATProto SDK instance configured with their stores.
+   *
+   * @param sdk - The ATProto SDK instance
+   * @returns A callable server-side tRPC client
+   */
+  getServerCaller = (sdk: ATProtoSDK) => {
     return this.appRouter.createCaller(
       async () =>
-        await createContext({ allowedPDSDomains: this.allowedPDSDomains })
+        await createContext({ sdk, allowedPDSDomains: this.allowedPDSDomains })
     );
   };
 }

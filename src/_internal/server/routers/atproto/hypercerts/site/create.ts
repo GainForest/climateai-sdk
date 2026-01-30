@@ -24,8 +24,8 @@ export const createSiteFactory = <T extends SupportedPDSDomain>(
         pdsDomain: allowedPDSDomainSchema,
       })
     )
-    .mutation(async ({ input }) => {
-      const agent = await getWriteAgent(input.pdsDomain);
+    .mutation(async ({ input, ctx }) => {
+      const agent = await getWriteAgent(ctx.sdk);
       if (!agent.did) {
         throw new TRPCError({
           code: "UNAUTHORIZED",

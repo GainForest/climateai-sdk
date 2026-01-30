@@ -3,7 +3,7 @@ import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Mai
 import { b as BlobRefGenerator } from './blobref-e8ss-bC-.js';
 import { z } from 'zod';
 import { M as Main$3, B as BlobRef } from './activity-BuClHKQ6.js';
-import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
+import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import * as _atproto_api_dist_client_types_com_atproto_repo_deleteRecord from '@atproto/api/dist/client/types/com/atproto/repo/deleteRecord';
 import * as _atproto_api_dist_client_types_com_atproto_repo_putRecord from '@atproto/api/dist/client/types/com/atproto/repo/putRecord';
 import * as _atproto_api_dist_client_types_com_atproto_sync_listRepos from '@atproto/api/dist/client/types/com/atproto/sync/listRepos';
@@ -11,28 +11,40 @@ import * as _atproto_api_dist_client_types_com_atproto_repo_createRecord from '@
 import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
-import { JwtPayload } from '@atproto/oauth-client-node';
+import { ATProtoSDK } from '@hypercerts-org/sdk-core';
+import { A as AppSessionData } from './config-eXJj8SMU.js';
 
-interface StoredSession extends JwtPayload {
-    accessJwt: string;
-    refreshJwt: string;
-    did: string;
-    handle: string;
-}
-declare function getSessionFromRequest(service?: SupportedPDSDomain): Promise<StoredSession | null>;
+/**
+ * Creates the tRPC context for each request.
+ * Apps must provide the ATProto SDK instance configured with their stores.
+ *
+ * @param opts.sdk - The ATProto SDK instance (required for authenticated operations)
+ * @param opts.req - Optional request object
+ * @param opts.allowedPDSDomains - List of allowed PDS domains
+ */
+declare function createContext<T extends SupportedPDSDomain>(opts: {
+    sdk: ATProtoSDK;
+    req?: Request;
+    allowedPDSDomains: T[];
+}): Promise<{
+    session: AppSessionData;
+    sdk: ATProtoSDK;
+}>;
+type TrpcContext = {
+    session: AppSessionData;
+    sdk: ATProtoSDK;
+};
 
-declare const supportedDomains: readonly ["climateai.org", "hypercerts.org"];
+declare const supportedDomains: readonly ["climateai.org", "gainforest.id"];
 declare const supportedPDSDomainSchema: z.ZodEnum<{
     "climateai.org": "climateai.org";
-    "hypercerts.org": "hypercerts.org";
+    "gainforest.id": "gainforest.id";
 }>;
 type SupportedPDSDomain = (typeof supportedDomains)[number];
 declare class ClimateAiSDK<T extends SupportedPDSDomain> {
     allowedPDSDomains: T[];
     appRouter: _trpc_server.TRPCBuiltRouter<{
-        ctx: {
-            session: StoredSession | null;
-        };
+        ctx: TrpcContext;
         meta: object;
         errorShape: _trpc_server.TRPCDefaultErrorShape;
         transformer: true;
@@ -55,41 +67,6 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                     pdsDomain: Record<T, T>[T];
                 };
                 output: _atproto_api_dist_client_types_com_atproto_repo_uploadBlob.OutputSchema;
-                meta: object;
-            }>;
-        };
-        auth: {
-            login: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    handlePrefix: string;
-                    service: Record<T, T>[T];
-                    password: string;
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            resume: _trpc_server.TRPCQueryProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            logout: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    success: boolean;
-                };
                 meta: object;
             }>;
         };
@@ -194,7 +171,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         output: {
                             uri: string;
                             cid: string;
-                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            validationStatus: "unknown" | (string & {}) | "valid" | undefined;
                             value: Main$1;
                         };
                         meta: object;
@@ -495,7 +472,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
             };
         };
     }>>;
-    getServerCaller: () => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: (sdk: ATProtoSDK) => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
@@ -514,41 +491,6 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                     pdsDomain: Record<T, T>[T];
                 };
                 output: _atproto_api_dist_client_types_com_atproto_repo_uploadBlob.OutputSchema;
-                meta: object;
-            }>;
-        };
-        auth: {
-            login: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    handlePrefix: string;
-                    service: Record<T, T>[T];
-                    password: string;
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            resume: _trpc_server.TRPCQueryProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    did: string;
-                    handle: string;
-                    service: Record<T, T>[T];
-                };
-                meta: object;
-            }>;
-            logout: _trpc_server.TRPCMutationProcedure<{
-                input: {
-                    service: Record<T, T>[T];
-                };
-                output: {
-                    success: boolean;
-                };
                 meta: object;
             }>;
         };
@@ -653,7 +595,7 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
                         output: {
                             uri: string;
                             cid: string;
-                            validationStatus: "valid" | "unknown" | (string & {}) | undefined;
+                            validationStatus: "unknown" | (string & {}) | "valid" | undefined;
                             value: Main$1;
                         };
                         meta: object;
@@ -965,4 +907,4 @@ declare class ClimateAiSDK<T extends SupportedPDSDomain> {
     constructor(_allowedPDSDomains: T[]);
 }
 
-export { ClimateAiSDK as C, type SupportedPDSDomain as S, type StoredSession as a, getSessionFromRequest as g, supportedPDSDomainSchema as s };
+export { ClimateAiSDK as C, type SupportedPDSDomain as S, type TrpcContext as T, createContext as c, supportedPDSDomainSchema as s };
