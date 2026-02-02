@@ -14,6 +14,11 @@ export const getEcocertsFromClaimActivities = (
       logo ?
         getBlobUrl(activityWithOrgInfo.repo.did, logo.image, pdsDomain)
       : null;
+    const coverImage = activityWithOrgInfo.organizationInfo.coverImage;
+    const coverImageUrl =
+      coverImage ?
+        getBlobUrl(activityWithOrgInfo.repo.did, coverImage.image, pdsDomain)
+      : null;
     for (const activity of activityWithOrgInfo.activities) {
       ecocerts.push({
         repo: {
@@ -22,6 +27,7 @@ export const getEcocertsFromClaimActivities = (
         organizationInfo: {
           name: activityWithOrgInfo.organizationInfo.displayName,
           logoUrl: logoUrl,
+          coverImageUrl: coverImageUrl,
         },
         claimActivity: activity,
       });
