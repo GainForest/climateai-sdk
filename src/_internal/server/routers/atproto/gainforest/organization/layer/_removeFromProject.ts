@@ -1,7 +1,7 @@
 import { protectedProcedure } from "@/_internal/server/trpc";
 import { z } from "zod";
 import { getWriteAgent, getReadAgent } from "@/_internal/server/utils/agent";
-import { OrgHypercertsClaimProject } from "@/../lex-api";
+import { OrgHypercertsClaimCollection } from "@/../lex-api";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
@@ -44,10 +44,10 @@ export const removeLayersFromProjectFactory = <T extends SupportedPDSDomain>(
         });
       }
 
-      const validatedProject =
-        validateRecordOrThrow<OrgHypercertsClaimProject.Record>(
+      const validatedCollection =
+        validateRecordOrThrow<OrgHypercertsClaimCollection.Record>(
           getResponse.data.value,
-          OrgHypercertsClaimProject
+          OrgHypercertsClaimCollection
         );
 
       console.log("⚠️⚠️⚠️ THIS ENDPOINT IS NOT IMPLEMENTED YET ⚠️⚠️⚠️");

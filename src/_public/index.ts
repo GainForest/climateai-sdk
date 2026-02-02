@@ -1,6 +1,6 @@
 export * from "../_internal";
 
-import { ClimateAiSDK as SDKInternal } from "../_internal";
+import { GainforestSDK as SDKInternal } from "../_internal";
 
 /**
  * Pre-configured ClimateAI SDK instance for climateai.org and gainforest.id domains.

@@ -1,13 +1,17 @@
-import { protectedProcedure } from "@/_internal/server/trpc";
 import z from "zod";
 import { AppGainforestOrganizationLayer } from "@/../lex-api";
+import { createOrUpdateRecord } from "@/_internal/server/utils/atproto-crud";
+import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
 import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
-import { TRPCError } from "@trpc/server";
-import { getWriteAgent } from "@/_internal/server/utils/agent";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
-import type { SupportedPDSDomain } from "@/_internal/index";
+import type { Agent } from "@atproto/api";
 
-const LayerTypeEnum = z.enum([
+const COLLECTION = "app.gainforest.organization.layer" as const;
+const RESOURCE_NAME = "layer" as const;
+
+/**
+ * Zod schema for layer type enum - matches the lexicon definition
+ */
+export const LayerTypeSchema = z.enum([
   "geojson_points",
   "geojson_points_trees",
   "geojson_line",
@@ -17,71 +21,58 @@ const LayerTypeEnum = z.enum([
   "tms_tile",
 ]);
 
-export const createOrUpdateLayerFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return protectedProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        rkey: z.string().optional(),
-        layer: z.object({
-          name: z.string(),
-          type: LayerTypeEnum,
-          uri: z.string(),
-          description: z.string().optional(),
-          createdAt: z.string().optional(),
-        }),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const agent = await getWriteAgent(ctx.sdk);
+export type LayerType = z.infer<typeof LayerTypeSchema>;
 
-      const layer: AppGainforestOrganizationLayer.Record = {
-        $type: "app.gainforest.organization.layer",
-        name: input.layer.name,
-        type: input.layer.type,
-        uri: input.layer.uri,
-        description: input.layer.description,
-        createdAt:
-          input.layer.createdAt ?
-            input.layer.createdAt
-          : new Date().toISOString(),
-      };
+/**
+ * Input schema for creating/updating a layer
+ */
+export const LayerInputSchema = z.object({
+  name: z.string().min(1, "Layer name is required"),
+  type: LayerTypeSchema,
+  uri: z.string().url("Layer URI must be a valid URL"),
+  description: z.string().optional(),
+  createdAt: z.string().datetime().optional(),
+});
 
-      const validatedLayer = validateRecordOrThrow(
-        layer,
-        AppGainforestOrganizationLayer
-      );
+export type LayerInput = z.infer<typeof LayerInputSchema>;
 
-      const collection = "app.gainforest.organization.layer";
-      const response =
-        input.rkey ?
-          await agent.com.atproto.repo.putRecord({
-            repo: input.did,
-            collection,
-            record: validatedLayer,
-            rkey: input.rkey,
-          })
-        : await agent.com.atproto.repo.createRecord({
-            repo: input.did,
-            collection,
-            record: validatedLayer,
-          });
+/**
+ * Pure function to create or update a layer.
+ * Can be reused outside of tRPC context.
+ */
+export const createOrUpdateLayerPure = async (
+  agent: Agent,
+  did: string,
+  layerInput: LayerInput,
+  rkey?: string
+): Promise<PutRecordResponse<AppGainforestOrganizationLayer.Record>> => {
+  const layer: AppGainforestOrganizationLayer.Record = {
+    $type: COLLECTION,
+    name: layerInput.name,
+    type: layerInput.type,
+    uri: layerInput.uri,
+    description: layerInput.description,
+    createdAt: layerInput.createdAt ?? new Date().toISOString(),
+  };
 
-      if (response.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create or update layer",
-        });
-      }
-
-      return {
-        uri: response.data.uri,
-        cid: response.data.cid,
-        validationStatus: response.data.validationStatus,
-        value: validatedLayer,
-      } satisfies PutRecordResponse<AppGainforestOrganizationLayer.Record>;
-    });
+  return createOrUpdateRecord({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    record: layer,
+    validator: AppGainforestOrganizationLayer,
+    resourceName: RESOURCE_NAME,
+    rkey,
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for creating/updating a layer.
+ */
+export const createOrUpdateLayerFactory = createMutationFactory(
+  {
+    layer: LayerInputSchema,
+    rkey: z.string().optional(),
+  },
+  (agent, input) => createOrUpdateLayerPure(agent, input.did, input.layer, input.rkey)
+);

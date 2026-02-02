@@ -6,7 +6,7 @@ This guide walks you through setting up ATProto OAuth authentication in your app
 
 - A Next.js app (App Router recommended)
 - A Supabase project
-- An ATProto PDS account (climateai.org or hypercerts.org)
+- An ATProto PDS account (climateai.org or gainforest.id)
 
 ## Overview
 
@@ -159,7 +159,7 @@ export const atprotoSDK = createATProtoSDK({
     scope: "atproto",
   },
   servers: {
-    pds: "https://climateai.org", // or "https://hypercerts.org"
+    pds: "https://climateai.org", // or "https://gainforest.id"
   },
   sessionStore: createSupabaseSessionStore(supabase, APP_ID),
   stateStore: createSupabaseStateStore(supabase, APP_ID),
@@ -429,13 +429,13 @@ If you're using the ClimateAI SDK's tRPC routers, you need to pass the SDK insta
 
 ```typescript
 // lib/trpc.ts
-import { ClimateAiSDK } from "@climateai/sdk";
+import { GainforestSDK } from "@climateai/sdk";
 import { atprotoSDK } from "@/lib/atproto";
 
-const climateSDK = new ClimateAiSDK(["climateai.org", "hypercerts.org"]);
+const gainforestSDK = new GainforestSDK(["climateai.org", "gainforest.id"]);
 
 // Create server caller with your ATProto SDK instance
-export const serverCaller = climateSDK.getServerCaller(atprotoSDK);
+export const serverCaller = gainforestSDK.getServerCaller(atprotoSDK);
 ```
 
 For tRPC API routes:
@@ -443,20 +443,20 @@ For tRPC API routes:
 ```typescript
 // app/api/trpc/[trpc]/route.ts
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { ClimateAiSDK, createContext } from "@climateai/sdk";
+import { GainforestSDK, createContext } from "@climateai/sdk";
 import { atprotoSDK } from "@/lib/atproto";
 
-const climateSDK = new ClimateAiSDK(["climateai.org", "hypercerts.org"]);
+const gainforestSDK = new GainforestSDK(["climateai.org", "gainforest.id"]);
 
 const handler = (req: Request) =>
   fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
-    router: climateSDK.appRouter,
+    router: gainforestSDK.appRouter,
     createContext: () =>
       createContext({
         sdk: atprotoSDK,
-        allowedPDSDomains: ["climateai.org", "hypercerts.org"],
+        allowedPDSDomains: ["climateai.org", "gainforest.id"],
       }),
   });
 

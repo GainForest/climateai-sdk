@@ -1,49 +1,38 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
 import { getReadAgent } from "@/_internal/server/utils/agent";
-import { OrgHypercertsClaimProject } from "@/../lex-api";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { OrgHypercertsClaimCollection } from "@/../lex-api";
+import { getRecord } from "@/_internal/server/utils/atproto-crud";
+import { createDidRkeyQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { TRPCError } from "@trpc/server";
 
-export const getProjectFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        rkey: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .query(async ({ input }) => {
-      const agent = getReadAgent(input.pdsDomain);
-      const nsid: OrgHypercertsClaimProject.Record["$type"] =
-        "org.hypercerts.claim.project";
-      const response = await agent.com.atproto.repo.getRecord({
-        collection: nsid,
-        repo: input.did,
-        rkey: input.rkey,
-      });
-      if (response.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get the project",
-        });
-      }
-      const validatedRecord =
-        validateRecordOrThrow<OrgHypercertsClaimProject.Record>(
-          response.data.value,
-          OrgHypercertsClaimProject
-        );
+const COLLECTION = "org.hypercerts.claim.collection" as const;
+const RESOURCE_NAME = "collection" as const;
 
-      response.data = {
-        ...response.data,
-        value: validatedRecord,
-      };
-
-      return response.data as GetRecordResponse<OrgHypercertsClaimProject.Record>;
-    });
+/**
+ * Pure function to get a collection by DID and rkey.
+ * Can be reused outside of tRPC context.
+ */
+export const getCollectionPure = async <T extends SupportedPDSDomain>(
+  did: string,
+  rkey: string,
+  pdsDomain: T
+): Promise<GetRecordResponse<OrgHypercertsClaimCollection.Record>> => {
+  const agent = getReadAgent(pdsDomain);
+  return getRecord({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    rkey,
+    validator: OrgHypercertsClaimCollection,
+    resourceName: RESOURCE_NAME,
+  });
 };
+
+/**
+ * Factory to create the tRPC procedure for getting a collection.
+ */
+export const getCollectionFactory = createDidRkeyQueryFactory(getCollectionPure);
+
+// Backwards compatibility exports
+export const getProjectPure = getCollectionPure;
+export const getProjectFactory = getCollectionFactory;

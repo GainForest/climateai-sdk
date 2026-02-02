@@ -11,4 +11,18 @@ const is$typed = _is$typed,
 const id = 'app.certified.defs'
 
 /** A Decentralized Identifier (DID) string. */
-export type Did = string
+export interface Did {
+  $type?: 'app.certified.defs#did'
+  /** The DID string value. */
+  did: string
+}
+
+const hashDid = 'did'
+
+export function isDid<V>(v: V) {
+  return is$typed(v, id, hashDid)
+}
+
+export function validateDid<V>(v: V) {
+  return validate<Did & V>(v, id, hashDid)
+}

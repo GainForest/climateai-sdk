@@ -22,6 +22,7 @@ export interface Main {
   location:
     | $Typed<OrgHypercertsDefs.Uri>
     | $Typed<OrgHypercertsDefs.SmallBlob>
+    | $Typed<String>
     | { $type: string }
   /** Optional name for this location */
   name?: string
@@ -46,4 +47,21 @@ export {
   type Main as Record,
   isMain as isRecord,
   validateMain as validateRecord,
+}
+
+/** A location represented as a string, e.g. coordinates or a small GeoJSON string. */
+export interface String {
+  $type?: 'app.certified.location#string'
+  /** The location string value */
+  string: string
+}
+
+const hashString = 'string'
+
+export function isString<V>(v: V) {
+  return is$typed(v, id, hashString)
+}
+
+export function validateString<V>(v: V) {
+  return validate<String & V>(v, id, hashString)
 }

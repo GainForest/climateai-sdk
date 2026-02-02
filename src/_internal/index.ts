@@ -8,7 +8,7 @@ export const supportedPDSDomainSchema = z.enum(supportedDomains);
 const supportedPDSDomainsSchema = z.array(supportedPDSDomainSchema);
 export type SupportedPDSDomain = (typeof supportedDomains)[number];
 
-export class ClimateAiSDK<T extends SupportedPDSDomain> {
+export class GainforestSDK<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public appRouter;
   public getServerCaller;
