@@ -1,22 +1,73 @@
-import { S as SupportedPDSDomain, T as TrpcContext, O as OrganizationWithActivities, G as GetAllClaimActivitiesResponse, a as GetAllLocationsResponse, D as DeleteRecordResponse } from './index-BBXMjKdE.js';
-export { b as GainforestSDK, c as createContext, s as supportedPDSDomainSchema } from './index-BBXMjKdE.js';
+import { a as $Typed } from './utils-BtB-jULs.js';
+import { M as Main$2, B as BlobRef, U as Uri$1, S as SmallBlob, L as LargeBlob, a as SmallImage, b as LargeImage } from './activity-UF4_S-8v.js';
+import { z } from 'zod';
+import { M as Main, a as Main$1, b as Main$3, c as Main$4, d as Main$5, e as Main$6, U as Uri, I as Image, f as ImageThumbnail } from './collection-jFp4vEn8.js';
 import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
-import { b as Main, c as Main$1, d as Main$2, e as Main$4, M as Main$5, a as Main$6 } from './collection-jFp4vEn8.js';
-import { M as Main$3 } from './activity-UF4_S-8v.js';
 import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.js';
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 import { ATProtoSDK } from '@hypercerts-org/sdk-core';
-export { ATProtoSDK } from '@hypercerts-org/sdk-core';
-import z from 'zod';
-import './utils-BtB-jULs.js';
-import './config-eXJj8SMU.js';
-import 'iron-session';
-import 'multiformats/cid';
+import { A as AppSessionData } from './config-eXJj8SMU.js';
 
-declare class AppRouterFactory<T extends SupportedPDSDomain> {
+type DeleteRecordResponse = {
+    success: true;
+};
+
+/**
+ * Response type for getAllLocations
+ */
+type GetAllLocationsResponse = {
+    locations: GetRecordResponse<Main>[];
+    defaultLocation: GetRecordResponse<Main$1> | null;
+};
+
+/**
+ * Response type for getAllClaimActivities
+ */
+type GetAllClaimActivitiesResponse = {
+    activities: GetRecordResponse<Main$2>[];
+};
+
+/**
+ * Organization with its activities
+ */
+type OrganizationWithActivities = {
+    repo: {
+        did: string;
+    };
+    organizationInfo: Main$3;
+    activities: GetRecordResponse<Main$2>[];
+};
+
+/**
+ * Creates the tRPC context for each request.
+ * Apps must provide the ATProto SDK instance configured with their stores.
+ *
+ * @param opts.sdk - The ATProto SDK instance (required for authenticated operations)
+ * @param opts.req - Optional request object
+ * @param opts.allowedPDSDomains - List of allowed PDS domains
+ */
+declare function createContext<T extends SupportedPDSDomain>(opts: {
+    sdk: ATProtoSDK;
+    req?: Request;
     allowedPDSDomains: T[];
-    allowedPDSDomainSchema: z.ZodEnum<{ [k_1 in T]: k_1; } extends infer T_1 ? { [k in keyof T_1]: T_1[k]; } : never>;
+}): Promise<{
+    session: AppSessionData;
+    sdk: ATProtoSDK;
+}>;
+type TrpcContext = {
+    session: AppSessionData;
+    sdk: ATProtoSDK;
+};
+
+declare const supportedDomains: readonly ["climateai.org", "gainforest.id"];
+declare const supportedPDSDomainSchema: z.ZodEnum<{
+    "climateai.org": "climateai.org";
+    "gainforest.id": "gainforest.id";
+}>;
+type SupportedPDSDomain = (typeof supportedDomains)[number];
+declare class GainforestSDK<T extends SupportedPDSDomain> {
+    allowedPDSDomains: T[];
     appRouter: _trpc_server.TRPCBuiltRouter<{
         ctx: TrpcContext;
         meta: object;
@@ -53,7 +104,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main>;
+                        output: GetRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -100,7 +151,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main>;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                 };
@@ -111,7 +162,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$1>;
+                        output: GetRecordResponse<Main$4>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -119,7 +170,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$1>[];
+                        output: GetRecordResponse<Main$4>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -135,7 +186,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             };
                             rkey?: string | undefined;
                         };
-                        output: PutRecordResponse<Main$1>;
+                        output: PutRecordResponse<Main$4>;
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -166,7 +217,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 did: string;
                                 pdsDomain: Record<T, T>[T];
                             };
-                            output: GetRecordResponse<Main$2>;
+                            output: GetRecordResponse<Main$5>;
                             meta: object;
                         }>;
                         addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -227,7 +278,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main$3>;
+                        output: PutRecordResponse<Main$2>;
                         meta: object;
                     }>;
                     getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
@@ -243,7 +294,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$3>;
+                        output: GetRecordResponse<Main$2>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -262,7 +313,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>;
+                        output: GetRecordResponse<Main$6>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -270,7 +321,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>[];
+                        output: GetRecordResponse<Main$6>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -317,7 +368,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main>;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                 };
@@ -329,7 +380,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$5>;
+                    output: GetRecordResponse<Main>;
                     meta: object;
                 }>;
                 getAll: _trpc_server.TRPCQueryProcedure<{
@@ -357,7 +408,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         };
                         rkey?: string | undefined;
                     };
-                    output: PutRecordResponse<Main$5>;
+                    output: PutRecordResponse<Main>;
                     meta: object;
                 }>;
                 update: _trpc_server.TRPCMutationProcedure<{
@@ -388,7 +439,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             } | undefined;
                         } | undefined;
                     };
-                    output: PutRecordResponse<Main$5>;
+                    output: PutRecordResponse<Main>;
                     meta: object;
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
@@ -405,7 +456,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$6>;
+                    output: GetRecordResponse<Main$1>;
                     meta: object;
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
@@ -414,20 +465,12 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         locationAtUri: string;
                     };
-                    output: PutRecordResponse<Main$6>;
+                    output: PutRecordResponse<Main$1>;
                     meta: object;
                 }>;
             };
         };
     }>>;
-    constructor(_allowedPDSDomains: T[]);
-    /**
-     * Creates a server-side caller for the tRPC router.
-     * Apps must provide the ATProto SDK instance configured with their stores.
-     *
-     * @param sdk - The ATProto SDK instance
-     * @returns A callable server-side tRPC client
-     */
     getServerCaller: (sdk: ATProtoSDK) => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
@@ -459,7 +502,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main>;
+                        output: GetRecordResponse<Main$3>;
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -506,7 +549,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main>;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                 };
@@ -517,7 +560,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$1>;
+                        output: GetRecordResponse<Main$4>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -525,7 +568,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$1>[];
+                        output: GetRecordResponse<Main$4>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -541,7 +584,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             };
                             rkey?: string | undefined;
                         };
-                        output: PutRecordResponse<Main$1>;
+                        output: PutRecordResponse<Main$4>;
                         meta: object;
                     }>;
                     addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -572,7 +615,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 did: string;
                                 pdsDomain: Record<T, T>[T];
                             };
-                            output: GetRecordResponse<Main$2>;
+                            output: GetRecordResponse<Main$5>;
                             meta: object;
                         }>;
                         addToProject: _trpc_server.TRPCMutationProcedure<{
@@ -633,7 +676,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main$3>;
+                        output: PutRecordResponse<Main$2>;
                         meta: object;
                     }>;
                     getAllAcrossOrgs: _trpc_server.TRPCQueryProcedure<{
@@ -649,7 +692,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$3>;
+                        output: GetRecordResponse<Main$2>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -668,7 +711,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             rkey: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>;
+                        output: GetRecordResponse<Main$6>;
                         meta: object;
                     }>;
                     getAll: _trpc_server.TRPCQueryProcedure<{
@@ -676,7 +719,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             did: string;
                             pdsDomain: Record<T, T>[T];
                         };
-                        output: GetRecordResponse<Main$4>[];
+                        output: GetRecordResponse<Main$6>[];
                         meta: object;
                     }>;
                     createOrUpdate: _trpc_server.TRPCMutationProcedure<{
@@ -723,7 +766,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                                 } | undefined;
                             } | undefined;
                         };
-                        output: PutRecordResponse<Main>;
+                        output: PutRecordResponse<Main$3>;
                         meta: object;
                     }>;
                 };
@@ -735,7 +778,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         rkey: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$5>;
+                    output: GetRecordResponse<Main>;
                     meta: object;
                 }>;
                 getAll: _trpc_server.TRPCQueryProcedure<{
@@ -763,7 +806,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         };
                         rkey?: string | undefined;
                     };
-                    output: PutRecordResponse<Main$5>;
+                    output: PutRecordResponse<Main>;
                     meta: object;
                 }>;
                 update: _trpc_server.TRPCMutationProcedure<{
@@ -794,7 +837,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                             } | undefined;
                         } | undefined;
                     };
-                    output: PutRecordResponse<Main$5>;
+                    output: PutRecordResponse<Main>;
                     meta: object;
                 }>;
                 delete: _trpc_server.TRPCMutationProcedure<{
@@ -811,7 +854,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         did: string;
                         pdsDomain: Record<T, T>[T];
                     };
-                    output: GetRecordResponse<Main$6>;
+                    output: GetRecordResponse<Main$1>;
                     meta: object;
                 }>;
                 setDefault: _trpc_server.TRPCMutationProcedure<{
@@ -820,13 +863,28 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
                         pdsDomain: Record<T, T>[T];
                         locationAtUri: string;
                     };
-                    output: PutRecordResponse<Main$6>;
+                    output: PutRecordResponse<Main$1>;
                     meta: object;
                 }>;
             };
         };
     }>>;
+    utilities: {
+        getBlobUrl: (did: string, imageData: string | Uri | Image | BlobRef | ImageThumbnail | Uri$1 | SmallBlob | LargeBlob | SmallImage | LargeImage | {
+            $type: "blob-ref-generator";
+            ref: {
+                $link: string;
+            };
+            mimeType: string;
+            size: number;
+        } | $Typed<Uri$1 | SmallBlob | LargeBlob | SmallImage | LargeImage> | $Typed<Uri | Image | ImageThumbnail>, pdsDomain: T) => string;
+        parseAtUri: (atUri: string) => {
+            did: string;
+            collection: string;
+            rkey: string;
+        };
+    };
+    constructor(_allowedPDSDomains: T[]);
 }
-type AppRouter<T extends SupportedPDSDomain> = AppRouterFactory<T>["appRouter"];
 
-export { type AppRouter, SupportedPDSDomain };
+export { type DeleteRecordResponse as D, type GetAllClaimActivitiesResponse as G, type OrganizationWithActivities as O, type SupportedPDSDomain as S, type TrpcContext as T, type GetAllLocationsResponse as a, GainforestSDK as b, createContext as c, supportedPDSDomainSchema as s };

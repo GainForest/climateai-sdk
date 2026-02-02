@@ -292,6 +292,7 @@ The changeset summary is published to the changelog. Write it for human users.
 
 ### Verification
 Ensure a markdown file was created in the `.changeset/` directory (e.g., `.changeset/oauth-integration.md`).
+
 ---
 
 ## What is this SDK?
@@ -337,7 +338,7 @@ The SDK uses Next.js-specific features (server components, API routes, cookies v
 ### Internal vs Public
 
 | Aspect | `_internal/` | `_public/` |
-|--------|--------------|------------|
+| ------ | ------------ | ---------- |
 | Purpose | All implementation code | Public API surface |
 | Imports | Use `@/` path aliases | **NEVER use aliases** - use relative paths only |
 | Contents | Full implementations | Thin re-exports only |

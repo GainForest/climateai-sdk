@@ -1,12 +1,12 @@
 import { Ecocert } from '../types.js';
-import { O as OrganizationWithActivities, S as SupportedPDSDomain } from '../index-aA-nMHyU.js';
+import { O as OrganizationWithActivities, S as SupportedPDSDomain } from '../index-BBXMjKdE.js';
 import '../utils-BtB-jULs.js';
 import 'zod';
 import '../activity-UF4_S-8v.js';
 import 'multiformats/cid';
 import '../response-types-DkRV5jYn.js';
 import '../collection-jFp4vEn8.js';
-import '@trpc/server/unstable-core-do-not-import';
+import 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import '@trpc/server';
 import '@hypercerts-org/sdk-core';

@@ -1,7 +1,7 @@
 import * as _trpc_client from '@trpc/client';
 import { AppRouter } from './index.cjs';
-import { S as SupportedPDSDomain } from './index-NX02lVa-.cjs';
-import '@trpc/server/unstable-core-do-not-import';
+import { S as SupportedPDSDomain } from './index-DP2hJ4Ri.cjs';
+import 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import './collection-SgBIeJK4.cjs';
 import './utils-BtB-jULs.cjs';
 import 'zod';

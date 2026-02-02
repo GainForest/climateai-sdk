@@ -1,6 +1,6 @@
-import { S as SupportedPDSDomain, T as TrpcContext, O as OrganizationWithActivities, G as GetAllClaimActivitiesResponse, a as GetAllLocationsResponse, D as DeleteRecordResponse } from './index-NX02lVa-.cjs';
-export { b as GainforestSDK, c as createContext, s as supportedPDSDomainSchema } from './index-NX02lVa-.cjs';
-import * as _trpc_server_unstable_core_do_not_import from '@trpc/server/unstable-core-do-not-import';
+import { S as SupportedPDSDomain, T as TrpcContext, O as OrganizationWithActivities, G as GetAllClaimActivitiesResponse, a as GetAllLocationsResponse, D as DeleteRecordResponse } from './index-DP2hJ4Ri.cjs';
+export { b as GainforestSDK, c as createContext, s as supportedPDSDomainSchema } from './index-DP2hJ4Ri.cjs';
+import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
 import { b as Main, c as Main$1, d as Main$2, e as Main$4, M as Main$5, a as Main$6 } from './collection-SgBIeJK4.cjs';
 import { M as Main$3 } from './activity-CkQLvIqT.cjs';
 import { G as GetRecordResponse, P as PutRecordResponse } from './response-types-DkRV5jYn.cjs';
@@ -428,7 +428,7 @@ declare class AppRouterFactory<T extends SupportedPDSDomain> {
      * @param sdk - The ATProto SDK instance
      * @returns A callable server-side tRPC client
      */
-    getServerCaller: (sdk: ATProtoSDK) => _trpc_server_unstable_core_do_not_import.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: (sdk: ATProtoSDK) => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
