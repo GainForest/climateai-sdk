@@ -1,6 +1,6 @@
-# AGENTS.md - ClimateAI SDK Development Guide
+# AGENTS.md - GainForest SDK Development Guide
 
-This guide provides essential information for AI coding agents working on the ClimateAI SDK codebase.
+This guide provides essential information for AI coding agents working on the GainForest SDK codebase.
 
 ## Build & Test Commands
 
@@ -51,7 +51,7 @@ import { getBlobUrl } from "./getBlobUrl";
 
 ```typescript
 // ✅ Good - in _internal files
-import { ClimateAiSDK } from "@/_internal/index";
+import { GainForestSDK } from "@/_internal/index";
 
 // ❌ Bad - in _public files
 import { something } from "@/_internal/client";  // Use relative path instead
@@ -107,7 +107,7 @@ export interface GetRecordResponse<T> {
 - **Boolean prefixes**: `is`, `has` (e.g., `isObject`, `hasPolygons`)
 
 #### Classes
-- **PascalCase**: `ClimateAiSDK`, `AppRouterFactory`
+- **PascalCase**: `GainForestSDK`, `AppRouterFactory`
 
 ### Error Handling
 
