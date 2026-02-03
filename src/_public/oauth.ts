@@ -15,11 +15,12 @@
  *   getAppSession,
  *   saveAppSession,
  * } from "@climateai/sdk/oauth";
+ * import { GainForestSDK } from "@climateai/sdk";
  * import { createClient } from "@supabase/supabase-js";
  *
  * const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
  *
- * // Create the ATProto SDK with Supabase stores
+ * // Create the HypercertsATProtoSDK with Supabase stores
  * const sdk = createATProtoSDK({
  *   oauth: {
  *     clientId: "https://your-app.com/client-metadata.json",
@@ -32,6 +33,9 @@
  *   sessionStore: createSupabaseSessionStore(supabase, "myapp"),
  *   stateStore: createSupabaseStateStore(supabase, "myapp"),
  * });
+ *
+ * // Pass the SDK once at construction time
+ * const gainforest = new GainForestSDK(["climateai.org", "gainforest.id"], sdk);
  *
  * // In your OAuth callback route
  * const session = await sdk.callback(params);
@@ -66,7 +70,7 @@ export { createATProtoSDK } from "@hypercerts-org/sdk-core";
 export type {
   SessionStore,
   StateStore,
-  ATProtoSDK,
+  ATProtoSDK as HypercertsATProtoSDK,
   ATProtoSDKConfig,
 } from "@hypercerts-org/sdk-core";
 

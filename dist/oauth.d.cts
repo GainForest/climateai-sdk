@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SessionStore, StateStore } from '@hypercerts-org/sdk-core';
-export { ATProtoSDK, ATProtoSDKConfig, SessionStore, StateStore, createATProtoSDK } from '@hypercerts-org/sdk-core';
+export { ATProtoSDKConfig, ATProtoSDK as HypercertsATProtoSDK, SessionStore, StateStore, createATProtoSDK } from '@hypercerts-org/sdk-core';
 export { clearAppSession, getAppSession, saveAppSession } from './session.cjs';
 export { A as AppSessionData, g as getSessionOptions } from './config-eXJj8SMU.cjs';
 export { Agent } from '@atproto/api';

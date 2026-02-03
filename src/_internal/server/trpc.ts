@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { customTransformer } from "../utilities/transform";
 import { getAppSession } from "../oauth/iron-session/helpers";
 import type { SupportedPDSDomain } from "@/_internal/index";
-import type { ATProtoSDK } from "@hypercerts-org/sdk-core";
+import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
 import type { AppSessionData } from "../oauth/iron-session/config";
 
 /**
@@ -14,7 +14,7 @@ import type { AppSessionData } from "../oauth/iron-session/config";
  * @param opts.allowedPDSDomains - List of allowed PDS domains
  */
 export async function createContext<T extends SupportedPDSDomain>(opts: {
-  sdk: ATProtoSDK;
+  sdk: HypercertsATProtoSDK;
   req?: Request;
   allowedPDSDomains: T[];
 }) {
@@ -29,7 +29,7 @@ export async function createContext<T extends SupportedPDSDomain>(opts: {
 
 export type TrpcContext = {
   session: AppSessionData;
-  sdk: ATProtoSDK;
+  sdk: HypercertsATProtoSDK;
 };
 
 const t = initTRPC.context<TrpcContext>().create({

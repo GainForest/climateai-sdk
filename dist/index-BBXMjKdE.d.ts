@@ -1,5 +1,12 @@
+<<<<<<<< HEAD:dist/index-BBXMjKdE.d.ts
 import { a as $Typed } from './utils-BtB-jULs.js';
 import { M as Main$2, B as BlobRef, U as Uri$1, S as SmallBlob, L as LargeBlob, a as SmallImage, b as LargeImage } from './activity-UF4_S-8v.js';
+========
+import { A as AppSessionData } from './config-eXJj8SMU.js';
+import { $ as $Typed } from './utils-BRYtkma9.js';
+import { M as Main, a as Main$1, b as Main$2, c as Main$4, d as Main$5, e as Main$6, U as Uri, S as SmallImage, L as LargeImage, f as SmallBlob, g as LargeBlob } from './info-5wTP3IAZ.js';
+import { b as BlobRefGenerator } from './blobref-e8ss-bC-.js';
+>>>>>>>> ef1aab8 (feat: rename ClimateAiSDK to GainForestSDK and accept HypercertsATProtoSDK in constructor):dist/index-Cfb2ZvOo.d.ts
 import { z } from 'zod';
 import { M as Main, a as Main$1, b as Main$3, c as Main$4, d as Main$5, e as Main$6, U as Uri, I as Image, f as ImageThumbnail } from './collection-jFp4vEn8.js';
 import * as node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts from 'node_modules/@trpc/server/dist/unstable-core-do-not-import.d-1RewV6pM.d.mts';
@@ -7,8 +14,8 @@ import { G as GetRecordResponse, P as PutRecordResponse } from './response-types
 import * as _atproto_api_dist_client_types_com_atproto_repo_uploadBlob from '@atproto/api/dist/client/types/com/atproto/repo/uploadBlob';
 import * as _trpc_server from '@trpc/server';
 import { ATProtoSDK } from '@hypercerts-org/sdk-core';
-import { A as AppSessionData } from './config-eXJj8SMU.js';
 
+<<<<<<<< HEAD:dist/index-BBXMjKdE.d.ts
 type DeleteRecordResponse = {
     success: true;
 };
@@ -55,6 +62,8 @@ declare function createContext<T extends SupportedPDSDomain>(opts: {
     session: AppSessionData;
     sdk: ATProtoSDK;
 }>;
+========
+>>>>>>>> ef1aab8 (feat: rename ClimateAiSDK to GainForestSDK and accept HypercertsATProtoSDK in constructor):dist/index-Cfb2ZvOo.d.ts
 type TrpcContext = {
     session: AppSessionData;
     sdk: ATProtoSDK;
@@ -66,7 +75,11 @@ declare const supportedPDSDomainSchema: z.ZodEnum<{
     "gainforest.id": "gainforest.id";
 }>;
 type SupportedPDSDomain = (typeof supportedDomains)[number];
+<<<<<<<< HEAD:dist/index-BBXMjKdE.d.ts
 declare class GainforestSDK<T extends SupportedPDSDomain> {
+========
+declare class GainForestSDK<T extends SupportedPDSDomain> {
+>>>>>>>> ef1aab8 (feat: rename ClimateAiSDK to GainForestSDK and accept HypercertsATProtoSDK in constructor):dist/index-Cfb2ZvOo.d.ts
     allowedPDSDomains: T[];
     appRouter: _trpc_server.TRPCBuiltRouter<{
         ctx: TrpcContext;
@@ -471,7 +484,7 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
             };
         };
     }>>;
-    getServerCaller: (sdk: ATProtoSDK) => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
+    getServerCaller: () => node_modules__trpc_server_dist_unstable_core_do_not_import_d_1RewV6pM_d_mts.DecorateRouterRecord<_trpc_server.TRPCDecorateCreateRouterOptions<{
         health: _trpc_server.TRPCQueryProcedure<{
             input: void;
             output: {
@@ -884,7 +897,24 @@ declare class GainforestSDK<T extends SupportedPDSDomain> {
             rkey: string;
         };
     };
-    constructor(_allowedPDSDomains: T[]);
+    private sdk;
+    constructor(_allowedPDSDomains: T[], sdk: ATProtoSDK);
+    /**
+     * Creates a tRPC context using the stored SDK instance.
+     *
+     * @param opts.req - Optional request object
+     * @returns The tRPC context
+     */
+    createContext: (opts?: {
+        req?: Request;
+    }) => Promise<{
+        session: AppSessionData;
+        sdk: ATProtoSDK;
+    }>;
 }
 
+<<<<<<<< HEAD:dist/index-BBXMjKdE.d.ts
 export { type DeleteRecordResponse as D, type GetAllClaimActivitiesResponse as G, type OrganizationWithActivities as O, type SupportedPDSDomain as S, type TrpcContext as T, type GetAllLocationsResponse as a, GainforestSDK as b, createContext as c, supportedPDSDomainSchema as s };
+========
+export { GainForestSDK as G, type SupportedPDSDomain as S, type TrpcContext as T, supportedPDSDomainSchema as s };
+>>>>>>>> ef1aab8 (feat: rename ClimateAiSDK to GainForestSDK and accept HypercertsATProtoSDK in constructor):dist/index-Cfb2ZvOo.d.ts

@@ -1,7 +1,7 @@
 import { Agent } from "@atproto/api";
 import { TRPCError } from "@trpc/server";
 import type { SupportedPDSDomain } from "@/_internal/index";
-import type { ATProtoSDK } from "@hypercerts-org/sdk-core";
+import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
 import { getAppSession } from "@/_internal/oauth/iron-session/helpers";
 
 /**
@@ -35,7 +35,7 @@ export const getReadAgent = <T extends SupportedPDSDomain>(pdsDomain: T) => {
  * ```
  */
 export const getWriteAgent = async <T extends SupportedPDSDomain>(
-  sdk: ATProtoSDK,
+  sdk: HypercertsATProtoSDK,
   _pdsDomain?: T
 ) => {
   // Get user identity from iron-session cookie

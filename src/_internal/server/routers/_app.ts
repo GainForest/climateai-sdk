@@ -23,7 +23,7 @@ import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
 import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
-import type { ATProtoSDK } from "@hypercerts-org/sdk-core";
+import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
 import z from "zod";
 import { getAllLayersFactory } from "./atproto/gainforest/organization/layer/getAll";
 import { getAllClaimActivitiesFactory } from "./atproto/hypercerts/claim/activity/getAll";
@@ -32,9 +32,11 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public allowedPDSDomainSchema;
   public appRouter;
+  private sdk: HypercertsATProtoSDK;
 
-  constructor(_allowedPDSDomains: T[]) {
+  constructor(_allowedPDSDomains: T[], sdk: HypercertsATProtoSDK) {
     this.allowedPDSDomains = _allowedPDSDomains;
+    this.sdk = sdk;
     this.allowedPDSDomainSchema = z.enum(this.allowedPDSDomains);
 
     this.appRouter = createTRPCRouter({
@@ -109,15 +111,14 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
 
   /**
    * Creates a server-side caller for the tRPC router.
-   * Apps must provide the ATProto SDK instance configured with their stores.
+   * Uses the HypercertsATProtoSDK instance provided at construction time.
    *
-   * @param sdk - The ATProto SDK instance
    * @returns A callable server-side tRPC client
    */
-  getServerCaller = (sdk: ATProtoSDK) => {
+  getServerCaller = () => {
     return this.appRouter.createCaller(
       async () =>
-        await createContext({ sdk, allowedPDSDomains: this.allowedPDSDomains })
+        await createContext({ sdk: this.sdk, allowedPDSDomains: this.allowedPDSDomains })
     );
   };
 }
