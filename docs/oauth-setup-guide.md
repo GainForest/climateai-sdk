@@ -1,6 +1,6 @@
-# OAuth Setup Guide for ClimateAI SDK
+# OAuth Setup Guide for GainForest SDK
 
-This guide walks you through setting up ATProto OAuth authentication in your app using the ClimateAI SDK.
+This guide walks you through setting up ATProto OAuth authentication in your app using the GainForest SDK (`gainforest-sdk-nextjs`).
 
 ## Prerequisites
 
@@ -24,9 +24,9 @@ The OAuth flow works as follows:
 ## Step 1: Install Dependencies
 
 ```bash
-npm install @climateai/sdk @supabase/supabase-js
+npm install gainforest-sdk-nextjs @supabase/supabase-js
 # or
-bun add @climateai/sdk @supabase/supabase-js
+bun add gainforest-sdk-nextjs @supabase/supabase-js
 ```
 
 ---
@@ -134,7 +134,7 @@ import {
   createATProtoSDK,
   createSupabaseSessionStore,
   createSupabaseStateStore,
-} from "@climateai/sdk/oauth";
+} from "gainforest-sdk-nextjs/oauth";
 import { createClient } from "@supabase/supabase-js";
 
 // Create Supabase client with service role key (server-side only!)
@@ -161,8 +161,10 @@ export const atprotoSDK = createATProtoSDK({
   servers: {
     pds: "https://climateai.org", // or "https://gainforest.id"
   },
-  sessionStore: createSupabaseSessionStore(supabase, APP_ID),
-  stateStore: createSupabaseStateStore(supabase, APP_ID),
+  storage: {
+    sessionStore: createSupabaseSessionStore(supabase, APP_ID),
+    stateStore: createSupabaseStateStore(supabase, APP_ID),
+  },
 });
 ```
 
@@ -272,19 +274,26 @@ export async function POST(request: NextRequest) {
 import { NextRequest } from "next/server";
 import { redirect } from "next/navigation";
 import { atprotoSDK } from "@/lib/atproto";
-import { saveAppSession } from "@climateai/sdk/oauth";
+import { saveAppSession, Agent } from "gainforest-sdk-nextjs/oauth";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
 
     // Exchange authorization code for session
-    const session = await atprotoSDK.callback(searchParams);
+    const oauthSession = await atprotoSDK.callback(searchParams);
+
+    // Resolve the user's handle from their DID
+    // OAuthSession only provides `sub` (DID), not the handle
+    const agent = new Agent(oauthSession);
+    const { data: profile } = await agent.com.atproto.repo.describeRepo({
+      repo: oauthSession.did,
+    });
 
     // Save user identity to encrypted cookie
     await saveAppSession({
-      did: session.sub,
-      handle: session.handle,
+      did: oauthSession.did,
+      handle: profile.handle,
       isLoggedIn: true,
     });
 
@@ -297,17 +306,28 @@ export async function GET(request: NextRequest) {
 }
 ```
 
+> **Note:** The `OAuthSession` returned by `callback()` only contains `sub`/`did` (the user's DID). To get the user's handle, you need to resolve it via the ATProto API as shown above.
+
 ### 7c. Logout Route (`app/api/oauth/logout/route.ts`)
 
 Same with this — this could also just be a simple server action.
 
 ```typescript
 import { NextResponse } from "next/server";
-import { clearAppSession } from "@climateai/sdk/oauth";
+import { clearAppSession, getAppSession } from "gainforest-sdk-nextjs/oauth";
+import { atprotoSDK } from "@/lib/atproto";
 
 export async function POST() {
   try {
+    // First, revoke the OAuth session (invalidates tokens in Supabase)
+    const appSession = await getAppSession();
+    if (appSession.did) {
+      await atprotoSDK.revokeSession(appSession.did);
+    }
+
+    // Then clear the encrypted cookie
     await clearAppSession();
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Logout error:", error);
@@ -319,11 +339,13 @@ export async function POST() {
 }
 ```
 
+> **Important:** Always call `revokeSession()` before `clearAppSession()`. `clearAppSession()` only clears the browser cookie — without `revokeSession()`, the OAuth tokens remain valid in your Supabase session store.
+
 ### 7d. Session Check Route (`app/api/oauth/session/route.ts`)
 
 ```typescript
 import { NextResponse } from "next/server";
-import { getAppSession } from "@climateai/sdk/oauth";
+import { getAppSession } from "gainforest-sdk-nextjs/oauth";
 import { atprotoSDK } from "@/lib/atproto";
 
 export async function GET() {
@@ -425,17 +447,21 @@ export function LoginForm() {
 
 ## Step 9: Using the SDK with tRPC (Optional)
 
-If you're using the ClimateAI SDK's tRPC routers, you need to pass the SDK instance to the context:
+If you're using the GainForest SDK's tRPC routers, you need to pass the ATProto SDK instance when constructing `GainForestSDK`:
 
 ```typescript
 // lib/trpc.ts
-import { GainforestSDK } from "@climateai/sdk";
+import { GainForestSDK } from "gainforest-sdk-nextjs";
 import { atprotoSDK } from "@/lib/atproto";
 
-const gainforestSDK = new GainforestSDK(["climateai.org", "gainforest.id"]);
+// Constructor takes two arguments: allowed PDS domains and the ATProto SDK instance
+const gainforestSDK = new GainForestSDK(
+  ["climateai.org", "gainforest.id"],
+  atprotoSDK
+);
 
-// Create server caller with your ATProto SDK instance
-export const serverCaller = gainforestSDK.getServerCaller(atprotoSDK);
+// getServerCaller takes no arguments — the SDK is already injected at construction time
+export const serverCaller = gainforestSDK.getServerCaller();
 ```
 
 For tRPC API routes:
@@ -443,21 +469,21 @@ For tRPC API routes:
 ```typescript
 // app/api/trpc/[trpc]/route.ts
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { GainforestSDK, createContext } from "@climateai/sdk";
+import { GainForestSDK } from "gainforest-sdk-nextjs";
 import { atprotoSDK } from "@/lib/atproto";
 
-const gainforestSDK = new GainforestSDK(["climateai.org", "gainforest.id"]);
+const gainforestSDK = new GainForestSDK(
+  ["climateai.org", "gainforest.id"],
+  atprotoSDK
+);
 
 const handler = (req: Request) =>
   fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
     router: gainforestSDK.appRouter,
-    createContext: () =>
-      createContext({
-        sdk: atprotoSDK,
-        allowedPDSDomains: ["climateai.org", "gainforest.id"],
-      }),
+    // Use the instance method — createContext is not exported separately
+    createContext: () => gainforestSDK.createContext({ req }),
   });
 
 export { handler as GET, handler as POST };
@@ -471,7 +497,7 @@ export { handler as GET, handler as POST };
 
 ```typescript
 import { atprotoSDK } from "@/lib/atproto";
-import { getAppSession } from "@climateai/sdk/oauth";
+import { getAppSession } from "gainforest-sdk-nextjs/oauth";
 
 export async function createHypercert(data: HypercertData) {
   const appSession = await getAppSession();
@@ -504,7 +530,7 @@ export async function createHypercert(data: HypercertData) {
 
 ```typescript
 import { atprotoSDK } from "@/lib/atproto";
-import { getAppSession, Agent } from "@climateai/sdk/oauth";
+import { getAppSession, Agent } from "gainforest-sdk-nextjs/oauth";
 
 export async function getAuthenticatedAgent(): Promise<Agent> {
   const appSession = await getAppSession();
@@ -551,8 +577,10 @@ export const atprotoSDK = createATProtoSDK({
   servers: {
     pds: "https://climateai.org",
   },
-  sessionStore: createSupabaseSessionStore(supabase, APP_ID),
-  stateStore: createSupabaseStateStore(supabase, APP_ID),
+  storage: {
+    sessionStore: createSupabaseSessionStore(supabase, APP_ID),
+    stateStore: createSupabaseStateStore(supabase, APP_ID),
+  },
 });
 ```
 
@@ -569,7 +597,7 @@ NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
 OAuth states expire after 1 hour. To clean up expired records, run this periodically (e.g., via cron):
 
 ```typescript
-import { cleanupExpiredStates } from "@climateai/sdk/oauth";
+import { cleanupExpiredStates } from "gainforest-sdk-nextjs/oauth";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);

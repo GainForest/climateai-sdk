@@ -9,10 +9,29 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
+import type * as AppBskyRichtextFacet from '../../bsky/richtext/facet.js'
 
 const is$typed = _is$typed,
   validate = _validate
 const id = 'app.gainforest.common.defs'
+
+/** An object that contains the text and an object that defins and enables richtext formatting on the text. */
+export interface Richtext {
+  $type?: 'app.gainforest.common.defs#richtext'
+  /** The text to be formatted */
+  text: string
+  facets?: AppBskyRichtextFacet.Main[]
+}
+
+const hashRichtext = 'richtext'
+
+export function isRichtext<V>(v: V) {
+  return is$typed(v, id, hashRichtext)
+}
+
+export function validateRichtext<V>(v: V) {
+  return validate<Richtext & V>(v, id, hashRichtext)
+}
 
 /** Reference to external data via URI */
 export interface Uri {
