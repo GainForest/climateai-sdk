@@ -4,6 +4,7 @@ import {
   AppBskyRichtextFacet,
   PubLeafletPagesLinearDocument,
   PubLeafletBlocksText,
+  AppGainforestCommonDefs,
 } from "@/../lex-api";
 import { putRecord } from "@/_internal/server/utils/atproto-crud";
 import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
@@ -95,14 +96,11 @@ export const createOrUpdateOrganizationInfoPure = async (
         : undefined;
 
   // Build shortDescription as richtext facet
-  const shortDescription: AppBskyRichtextFacet.Main = {
-    $type: "app.bsky.richtext.facet",
-    index: {
-      $type: "app.bsky.richtext.facet#byteSlice",
-      byteStart: 0,
-      byteEnd: Buffer.byteLength(infoInput.shortDescription, "utf8"),
-    },
-    features: [],
+  // no facets for now. we need a parser
+  const shortDescription: AppGainforestCommonDefs.Richtext = {
+    $type: "app.gainforest.common.defs#richtext",
+    text: infoInput.shortDescription,
+    facets: []
   };
 
   // Build longDescription as linear document

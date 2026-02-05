@@ -1,8 +1,5 @@
 import { createContext, createTRPCRouter, publicProcedure } from "../trpc";
 import { uploadFileAsBlobFactory } from "./atproto/common/uploadFileAsBlob";
-import { loginFactory } from "./atproto/auth/login";
-import { resumeFactory } from "./atproto/auth/resume";
-import { logoutFactory } from "./atproto/auth/logout";
 import { getOrganizationInfoFactory } from "./atproto/gainforest/organization/info/get";
 import { getLocationFactory } from "./atproto/hypercerts/location/get";
 import { getDefaultLocationFactory } from "./atproto/hypercerts/location/getDefault";
@@ -26,27 +23,26 @@ import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
 import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
+import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
 import z from "zod";
 import { getAllLayersFactory } from "./atproto/gainforest/organization/layer/getAll";
 import { getAllClaimActivitiesFactory } from "./atproto/hypercerts/claim/activity/getAll";
+
 export class AppRouterFactory<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public allowedPDSDomainSchema;
   public appRouter;
+  private sdk: HypercertsATProtoSDK;
 
-  constructor(_allowedPDSDomains: T[]) {
+  constructor(_allowedPDSDomains: T[], sdk: HypercertsATProtoSDK) {
     this.allowedPDSDomains = _allowedPDSDomains;
+    this.sdk = sdk;
     this.allowedPDSDomainSchema = z.enum(this.allowedPDSDomains);
 
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
         uploadFileAsBlob: uploadFileAsBlobFactory(this.allowedPDSDomainSchema),
-      },
-      auth: {
-        login: loginFactory(this.allowedPDSDomainSchema),
-        resume: resumeFactory(this.allowedPDSDomainSchema),
-        logout: logoutFactory(this.allowedPDSDomainSchema),
       },
       gainforest: {
         organization: {
@@ -113,10 +109,16 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
     });
   }
 
+  /**
+   * Creates a server-side caller for the tRPC router.
+   * Uses the HypercertsATProtoSDK instance provided at construction time.
+   *
+   * @returns A callable server-side tRPC client
+   */
   getServerCaller = () => {
     return this.appRouter.createCaller(
       async () =>
-        await createContext({ allowedPDSDomains: this.allowedPDSDomains })
+        await createContext({ sdk: this.sdk, allowedPDSDomains: this.allowedPDSDomains })
     );
   };
 }

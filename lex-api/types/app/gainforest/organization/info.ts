@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../util'
-import type * as AppBskyRichtextFacet from '../../bsky/richtext/facet.js'
+import type * as AppGainforestCommonDefs from '../common/defs.js'
 import type * as PubLeafletPagesLinearDocument from '../../../pub/leaflet/pages/linearDocument.js'
 import type * as OrgHypercertsDefs from '../../../org/hypercerts/defs.js'
 
@@ -21,7 +21,7 @@ export interface Main {
   $type: 'app.gainforest.organization.info'
   /** The name of the organization or project */
   displayName: string
-  shortDescription: AppBskyRichtextFacet.Main
+  shortDescription: AppGainforestCommonDefs.Richtext
   longDescription: PubLeafletPagesLinearDocument.Main
   coverImage?: OrgHypercertsDefs.SmallImage
   logo?: OrgHypercertsDefs.SmallImage

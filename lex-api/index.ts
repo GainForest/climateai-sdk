@@ -60,6 +60,10 @@ import * as OrgHypercertsClaimRights from './types/org/hypercerts/claim/rights.j
 import * as OrgHypercertsDefs from './types/org/hypercerts/defs.js'
 import * as OrgHypercertsFundingReceipt from './types/org/hypercerts/funding/receipt.js'
 import * as OrgHypercertsHelperWorkScopeTag from './types/org/hypercerts/helper/workScopeTag.js'
+import * as OrgImpactindexerLinkAttestation from './types/org/impactindexer/link/attestation.js'
+import * as OrgImpactindexerReviewComment from './types/org/impactindexer/review/comment.js'
+import * as OrgImpactindexerReviewDefs from './types/org/impactindexer/review/defs.js'
+import * as OrgImpactindexerReviewLike from './types/org/impactindexer/review/like.js'
 import * as PubLeafletBlocksBlockquote from './types/pub/leaflet/blocks/blockquote.js'
 import * as PubLeafletBlocksBskyPost from './types/pub/leaflet/blocks/bskyPost.js'
 import * as PubLeafletBlocksButton from './types/pub/leaflet/blocks/button.js'
@@ -114,6 +118,10 @@ export * as OrgHypercertsClaimRights from './types/org/hypercerts/claim/rights.j
 export * as OrgHypercertsDefs from './types/org/hypercerts/defs.js'
 export * as OrgHypercertsFundingReceipt from './types/org/hypercerts/funding/receipt.js'
 export * as OrgHypercertsHelperWorkScopeTag from './types/org/hypercerts/helper/workScopeTag.js'
+export * as OrgImpactindexerLinkAttestation from './types/org/impactindexer/link/attestation.js'
+export * as OrgImpactindexerReviewComment from './types/org/impactindexer/review/comment.js'
+export * as OrgImpactindexerReviewDefs from './types/org/impactindexer/review/defs.js'
+export * as OrgImpactindexerReviewLike from './types/org/impactindexer/review/like.js'
 export * as PubLeafletBlocksBlockquote from './types/pub/leaflet/blocks/blockquote.js'
 export * as PubLeafletBlocksBskyPost from './types/pub/leaflet/blocks/bskyPost.js'
 export * as PubLeafletBlocksButton from './types/pub/leaflet/blocks/button.js'
@@ -1992,10 +2000,12 @@ export class ComAtprotoRepoNS {
 export class OrgNS {
   _client: XrpcClient
   hypercerts: OrgHypercertsNS
+  impactindexer: OrgImpactindexerNS
 
   constructor(client: XrpcClient) {
     this._client = client
     this.hypercerts = new OrgHypercertsNS(client)
+    this.impactindexer = new OrgImpactindexerNS(client)
   }
 }
 
@@ -2891,6 +2901,289 @@ export class OrgHypercertsHelperWorkScopeTagRecord {
       'com.atproto.repo.deleteRecord',
       undefined,
       { collection: 'org.hypercerts.helper.workScopeTag', ...params },
+      { headers },
+    )
+  }
+}
+
+export class OrgImpactindexerNS {
+  _client: XrpcClient
+  link: OrgImpactindexerLinkNS
+  review: OrgImpactindexerReviewNS
+
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.link = new OrgImpactindexerLinkNS(client)
+    this.review = new OrgImpactindexerReviewNS(client)
+  }
+}
+
+export class OrgImpactindexerLinkNS {
+  _client: XrpcClient
+  attestation: OrgImpactindexerLinkAttestationRecord
+
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.attestation = new OrgImpactindexerLinkAttestationRecord(client)
+  }
+}
+
+export class OrgImpactindexerLinkAttestationRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: OrgImpactindexerLinkAttestation.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.impactindexer.link.attestation',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: OrgImpactindexerLinkAttestation.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.impactindexer.link.attestation',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<OrgImpactindexerLinkAttestation.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'org.impactindexer.link.attestation'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<OrgImpactindexerLinkAttestation.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'org.impactindexer.link.attestation'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'org.impactindexer.link.attestation', ...params },
+      { headers },
+    )
+  }
+}
+
+export class OrgImpactindexerReviewNS {
+  _client: XrpcClient
+  comment: OrgImpactindexerReviewCommentRecord
+  like: OrgImpactindexerReviewLikeRecord
+
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.comment = new OrgImpactindexerReviewCommentRecord(client)
+    this.like = new OrgImpactindexerReviewLikeRecord(client)
+  }
+}
+
+export class OrgImpactindexerReviewCommentRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: OrgImpactindexerReviewComment.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.impactindexer.review.comment',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: OrgImpactindexerReviewComment.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.impactindexer.review.comment',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<OrgImpactindexerReviewComment.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'org.impactindexer.review.comment'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<OrgImpactindexerReviewComment.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'org.impactindexer.review.comment'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'org.impactindexer.review.comment', ...params },
+      { headers },
+    )
+  }
+}
+
+export class OrgImpactindexerReviewLikeRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: { uri: string; value: OrgImpactindexerReviewLike.Record }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'org.impactindexer.review.like',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: OrgImpactindexerReviewLike.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'org.impactindexer.review.like',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<OrgImpactindexerReviewLike.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'org.impactindexer.review.like'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<OrgImpactindexerReviewLike.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'org.impactindexer.review.like'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'org.impactindexer.review.like', ...params },
       { headers },
     )
   }

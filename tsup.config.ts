@@ -15,6 +15,7 @@ export default defineConfig({
     "utilities/geojson": "src/_public/utilities/geojson.ts",
     client: "src/_public/client.ts",
     session: "src/_public/session.ts",
+    oauth: "src/_public/oauth.ts",
     types: "src/_public/types.ts",
     zod: "src/_public/zod.ts",
   },

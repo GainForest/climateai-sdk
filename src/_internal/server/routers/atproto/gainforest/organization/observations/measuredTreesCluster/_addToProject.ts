@@ -24,9 +24,9 @@ export const addMeasuredTreesClusterToProjectFactory = <
         pdsDomain: allowedPDSDomainSchema,
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const readAgent = getReadAgent(input.pdsDomain);
-      const writeAgent = await getWriteAgent(input.pdsDomain);
+      const writeAgent = await getWriteAgent(ctx.sdk);
 
       if (!writeAgent.did) {
         throw new TRPCError({
