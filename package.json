@@ -140,6 +140,7 @@
     "iron-session": "^8.0.4",
     "jose": "^6.1.2",
     "multiformats": "^13.4.1",
+    "music-metadata": "^11.12.0",
     "next": "^16.0.3",
     "superjson": "^2.2.5",
     "zod": "^4.1.13"

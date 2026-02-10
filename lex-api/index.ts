@@ -48,6 +48,7 @@ import * as AppGainforestOrganizationObservationsFlora from './types/app/gainfor
 import * as AppGainforestOrganizationObservationsMeasuredTreesCluster from './types/app/gainforest/organization/observations/measuredTreesCluster.js'
 import * as AppGainforestOrganizationPredictionsFauna from './types/app/gainforest/organization/predictions/fauna.js'
 import * as AppGainforestOrganizationPredictionsFlora from './types/app/gainforest/organization/predictions/flora.js'
+import * as AppGainforestOrganizationRecordingsAudio from './types/app/gainforest/organization/recordings/audio.js'
 import * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef.js'
 import * as OrgHypercertsClaimActivity from './types/org/hypercerts/claim/activity.js'
 import * as OrgHypercertsClaimAttachment from './types/org/hypercerts/claim/attachment.js'
@@ -106,6 +107,7 @@ export * as AppGainforestOrganizationObservationsFlora from './types/app/gainfor
 export * as AppGainforestOrganizationObservationsMeasuredTreesCluster from './types/app/gainforest/organization/observations/measuredTreesCluster.js'
 export * as AppGainforestOrganizationPredictionsFauna from './types/app/gainforest/organization/predictions/fauna.js'
 export * as AppGainforestOrganizationPredictionsFlora from './types/app/gainforest/organization/predictions/flora.js'
+export * as AppGainforestOrganizationRecordingsAudio from './types/app/gainforest/organization/recordings/audio.js'
 export * as ComAtprotoRepoStrongRef from './types/com/atproto/repo/strongRef.js'
 export * as OrgHypercertsClaimActivity from './types/org/hypercerts/claim/activity.js'
 export * as OrgHypercertsClaimAttachment from './types/org/hypercerts/claim/attachment.js'
@@ -1107,11 +1109,13 @@ export class AppGainforestOrganizationNS {
   layer: AppGainforestOrganizationLayerRecord
   observations: AppGainforestOrganizationObservationsNS
   predictions: AppGainforestOrganizationPredictionsNS
+  recordings: AppGainforestOrganizationRecordingsNS
 
   constructor(client: XrpcClient) {
     this._client = client
     this.observations = new AppGainforestOrganizationObservationsNS(client)
     this.predictions = new AppGainforestOrganizationPredictionsNS(client)
+    this.recordings = new AppGainforestOrganizationRecordingsNS(client)
     this.defaultSite = new AppGainforestOrganizationDefaultSiteRecord(client)
     this.info = new AppGainforestOrganizationInfoRecord(client)
     this.layer = new AppGainforestOrganizationLayerRecord(client)
@@ -1702,6 +1706,102 @@ export class AppGainforestOrganizationPredictionsFloraRecord {
         collection: 'app.gainforest.organization.predictions.flora',
         ...params,
       },
+      { headers },
+    )
+  }
+}
+
+export class AppGainforestOrganizationRecordingsNS {
+  _client: XrpcClient
+  audio: AppGainforestOrganizationRecordingsAudioRecord
+
+  constructor(client: XrpcClient) {
+    this._client = client
+    this.audio = new AppGainforestOrganizationRecordingsAudioRecord(client)
+  }
+}
+
+export class AppGainforestOrganizationRecordingsAudioRecord {
+  _client: XrpcClient
+
+  constructor(client: XrpcClient) {
+    this._client = client
+  }
+
+  async list(
+    params: OmitKey<ComAtprotoRepoListRecords.QueryParams, 'collection'>,
+  ): Promise<{
+    cursor?: string
+    records: {
+      uri: string
+      value: AppGainforestOrganizationRecordingsAudio.Record
+    }[]
+  }> {
+    const res = await this._client.call('com.atproto.repo.listRecords', {
+      collection: 'app.gainforest.organization.recordings.audio',
+      ...params,
+    })
+    return res.data
+  }
+
+  async get(
+    params: OmitKey<ComAtprotoRepoGetRecord.QueryParams, 'collection'>,
+  ): Promise<{
+    uri: string
+    cid: string
+    value: AppGainforestOrganizationRecordingsAudio.Record
+  }> {
+    const res = await this._client.call('com.atproto.repo.getRecord', {
+      collection: 'app.gainforest.organization.recordings.audio',
+      ...params,
+    })
+    return res.data
+  }
+
+  async create(
+    params: OmitKey<
+      ComAtprotoRepoCreateRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<AppGainforestOrganizationRecordingsAudio.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'app.gainforest.organization.recordings.audio'
+    const res = await this._client.call(
+      'com.atproto.repo.createRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async put(
+    params: OmitKey<
+      ComAtprotoRepoPutRecord.InputSchema,
+      'collection' | 'record'
+    >,
+    record: Un$Typed<AppGainforestOrganizationRecordingsAudio.Record>,
+    headers?: Record<string, string>,
+  ): Promise<{ uri: string; cid: string }> {
+    const collection = 'app.gainforest.organization.recordings.audio'
+    const res = await this._client.call(
+      'com.atproto.repo.putRecord',
+      undefined,
+      { collection, ...params, record: { ...record, $type: collection } },
+      { encoding: 'application/json', headers },
+    )
+    return res.data
+  }
+
+  async delete(
+    params: OmitKey<ComAtprotoRepoDeleteRecord.InputSchema, 'collection'>,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    await this._client.call(
+      'com.atproto.repo.deleteRecord',
+      undefined,
+      { collection: 'app.gainforest.organization.recordings.audio', ...params },
       { headers },
     )
   }
