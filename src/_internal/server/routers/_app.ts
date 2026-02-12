@@ -21,6 +21,7 @@ import { removeLayersFromProjectFactory } from "./atproto/gainforest/organizatio
 import { getLayerFactory } from "./atproto/gainforest/organization/layer/get";
 import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
 import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
+import { onboardFactory } from "./atproto/miscellaneous/onboard";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
@@ -105,6 +106,9 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
           getDefault: getDefaultLocationFactory(this.allowedPDSDomainSchema),
           setDefault: setDefaultLocationFactory(this.allowedPDSDomainSchema),
         },
+      },
+      miscellaneous: {
+        onboard: onboardFactory(this.allowedPDSDomainSchema),
       },
     });
   }
