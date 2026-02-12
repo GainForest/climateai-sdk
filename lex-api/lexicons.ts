@@ -342,6 +342,25 @@ export const schemaDict = {
     description:
       'Shared type definitions for biodiversity and environmental data collection',
     defs: {
+      richtext: {
+        type: 'object',
+        required: ['text'],
+        description:
+          'An object that contains the text and an object that defins and enables richtext formatting on the text.',
+        properties: {
+          text: {
+            type: 'string',
+            description: 'The text to be formatted',
+          },
+          facets: {
+            type: 'array',
+            items: {
+              type: 'ref',
+              ref: 'lex:app.bsky.richtext.facet',
+            },
+          },
+        },
+      },
       uri: {
         type: 'object',
         required: ['uri'],
@@ -2229,7 +2248,7 @@ export const schemaDict = {
             },
             shortDescription: {
               type: 'ref',
-              ref: 'lex:app.bsky.richtext.facet',
+              ref: 'lex:app.gainforest.common.defs#richtext',
               description: 'The description of the organization or project',
             },
             longDescription: {
@@ -3497,6 +3516,211 @@ export const schemaDict = {
       },
     },
   },
+  OrgImpactindexerLinkAttestation: {
+    lexicon: 1,
+    id: 'org.impactindexer.link.attestation',
+    defs: {
+      main: {
+        type: 'record',
+        description:
+          'An attestation linking an ATProto DID to an EVM wallet address, signed with EIP-712.',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: [
+            'address',
+            'chainId',
+            'signature',
+            'message',
+            'signatureType',
+            'createdAt',
+          ],
+          properties: {
+            address: {
+              type: 'string',
+              minLength: 42,
+              maxLength: 42,
+              description:
+                'The EVM wallet address (checksummed or lowercase, 0x-prefixed)',
+            },
+            chainId: {
+              type: 'integer',
+              minimum: 1,
+              description: 'The EVM chain ID where the signature was created',
+            },
+            signature: {
+              type: 'string',
+              minLength: 132,
+              maxLength: 1000,
+              description:
+                'The EIP-712 signature in hex format (0x-prefixed, 65 bytes for ECDSA, longer for smart contract sigs)',
+            },
+            message: {
+              type: 'ref',
+              ref: 'lex:org.impactindexer.link.attestation#eip712Message',
+              description: 'The EIP-712 typed data message that was signed',
+            },
+            signatureType: {
+              type: 'string',
+              maxLength: 10,
+              knownValues: ['eoa', 'erc1271', 'erc6492'],
+              description:
+                'The type of signature: eoa (EOA/ECDSA), erc1271 (smart contract), erc6492 (counterfactual)',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description: 'Timestamp when the attestation was created',
+            },
+          },
+        },
+      },
+      eip712Message: {
+        type: 'object',
+        description: 'The EIP-712 typed data message structure',
+        required: ['did', 'evmAddress', 'chainId', 'timestamp', 'nonce'],
+        properties: {
+          did: {
+            type: 'string',
+            maxLength: 2048,
+            description: 'The ATProto DID being linked',
+          },
+          evmAddress: {
+            type: 'string',
+            minLength: 42,
+            maxLength: 42,
+            description: 'The EVM address being linked (0x-prefixed)',
+          },
+          chainId: {
+            type: 'string',
+            maxLength: 78,
+            description:
+              'The chain ID as a string (for bigint compatibility, max uint256)',
+          },
+          timestamp: {
+            type: 'string',
+            maxLength: 78,
+            description:
+              'Unix timestamp as a string (for bigint compatibility)',
+          },
+          nonce: {
+            type: 'string',
+            maxLength: 78,
+            description:
+              'Replay protection nonce as a string (for bigint compatibility)',
+          },
+        },
+      },
+    },
+  },
+  OrgImpactindexerReviewComment: {
+    lexicon: 1,
+    id: 'org.impactindexer.review.comment',
+    description:
+      'A text comment on an AT-Proto entity. Users can comment on records, users, PDSes, or lexicons to provide feedback, ask questions, or share insights.',
+    defs: {
+      main: {
+        type: 'record',
+        description: 'A text comment on a subject.',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['subject', 'text', 'createdAt'],
+          properties: {
+            subject: {
+              type: 'ref',
+              ref: 'lex:org.impactindexer.review.defs#subjectRef',
+              description: 'The subject being commented on.',
+            },
+            text: {
+              type: 'string',
+              maxLength: 20480,
+              maxGraphemes: 6000,
+              description: 'The comment text.',
+            },
+            replyTo: {
+              type: 'string',
+              format: 'at-uri',
+              description:
+                'Optional AT-URI of another comment this is replying to, enabling threaded discussions.',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description: 'Timestamp when the comment was created.',
+            },
+          },
+        },
+      },
+    },
+  },
+  OrgImpactindexerReviewDefs: {
+    lexicon: 1,
+    id: 'org.impactindexer.review.defs',
+    description: 'Shared definitions for the Impact Indexer review system.',
+    defs: {
+      subjectType: {
+        type: 'string',
+        maxLength: 32,
+        knownValues: ['record', 'user', 'pds', 'lexicon'],
+        description: 'The type of subject being reviewed.',
+      },
+      subjectRef: {
+        type: 'object',
+        description: 'Reference to the subject being reviewed.',
+        required: ['uri', 'type'],
+        properties: {
+          uri: {
+            type: 'string',
+            maxLength: 8192,
+            description:
+              'The subject identifier. For records: AT-URI (at://did/collection/rkey). For users: DID (did:plc:xxx). For PDSes: hostname (example.com). For lexicons: NSID (app.bsky.feed.post).',
+          },
+          type: {
+            type: 'ref',
+            ref: 'lex:org.impactindexer.review.defs#subjectType',
+            description: 'The type of subject.',
+          },
+          cid: {
+            type: 'string',
+            maxLength: 128,
+            description:
+              'Optional CID for record subjects to pin to a specific version.',
+          },
+        },
+      },
+    },
+  },
+  OrgImpactindexerReviewLike: {
+    lexicon: 1,
+    id: 'org.impactindexer.review.like',
+    description:
+      'A like on an AT-Proto entity. Users can like records, users, PDSes, or lexicons. One like per subject per user - delete the record to remove the like.',
+    defs: {
+      main: {
+        type: 'record',
+        description:
+          'A like on a subject. Create to like, delete to remove like.',
+        key: 'tid',
+        record: {
+          type: 'object',
+          required: ['subject', 'createdAt'],
+          properties: {
+            subject: {
+              type: 'ref',
+              ref: 'lex:org.impactindexer.review.defs#subjectRef',
+              description: 'The subject being liked.',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'datetime',
+              description: 'Timestamp when the like was created.',
+            },
+          },
+        },
+      },
+    },
+  },
   PubLeafletBlocksBlockquote: {
     lexicon: 1,
     id: 'pub.leaflet.blocks.blockquote',
@@ -4119,6 +4343,10 @@ export const ids = {
   OrgHypercertsDefs: 'org.hypercerts.defs',
   OrgHypercertsFundingReceipt: 'org.hypercerts.funding.receipt',
   OrgHypercertsHelperWorkScopeTag: 'org.hypercerts.helper.workScopeTag',
+  OrgImpactindexerLinkAttestation: 'org.impactindexer.link.attestation',
+  OrgImpactindexerReviewComment: 'org.impactindexer.review.comment',
+  OrgImpactindexerReviewDefs: 'org.impactindexer.review.defs',
+  OrgImpactindexerReviewLike: 'org.impactindexer.review.like',
   PubLeafletBlocksBlockquote: 'pub.leaflet.blocks.blockquote',
   PubLeafletBlocksBskyPost: 'pub.leaflet.blocks.bskyPost',
   PubLeafletBlocksButton: 'pub.leaflet.blocks.button',

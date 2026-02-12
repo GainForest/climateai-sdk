@@ -100,9 +100,9 @@ export function createMutationFactory<
           ...additionalInput,
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const typedInput = input as { did: string; pdsDomain: SupportedPDSDomain } & z.infer<z.ZodObject<TAdditional>>;
-        const agent = await getWriteAgent(typedInput.pdsDomain);
+        const agent = await getWriteAgent(ctx.sdk, typedInput.pdsDomain);
         return handler(agent, typedInput);
       });
 }
@@ -127,9 +127,9 @@ export function createDeleteMutationFactory(
           pdsDomain: allowedPDSDomainSchema,
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const typedInput = input as { did: string; rkey: string; pdsDomain: T };
-        const agent = await getWriteAgent(typedInput.pdsDomain);
+        const agent = await getWriteAgent(ctx.sdk, typedInput.pdsDomain);
         return handler(agent, typedInput.did, typedInput.rkey);
       });
 }

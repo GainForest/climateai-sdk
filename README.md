@@ -5,7 +5,7 @@ A batteries-included tRPC SDK for integrating Gainforest/Hypercerts services int
 ## Install
 
 ```bash
-bun install gainforest-sdk-nextjs
+bun add gainforest-sdk-nextjs
 ```
 
 > The repo itself still uses Bun for development chores; consumers only need the published package.
@@ -17,7 +17,9 @@ We would need two configuration files to start.
 - `gainforest-sdk.ts`: defines the domains you want to allow in your app, and other artifacts related to the sdk configuration.
 - `gainforest-sdk.server.ts`: instantiate the sdk using the configuration options.
 
-**Warning:** NEVER IMPORT ANYTHING FROM `gainforest-sdk.server.ts` INTO A CLIENT COMPONENT OR A FILE THAT EXECUTES ON CLIENT SIDE.
+### Warning
+
+NEVER IMPORT ANYTHING FROM `gainforest-sdk.server.ts` INTO A CLIENT COMPONENT OR A FILE THAT EXECUTES ON CLIENT SIDE.
 
 **Configuring allowed domains**
 

@@ -85,6 +85,11 @@
       "types": "./dist/zod.d.ts",
       "import": "./dist/zod.js",
       "require": "./dist/zod.cjs"
+    },
+    "./oauth": {
+      "types": "./dist/oauth.d.ts",
+      "import": "./dist/oauth.js",
+      "require": "./dist/oauth.cjs"
     }
   },
   "typesVersions": {
@@ -100,6 +105,12 @@
       ],
       "lex-api/*": [
         "dist/lex-api/*.d.ts"
+      ],
+      "oauth": [
+        "dist/oauth.d.ts"
+      ],
+      "session": [
+        "dist/session.d.ts"
       ]
     }
   },
@@ -118,12 +129,15 @@
   "dependencies": {
     "@atproto/api": "0.18.8",
     "@atproto/oauth-client-node": "0.3.9",
-    "@trpc/client": "^11.7.2",
+    "@hypercerts-org/sdk-core": "^0.10.0-beta.5-hotfix.5",
+    "@supabase/supabase-js": "^2.93.2",
+    "@trpc/client": "^11.8.0",
     "@trpc/react-query": "^11.7.2",
     "@trpc/server": "^11.7.2",
     "@turf/turf": "^7.3.0",
     "cid": "multiformats/cid",
     "geojson": "^0.5.0",
+    "iron-session": "^8.0.4",
     "jose": "^6.1.2",
     "multiformats": "^13.4.1",
     "next": "^16.0.3",
