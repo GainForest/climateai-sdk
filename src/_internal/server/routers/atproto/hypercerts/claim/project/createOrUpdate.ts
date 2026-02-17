@@ -1,10 +1,6 @@
 import z from "zod";
 import { TRPCError } from "@trpc/server";
-import {
-  OrgHypercertsClaimCollection,
-  PubLeafletBlocksText,
-  PubLeafletPagesLinearDocument,
-} from "@/../lex-api";
+import { OrgHypercertsClaimCollection } from "@/../lex-api";
 import { createOrUpdateRecord } from "@/_internal/server/utils/atproto-crud";
 import { createMutationFactory } from "@/_internal/server/utils/procedure-factories";
 import {
@@ -12,6 +8,8 @@ import {
   FileGeneratorSchema,
   toBlobRef,
   toFile,
+  LinearDocumentSchema,
+  toLinearDocument,
 } from "@/_internal/zod-schemas";
 import { CollectionItemSchema } from "@/_internal/zod-schemas/activity-weight";
 import { StrongRefSchema } from "@/_internal/zod-schemas/strongref";
@@ -29,7 +27,7 @@ export const CollectionInputSchema = z.object({
   type: z.string().optional(),
   title: z.string().min(1, "Title is required"),
   shortDescription: z.string().optional(),
-  description: z.string().optional(),
+  description: LinearDocumentSchema.optional(),
   avatar: BlobRefGeneratorSchema.optional(),
   banner: BlobRefGeneratorSchema.optional(),
   items: z.array(CollectionItemSchema).min(1, "At least one item is required"),
@@ -67,22 +65,10 @@ export const createOrUpdateCollectionPure = async (
     });
   }
 
-  // Build description as linear document if provided
-  const descriptionLinearDocument: PubLeafletPagesLinearDocument.Main | undefined =
-    collectionInput.description
-      ? {
-          $type: "pub.leaflet.pages.linearDocument",
-          blocks: [
-            {
-              $type: "pub.leaflet.pages.linearDocument#block",
-              block: {
-                $type: "pub.leaflet.blocks.text",
-                plaintext: collectionInput.description,
-              } satisfies PubLeafletBlocksText.Main,
-            } satisfies PubLeafletPagesLinearDocument.Block,
-          ],
-        }
-      : undefined;
+  // Convert description to lex-api format if provided
+  const descriptionLinearDocument = collectionInput.description
+    ? toLinearDocument(collectionInput.description)
+    : undefined;
 
   // Upload images if provided
   const avatarBlob = uploads.avatar
