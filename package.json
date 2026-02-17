@@ -1,6 +1,6 @@
 {
   "name": "gainforest-sdk-nextjs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Gainforest SDK for Next.js - Type-safe tRPC SDK for ATProto PDS integration",
   "license": "MIT",
   "main": "./dist/index.cjs",

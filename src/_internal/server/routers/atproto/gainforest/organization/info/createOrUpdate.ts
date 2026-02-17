@@ -2,8 +2,6 @@ import z from "zod";
 import {
   AppGainforestOrganizationInfo,
   AppBskyRichtextFacet,
-  PubLeafletPagesLinearDocument,
-  PubLeafletBlocksText,
   AppGainforestCommonDefs,
 } from "@/../lex-api";
 import { putRecord } from "@/_internal/server/utils/atproto-crud";
@@ -13,6 +11,10 @@ import {
   BlobRefGeneratorSchema,
   toBlobRef,
 } from "@/_internal/zod-schemas/blobref";
+import {
+  LinearDocumentSchema,
+  toLinearDocument,
+} from "@/_internal/zod-schemas/linear-document";
 import { uploadFileAsBlobPure } from "../../../common/uploadFileAsBlob";
 import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
 import type { Agent } from "@atproto/api";
@@ -46,7 +48,7 @@ export type Visibility = z.infer<typeof VisibilitySchema>;
 export const OrganizationInfoInputSchema = z.object({
   displayName: z.string().min(1, "Display name is required"),
   shortDescription: z.string().min(1, "Short description is required"),
-  longDescription: z.string().min(1, "Long description is required"),
+  longDescription: LinearDocumentSchema,
   website: z.string().url("Website must be a valid URL").optional(),
   logo: BlobRefGeneratorSchema.optional(),
   coverImage: BlobRefGeneratorSchema.optional(),
@@ -103,19 +105,8 @@ export const createOrUpdateOrganizationInfoPure = async (
     facets: []
   };
 
-  // Build longDescription as linear document
-  const longDescription: PubLeafletPagesLinearDocument.Main = {
-    $type: "pub.leaflet.pages.linearDocument",
-    blocks: [
-      {
-        $type: "pub.leaflet.pages.linearDocument#block",
-        block: {
-          $type: "pub.leaflet.blocks.text",
-          plaintext: infoInput.longDescription,
-        } satisfies PubLeafletBlocksText.Main,
-      } satisfies PubLeafletPagesLinearDocument.Block,
-    ],
-  };
+  // Convert longDescription to lex-api format
+  const longDescription = toLinearDocument(infoInput.longDescription);
 
   const info: AppGainforestOrganizationInfo.Record = {
     $type: COLLECTION,
