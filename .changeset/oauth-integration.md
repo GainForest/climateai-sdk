@@ -1,5 +1,5 @@
 ---
-"climateai-sdk": minor
+"climateai-sdk": major
 ---
 
 Added OAuth authentication support using @hypercerts-org/sdk-core. This replaces the previous credential-based authentication with a secure OAuth flow that stores tokens in Supabase and user identity in encrypted iron-session cookies. Improved error handling in session and state stores to distinguish between "not found" and actual database failures.

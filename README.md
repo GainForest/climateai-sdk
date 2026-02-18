@@ -39,9 +39,37 @@ export type AllowedPDSDomain = (typeof allowedPDSDomains)[number];
 ```ts
 // config/gainforest-sdk.server.ts
 import { GainforestSDK } from "gainforest-sdk-nextjs";
+import {
+  createATProtoSDK,
+  createSupabaseSessionStore,
+  createSupabaseStateStore,
+} from "gainforest-sdk-nextjs/oauth";
+import { createClient } from "@supabase/supabase-js";
 import { allowedPDSDomains } from "./gainforest-sdk";
 
-export const gainforestSdk = new GainforestSDK(allowedPDSDomains);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const atprotoSDK = createATProtoSDK({
+  oauth: {
+    clientId: `${process.env.NEXT_PUBLIC_APP_URL}/client-metadata.json`,
+    redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/oauth/callback`,
+    jwksUri: `${process.env.NEXT_PUBLIC_APP_URL}/.well-known/jwks.json`,
+    jwkPrivate: process.env.OAUTH_PRIVATE_KEY!,
+    scope: "atproto",
+  },
+  servers: {
+    pds: "https://climateai.org",
+  },
+  storage: {
+    sessionStore: createSupabaseSessionStore(supabase, "your-app-name"),
+    stateStore: createSupabaseStateStore(supabase, "your-app-name"),
+  },
+});
+
+export const gainforestSdk = new GainforestSDK(allowedPDSDomains, atprotoSDK);
 ```
 
 The constructor validates the domains against `supportedPDSDomainSchema`, so initialization fails fast if a domain is not recognized.
@@ -210,7 +238,7 @@ Examples:
 
 ```ts
 import { GainforestSDK, createContext } from "gainforest-sdk-nextjs";
-import { createTRPCReactApi } from "gainforest-sdk-nextjs/client";
+import { createTRPCClient } from "gainforest-sdk-nextjs/client";
 import { parseAtUri } from "gainforest-sdk-nextjs/utilities";
 import { serialize } from "gainforest-sdk-nextjs/utilities/transformer";
 import { BlobRefGeneratorSchema } from "gainforest-sdk-nextjs/zod-schemas";
@@ -254,7 +282,7 @@ return <ClientComponent initialData={serialized} />;
 2. **Passing data to client components**: If you send the raw response from a server component to the client without serializing it first, Next.js might throw `A client component received a class instance` or similar errors. Always wrap data with `serialize(...)` and annotate the prop as `SerializedSuperjson<typeof data>` (for better type support), then deserialize inside the client component before usage.
 3. **Importing server-only code into client components**:
    - The main `gainforest-sdk-nextjs` entrypoint is **server-only** because it bundles `@trpc/server` and other Node-targeted code.
-   - In any `"use client"` file (or generally any browser code), you **must not** import values from your `config/gainforest-sdk.server` (or wherever you instantiate `new GainforestSDK(...)`). That means no `import { ... } from "@/server/gainforest-sdk.server";` in client components.
+   - In any `"use client"` file (or generally any browser code), you **must not** import values from your `config/gainforest-sdk.server` (or wherever you instantiate `new GainforestSDK(...)`). That means no `import { ... } from "@/config/gainforest-sdk.server";` in client components.
 
 ## 10. Running locally
 

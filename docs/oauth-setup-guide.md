@@ -89,14 +89,34 @@ async function generateKey() {
 generateKey();
 ```
 
-Or use OpenSSL:
+Or use OpenSSL to generate the PEM, then convert it programmatically with `jose`:
 
 ```bash
-# Generate private key
+# Generate private key in PEM format
 openssl ecparam -name prime256v1 -genkey -noout -out private-key.pem
-
-# Convert to JWK format (use an online tool or jose library)
 ```
+
+```javascript
+// scripts/pem-to-jwk.js
+const { readFileSync } = require('fs');
+const { importPKCS8, exportJWK } = require('jose');
+
+async function convert() {
+  const pem = readFileSync('./private-key.pem', 'utf8');
+  const privateKey = await importPKCS8(pem, 'ES256');
+  const jwk = await exportJWK(privateKey);
+  jwk.kid = 'key-1';
+  jwk.use = 'sig';
+  jwk.alg = 'ES256';
+
+  console.log('Add this to your .env.local:');
+  console.log(`OAUTH_PRIVATE_KEY='${JSON.stringify(jwk)}'`);
+}
+
+convert();
+```
+
+> **Security:** Never paste your private key into an online converter — use the programmatic path above to keep it local.
 
 ---
 
@@ -237,7 +257,7 @@ export async function GET() {
 
 ### 7a. Authorization Route (`app/api/oauth/authorize/route.ts`)
 
-If youre using nextjs this can also just be a simple server action instead of a full api route
+If you're using Next.js this can also just be a simple server action instead of a full API route
 
 ```typescript
 import { NextRequest, NextResponse } from "next/server";
@@ -600,7 +620,10 @@ OAuth states expire after 1 hour. To clean up expired records, run this periodic
 import { cleanupExpiredStates } from "gainforest-sdk-nextjs/oauth";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const deletedCount = await cleanupExpiredStates(supabase);
 console.log(`Cleaned up ${deletedCount} expired OAuth states`);
