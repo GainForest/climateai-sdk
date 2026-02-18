@@ -21,6 +21,11 @@ import { removeLayersFromProjectFactory } from "./atproto/gainforest/organizatio
 import { getLayerFactory } from "./atproto/gainforest/organization/layer/get";
 import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
 import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
+import { getAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/get";
+import { getAllAudioRecordingsFactory } from "./atproto/gainforest/organization/recordings/audio/getAll";
+import { createAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/create";
+import { updateAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/update";
+import { deleteAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/delete";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
@@ -74,6 +79,15 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
               removeFromProject: removeMeasuredTreesClusterFromProjectFactory(
                 this.allowedPDSDomainSchema
               ),
+            },
+          },
+          recordings: {
+            audio: {
+              get: getAudioRecordingFactory(this.allowedPDSDomainSchema),
+              getAll: getAllAudioRecordingsFactory(this.allowedPDSDomainSchema),
+              create: createAudioRecordingFactory(this.allowedPDSDomainSchema),
+              update: updateAudioRecordingFactory(this.allowedPDSDomainSchema),
+              delete: deleteAudioRecordingFactory(this.allowedPDSDomainSchema),
             },
           },
         },
