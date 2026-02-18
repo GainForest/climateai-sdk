@@ -6,8 +6,7 @@ Added audio recording utilities for the GainForest SDK with full CRUD operations
 
 ### New Features
 - **Audio Recording CRUD**: Added `get`, `getAll`, `create`, `update`, and `delete` utilities for audio recordings
-- **Automatic Metadata Extraction**: Uses `music-metadata` library to automatically extract technical metadata (codec, format, channels, duration, sampleRate) from uploaded audio files
-- **Supported Formats**: WAV, MP3, M4A, AAC, FLAC, OGG, Opus, WebM, AIFF
+- **Automatic Metadata Extraction**: Uses `music-metadata` library to automatically extract technical metadata (codec, channels, duration, sampleRate) from uploaded audio files
 
 ### API
 - `gainforest.organization.recordings.audio.get` - Get a single audio recording by DID and rkey
@@ -20,8 +19,13 @@ Added audio recording utilities for the GainForest SDK with full CRUD operations
 Users only need to provide:
 - `audioFile` - URL or base64-encoded file
 - `recordedAt` - Recording timestamp
+- `name` - Recording name
 - `coordinates` (optional) - GPS coordinates
-- `name` (optional) - Recording name
 - `description` (optional) - Richtext description
 
-Technical metadata (codec, format, channels, duration, sampleRate) is automatically extracted from the audio file.
+Technical metadata (codec, channels, duration, sampleRate) is automatically extracted from the audio file.
+
+### Breaking Changes (lexicon refactor)
+- `audioBlob` field renamed to `blob` on the audio recording record
+- `format` field removed from recording metadata (format information is available via the blob's MIME type)
+- `name` field is now required when creating or updating an audio recording

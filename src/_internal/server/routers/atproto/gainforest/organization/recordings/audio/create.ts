@@ -18,7 +18,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB (as per Audio type definition)
  * Only requires user-provided data; technical metadata is auto-extracted
  */
 export const AudioRecordingInputSchema = z.object({
-  name: z.string().optional(),
+  name: z.string(),
   description: z
     .object({
       text: z.string(),
@@ -60,7 +60,7 @@ const fetchAudioFromUrl = async (url: string): Promise<File> => {
 
 /**
  * Pure function to create an audio recording.
- * Automatically extracts technical metadata (codec, format, channels, duration, sampleRate) from the file.
+ * Automatically extracts technical metadata (codec, channels, duration, sampleRate) from the file.
  * Can be reused outside of tRPC context.
  */
 export const createAudioRecordingPure = async (
@@ -114,14 +114,13 @@ export const createAudioRecordingPure = async (
           facets: input.description.facets,
         }
       : undefined,
-    audioBlob: {
+    blob: {
       $type: "app.gainforest.common.defs#audio",
       file: uploadResponse.data.blob,
     },
     metadata: {
       $type: "app.gainforest.organization.recordings.audio#metadata",
       codec: extractedMetadata.codec,
-      format: extractedMetadata.format,
       channels: extractedMetadata.channels,
       duration: extractedMetadata.duration,
       sampleRate: extractedMetadata.sampleRate,

@@ -18,9 +18,9 @@ const id = 'app.gainforest.organization.recordings.audio'
 export interface Main {
   $type: 'app.gainforest.organization.recordings.audio'
   /** A short name for the audio recording */
-  name?: string
+  name: string
   description?: AppGainforestCommonDefs.Richtext
-  audioBlob: AppGainforestCommonDefs.Audio
+  blob: AppGainforestCommonDefs.Audio
   metadata: Metadata
   /** The date and time of the creation of the record */
   createdAt: string
@@ -47,17 +47,6 @@ export interface Metadata {
   $type?: 'app.gainforest.organization.recordings.audio#metadata'
   /** The codec of the audio recording */
   codec: string
-  /** The format of the audio recording */
-  format:
-    | 'wav'
-    | 'mp3'
-    | 'm4a'
-    | 'aac'
-    | 'flac'
-    | 'ogg'
-    | 'opus'
-    | 'webm'
-    | 'aiff'
   /** The number of channels of the audio recording */
   channels: number
   /** The duration of the audio recording in seconds */

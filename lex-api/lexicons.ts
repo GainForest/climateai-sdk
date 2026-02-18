@@ -2555,7 +2555,7 @@ export const schemaDict = {
         key: 'tid',
         record: {
           type: 'object',
-          required: ['audioBlob', 'metadata', 'createdAt'],
+          required: ['name', 'blob', 'metadata', 'createdAt'],
           properties: {
             name: {
               type: 'string',
@@ -2566,7 +2566,7 @@ export const schemaDict = {
               ref: 'lex:app.gainforest.common.defs#richtext',
               description: 'A description of the audio recording',
             },
-            audioBlob: {
+            blob: {
               type: 'ref',
               ref: 'lex:app.gainforest.common.defs#audio',
               description: 'The blob of the audio recording',
@@ -2586,33 +2586,11 @@ export const schemaDict = {
       },
       metadata: {
         type: 'object',
-        required: [
-          'codec',
-          'format',
-          'channels',
-          'duration',
-          'recordedAt',
-          'sampleRate',
-        ],
+        required: ['codec', 'channels', 'duration', 'recordedAt', 'sampleRate'],
         properties: {
           codec: {
             type: 'string',
             description: 'The codec of the audio recording',
-          },
-          format: {
-            type: 'string',
-            description: 'The format of the audio recording',
-            enum: [
-              'wav',
-              'mp3',
-              'm4a',
-              'aac',
-              'flac',
-              'ogg',
-              'opus',
-              'webm',
-              'aiff',
-            ],
           },
           channels: {
             type: 'integer',

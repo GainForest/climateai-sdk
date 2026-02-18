@@ -21,7 +21,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
  * If a new file is provided, technical metadata is re-extracted
  */
 export const AudioRecordingUpdateInputSchema = z.object({
-  name: z.string().optional(),
+  name: z.string(),
   description: z
     .object({
       text: z.string(),
@@ -67,10 +67,9 @@ export const updateAudioRecordingPure = async (
     });
   }
 
-  let audioBlob: AppGainforestOrganizationRecordingsAudio.Record["audioBlob"];
+  let blob: AppGainforestOrganizationRecordingsAudio.Record["blob"];
   let technicalMetadata: {
     codec: string;
-    format: AppGainforestOrganizationRecordingsAudio.Metadata["format"];
     channels: number;
     duration: string;
     sampleRate: number;
@@ -101,7 +100,7 @@ export const updateAudioRecordingPure = async (
       });
     }
 
-    audioBlob = {
+    blob = {
       $type: "app.gainforest.common.defs#audio",
       file: uploadResponse.data.blob,
     };
@@ -117,10 +116,9 @@ export const updateAudioRecordingPure = async (
       resourceName: RESOURCE_NAME,
     });
 
-    audioBlob = existingRecord.value.audioBlob;
+    blob = existingRecord.value.blob;
     technicalMetadata = {
       codec: existingRecord.value.metadata.codec,
-      format: existingRecord.value.metadata.format,
       channels: existingRecord.value.metadata.channels,
       duration: existingRecord.value.metadata.duration,
       sampleRate: existingRecord.value.metadata.sampleRate,
@@ -137,11 +135,10 @@ export const updateAudioRecordingPure = async (
           facets: recordingInput.description.facets,
         }
       : undefined,
-    audioBlob,
+    blob,
     metadata: {
       $type: "app.gainforest.organization.recordings.audio#metadata",
       codec: technicalMetadata.codec,
-      format: technicalMetadata.format,
       channels: technicalMetadata.channels,
       duration: technicalMetadata.duration,
       sampleRate: technicalMetadata.sampleRate,
