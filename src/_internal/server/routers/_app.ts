@@ -1,23 +1,19 @@
 import { createContext, createTRPCRouter, publicProcedure } from "../trpc";
 import { uploadFileAsBlobFactory } from "./atproto/common/uploadFileAsBlob";
-import { loginFactory } from "./atproto/auth/login";
-import { resumeFactory } from "./atproto/auth/resume";
-import { logoutFactory } from "./atproto/auth/logout";
 import { getOrganizationInfoFactory } from "./atproto/gainforest/organization/info/get";
-import { getSiteFactory } from "./atproto/hypercerts/site/get";
-import { getDefaultProjectSiteFactory } from "./atproto/hypercerts/site/getDefault";
+import { getLocationFactory } from "./atproto/hypercerts/location/get";
+import { getDefaultLocationFactory } from "./atproto/hypercerts/location/getDefault";
 import { getMeasuredTreesFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/get";
 import { createClaimActivityFactory } from "./atproto/hypercerts/claim/activity/create";
 import { createOrUpdateOrganizationInfoFactory } from "./atproto/gainforest/organization/info/createOrUpdate";
 import { createOrUpdateLayerFactory } from "./atproto/gainforest/organization/layer/createOrUpdate";
-import { getAllSitesFactory } from "./atproto/hypercerts/site/getAll";
-import { createSiteFactory } from "./atproto/hypercerts/site/create";
-import { updateSiteFactory } from "./atproto/hypercerts/site/update";
-import { setDefaultSiteFactory } from "./atproto/hypercerts/site/setDefault";
-import { deleteSiteFactory } from "./atproto/hypercerts/site/delete";
+import { getAllLocationsFactory } from "./atproto/hypercerts/location/getAll";
+import { createLocationFactory } from "./atproto/hypercerts/location/create";
+import { updateLocationFactory } from "./atproto/hypercerts/location/update";
+import { setDefaultLocationFactory } from "./atproto/hypercerts/location/setDefault";
+import { deleteLocationFactory } from "./atproto/hypercerts/location/delete";
 import { getAllClaimActivitiesAcrossOrganizationsFactory } from "./atproto/hypercerts/claim/activity/getAllAcrossOrgs";
 import { getCliamActivityFactory } from "./atproto/hypercerts/claim/activity/get";
-import { getCertifiedLocationFactory } from "./atproto/hypercerts/location/get";
 import { addMeasuredTreesClusterToProjectFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/_addToProject";
 import { removeMeasuredTreesClusterFromProjectFactory } from "./atproto/gainforest/organization/observations/measuredTreesCluster/_removeFromProject";
 import { addLayersToProjectFactory } from "./atproto/gainforest/organization/layer/_addToProject";
@@ -25,29 +21,34 @@ import { removeLayersFromProjectFactory } from "./atproto/gainforest/organizatio
 import { getLayerFactory } from "./atproto/gainforest/organization/layer/get";
 import { getProjectFactory } from "./atproto/hypercerts/claim/project/get";
 import { getAllProjectsFactory } from "./atproto/hypercerts/claim/project/getAll";
+import { getAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/get";
+import { getAllAudioRecordingsFactory } from "./atproto/gainforest/organization/recordings/audio/getAll";
+import { createAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/create";
+import { updateAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/update";
+import { deleteAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/delete";
+import { onboardFactory } from "./miscellaneous/onboard";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
+import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
 import z from "zod";
 import { getAllLayersFactory } from "./atproto/gainforest/organization/layer/getAll";
 import { getAllClaimActivitiesFactory } from "./atproto/hypercerts/claim/activity/getAll";
+
 export class AppRouterFactory<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public allowedPDSDomainSchema;
   public appRouter;
+  private sdk: HypercertsATProtoSDK;
 
-  constructor(_allowedPDSDomains: T[]) {
+  constructor(_allowedPDSDomains: T[], sdk: HypercertsATProtoSDK) {
     this.allowedPDSDomains = _allowedPDSDomains;
+    this.sdk = sdk;
     this.allowedPDSDomainSchema = z.enum(this.allowedPDSDomains);
 
     this.appRouter = createTRPCRouter({
       health: publicProcedure.query(() => ({ status: "ok" })),
       common: {
         uploadFileAsBlob: uploadFileAsBlobFactory(this.allowedPDSDomainSchema),
-      },
-      auth: {
-        login: loginFactory(this.allowedPDSDomainSchema),
-        resume: resumeFactory(this.allowedPDSDomainSchema),
-        logout: logoutFactory(this.allowedPDSDomainSchema),
       },
       gainforest: {
         organization: {
@@ -81,7 +82,19 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
               ),
             },
           },
+          recordings: {
+            audio: {
+              get: getAudioRecordingFactory(this.allowedPDSDomainSchema),
+              getAll: getAllAudioRecordingsFactory(this.allowedPDSDomainSchema),
+              create: createAudioRecordingFactory(this.allowedPDSDomainSchema),
+              update: updateAudioRecordingFactory(this.allowedPDSDomainSchema),
+              delete: deleteAudioRecordingFactory(this.allowedPDSDomainSchema),
+            },
+          },
         },
+      },
+      miscellaneous: {
+        onboard: onboardFactory(this.allowedPDSDomainSchema),
       },
       hypercerts: {
         claim: {
@@ -102,25 +115,28 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
           },
         },
         location: {
-          get: getCertifiedLocationFactory(this.allowedPDSDomainSchema),
-        },
-        site: {
-          get: getSiteFactory(this.allowedPDSDomainSchema),
-          getAll: getAllSitesFactory(this.allowedPDSDomainSchema),
-          create: createSiteFactory(this.allowedPDSDomainSchema),
-          update: updateSiteFactory(this.allowedPDSDomainSchema),
-          delete: deleteSiteFactory(this.allowedPDSDomainSchema),
-          getDefault: getDefaultProjectSiteFactory(this.allowedPDSDomainSchema),
-          setDefault: setDefaultSiteFactory(this.allowedPDSDomainSchema),
+          get: getLocationFactory(this.allowedPDSDomainSchema),
+          getAll: getAllLocationsFactory(this.allowedPDSDomainSchema),
+          create: createLocationFactory(this.allowedPDSDomainSchema),
+          update: updateLocationFactory(this.allowedPDSDomainSchema),
+          delete: deleteLocationFactory(this.allowedPDSDomainSchema),
+          getDefault: getDefaultLocationFactory(this.allowedPDSDomainSchema),
+          setDefault: setDefaultLocationFactory(this.allowedPDSDomainSchema),
         },
       },
     });
   }
 
+  /**
+   * Creates a server-side caller for the tRPC router.
+   * Uses the HypercertsATProtoSDK instance provided at construction time.
+   *
+   * @returns A callable server-side tRPC client
+   */
   getServerCaller = () => {
     return this.appRouter.createCaller(
       async () =>
-        await createContext({ allowedPDSDomains: this.allowedPDSDomains })
+        await createContext({ sdk: this.sdk, allowedPDSDomains: this.allowedPDSDomains })
     );
   };
 }

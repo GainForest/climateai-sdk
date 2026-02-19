@@ -5,7 +5,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { getOrganizationInfoPure } from "../../../gainforest/organization/info/get";
 import { getAllClaimActivitiesPure } from "./getAll";
-import { type Repo } from "@atproto/api/dist/client/types/com/atproto/sync/listRepos";
 import {
   AppGainforestOrganizationInfo,
   OrgHypercertsClaimActivity,
@@ -13,6 +12,9 @@ import {
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
 import type { SupportedPDSDomain } from "@/_internal/index";
 
+/**
+ * Organization with its activities
+ */
 export type OrganizationWithActivities = {
   repo: {
     did: string;
@@ -21,6 +23,83 @@ export type OrganizationWithActivities = {
   activities: GetRecordResponse<OrgHypercertsClaimActivity.Record>[];
 };
 
+/**
+ * Pure function to get all claim activities across all organizations.
+ * Can be reused outside of tRPC context.
+ */
+export const getAllClaimActivitiesAcrossOrganizationsPure = async <
+  T extends SupportedPDSDomain,
+>(
+  pdsDomain: T
+): Promise<OrganizationWithActivities[]> => {
+  const agent = getReadAgent(pdsDomain);
+
+  // Get all repositories
+  const [repositoriesListResponse, repositoriesListFetchError] = await tryCatch(
+    agent.com.atproto.sync.listRepos({
+      limit: 150,
+    })
+  );
+
+  if (
+    repositoriesListFetchError !== null ||
+    repositoriesListResponse === null ||
+    repositoriesListResponse.success !== true
+  ) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Failed to fetch the list of repositories.",
+      cause: repositoriesListFetchError,
+    });
+  }
+
+  const repositoriesList = repositoriesListResponse.data.repos;
+
+  // Filter repositories that are organizations (have organization info)
+  const organizationResults = await Promise.all(
+    repositoriesList.map(async (repo) => {
+      const [organizationInfoResponse] = await tryCatch(
+        getOrganizationInfoPure(repo.did, pdsDomain)
+      );
+      if (!organizationInfoResponse) {
+        return null;
+      }
+      return {
+        repo: { did: repo.did },
+        organizationInfo: organizationInfoResponse.value,
+      };
+    })
+  );
+
+  const validOrganizations = organizationResults.filter(
+    (org): org is NonNullable<typeof org> => org !== null
+  );
+
+  // Get activities for each organization
+  const activitiesResults = await Promise.all(
+    validOrganizations.map(async (organization) => {
+      const [activitiesResponse] = await tryCatch(
+        getAllClaimActivitiesPure(organization.repo.did, pdsDomain)
+      );
+      if (!activitiesResponse) {
+        return null;
+      }
+      return {
+        repo: organization.repo,
+        activities: activitiesResponse.activities,
+        organizationInfo: organization.organizationInfo,
+      };
+    })
+  );
+
+  return activitiesResults.filter(
+    (activity): activity is NonNullable<typeof activity> => activity !== null
+  );
+};
+
+/**
+ * Factory to create the tRPC procedure for getting all claim activities across organizations.
+ */
 export const getAllClaimActivitiesAcrossOrganizationsFactory = <
   T extends SupportedPDSDomain,
 >(
@@ -29,90 +108,6 @@ export const getAllClaimActivitiesAcrossOrganizationsFactory = <
   return publicProcedure
     .input(z.object({ pdsDomain: allowedPDSDomainSchema }))
     .query(async ({ input }) => {
-      const agent = getReadAgent(input.pdsDomain);
-
-      // Get all the repositories
-      const [repositoriesListResponse, repositoriesListFetchError] =
-        await tryCatch(
-          agent.com.atproto.sync.listRepos({
-            limit: 150,
-          })
-        );
-      if (
-        repositoriesListFetchError ||
-        repositoriesListResponse.success !== true
-      ) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch repositories list",
-        });
-      }
-      const repositoriesList = repositoriesListResponse.data.repos;
-
-      // Filter the repositories that are organizations
-      const [organizationRepositories, organizationsFetchError] =
-        await tryCatch(
-          Promise.all(
-            repositoriesList.map(async (repo) => {
-              const [organizationInfoResponse, organizationInfoFetchError] =
-                await tryCatch(
-                  getOrganizationInfoPure(repo.did, input.pdsDomain)
-                );
-              if (organizationInfoFetchError) {
-                return null;
-              }
-              return {
-                repo: repo,
-                organizationInfo: organizationInfoResponse.value,
-              };
-            })
-          )
-        );
-      if (organizationsFetchError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch organizations list",
-        });
-      }
-      const validOrganizationRepositories = organizationRepositories.filter(
-        (org): org is NonNullable<typeof org> => org !== null
-      );
-
-      // Get all the claim activities for the organizations
-      const [activities, activitiesFetchError] = await tryCatch(
-        Promise.all(
-          validOrganizationRepositories.map(async (organization) => {
-            const [activitiesResponse, activitiesFetchError] = await tryCatch(
-              getAllClaimActivitiesPure(organization.repo.did, input.pdsDomain)
-            );
-            if (activitiesFetchError) {
-              return null;
-            }
-            return {
-              repo: organization.repo,
-              activities: activitiesResponse.activities,
-              organizationInfo: organization.organizationInfo,
-            };
-          })
-        )
-      );
-      if (activitiesFetchError) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch activities list",
-        });
-      }
-
-      const validActivities = activities.filter(
-        (activity): activity is NonNullable<typeof activity> =>
-          activity !== null
-      );
-
-      console.log("TOTAL_ORGANIZATIONS:", organizationRepositories.length);
-      console.log("VALID_ORGANIZATIONS:", validOrganizationRepositories.length);
-      console.log("TOTAL_ACTIVITIES:", activities.length);
-      console.log("VALID_ACTIVITIES:", validActivities.length);
-
-      return validActivities satisfies OrganizationWithActivities[];
+      return getAllClaimActivitiesAcrossOrganizationsPure(input.pdsDomain);
     });
 };

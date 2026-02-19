@@ -1,61 +1,34 @@
-import { publicProcedure } from "@/_internal/server/trpc";
-import { z } from "zod";
 import { getReadAgent } from "@/_internal/server/utils/agent";
 import { AppGainforestOrganizationLayer } from "@/../lex-api";
-import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
+import { listRecords } from "@/_internal/server/utils/atproto-crud";
+import { createDidQueryFactory } from "@/_internal/server/utils/procedure-factories";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { GetRecordResponse } from "@/_internal/server/utils/response-types";
-import { checkOwnershipByAtUri } from "@/_internal/server/utils/ownership";
-import { TRPCError } from "@trpc/server";
 
-export const getAllLayersFactory = <T extends SupportedPDSDomain>(
-  allowedPDSDomainSchema: z.ZodEnum<Record<T, T>>
-) => {
-  return publicProcedure
-    .input(
-      z.object({
-        did: z.string(),
-        pdsDomain: allowedPDSDomainSchema,
-      })
-    )
-    .query(async ({ input }) => {
-      const agent = getReadAgent(input.pdsDomain);
-      const nsid: AppGainforestOrganizationLayer.Record["$type"] =
-        "app.gainforest.organization.layer";
-      const response = await agent.com.atproto.repo.listRecords({
-        collection: nsid,
-        repo: input.did,
-      });
-      if (response.success !== true) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to get the layers",
-        });
-      }
+const COLLECTION = "app.gainforest.organization.layer" as const;
+const RESOURCE_NAME = "layers" as const;
 
-      const validatedRecords = response.data.records
-        .map((record) => {
-          let validatedRecord;
-          try {
-            validatedRecord =
-              validateRecordOrThrow<AppGainforestOrganizationLayer.Record>(
-                record.value,
-                AppGainforestOrganizationLayer
-              );
-          } catch (error) {
-            return null;
-          }
-          return {
-            ...record,
-            value: validatedRecord,
-          };
-        })
-        .filter((record) => record !== null);
-
-      return validatedRecords.map((record) => ({
-        uri: record.uri,
-        cid: record.cid,
-        value: record.value,
-      })) satisfies GetRecordResponse<AppGainforestOrganizationLayer.Record>[];
-    });
+/**
+ * Pure function to get all layers for a DID.
+ * Can be reused outside of tRPC context.
+ */
+export const getAllLayersPure = async <T extends SupportedPDSDomain>(
+  did: string,
+  pdsDomain: T
+): Promise<GetRecordResponse<AppGainforestOrganizationLayer.Record>[]> => {
+  const agent = getReadAgent(pdsDomain);
+  const result = await listRecords({
+    agent,
+    collection: COLLECTION,
+    repo: did,
+    validator: AppGainforestOrganizationLayer,
+    resourceName: RESOURCE_NAME,
+    skipInvalid: true,
+  });
+  return result.records;
 };
+
+/**
+ * Factory to create the tRPC procedure for getting all layers.
+ */
+export const getAllLayersFactory = createDidQueryFactory(getAllLayersPure);

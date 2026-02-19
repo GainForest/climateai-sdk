@@ -1,7 +1,7 @@
 import { protectedProcedure } from "@/_internal/server/trpc";
 import { z } from "zod";
 import { getWriteAgent, getReadAgent } from "@/_internal/server/utils/agent";
-import { OrgHypercertsClaimProject } from "@/../lex-api";
+import { OrgHypercertsClaimCollection } from "@/../lex-api";
 import { validateRecordOrThrow } from "@/_internal/server/utils/validate-record-or-throw";
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { PutRecordResponse } from "@/_internal/server/utils/response-types";
@@ -21,9 +21,9 @@ export const removeMeasuredTreesClusterFromProjectFactory = <
         pdsDomain: allowedPDSDomainSchema,
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const readAgent = getReadAgent(input.pdsDomain);
-      const writeAgent = await getWriteAgent(input.pdsDomain);
+      const writeAgent = await getWriteAgent(ctx.sdk);
 
       if (!writeAgent.did) {
         throw new TRPCError({

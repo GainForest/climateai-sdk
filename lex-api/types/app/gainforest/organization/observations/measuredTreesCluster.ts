@@ -9,7 +9,7 @@ import {
   is$typed as _is$typed,
   type OmitKey,
 } from '../../../../../util'
-import type * as AppGainforestCommonDefs from '../../common/defs.js'
+import type * as OrgHypercertsDefs from '../../../../org/hypercerts/defs.js'
 
 const is$typed = _is$typed,
   validate = _validate
@@ -17,7 +17,7 @@ const id = 'app.gainforest.organization.observations.measuredTreesCluster'
 
 export interface Main {
   $type: 'app.gainforest.organization.observations.measuredTreesCluster'
-  shapefile: AppGainforestCommonDefs.SmallBlob
+  shapefile: OrgHypercertsDefs.SmallBlob
   /** The date and time of the creation of the record */
   createdAt: string
   [k: string]: unknown

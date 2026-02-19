@@ -1,19 +1,22 @@
 import { z } from "zod";
 import { getBlobUrl, parseAtUri } from "./utilities/atproto";
 import { AppRouterFactory, type AppRouter } from "./server/routers/_app";
+import { createContext as createContextInternal } from "./server/trpc";
+import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
 
-const supportedDomains = ["climateai.org", "hypercerts.org"] as const;
+const supportedDomains = ["climateai.org", "gainforest.id"] as const;
 export const supportedPDSDomainSchema = z.enum(supportedDomains);
 const supportedPDSDomainsSchema = z.array(supportedPDSDomainSchema);
 export type SupportedPDSDomain = (typeof supportedDomains)[number];
 
-export class ClimateAiSDK<T extends SupportedPDSDomain> {
+export class GainForestSDK<T extends SupportedPDSDomain> {
   public allowedPDSDomains;
   public appRouter;
   public getServerCaller;
   public utilities;
+  private sdk: HypercertsATProtoSDK;
 
-  constructor(_allowedPDSDomains: T[]) {
+  constructor(_allowedPDSDomains: T[], sdk: HypercertsATProtoSDK) {
     if (!Array.isArray(_allowedPDSDomains)) {
       throw new Error("Allowed domains must be an array");
     } else if (_allowedPDSDomains.length === 0) {
@@ -28,7 +31,8 @@ export class ClimateAiSDK<T extends SupportedPDSDomain> {
       );
     }
     this.allowedPDSDomains = _allowedPDSDomains;
-    const appRouterFactory = new AppRouterFactory<T>(this.allowedPDSDomains);
+    this.sdk = sdk;
+    const appRouterFactory = new AppRouterFactory<T>(this.allowedPDSDomains, this.sdk);
     this.appRouter = appRouterFactory.appRouter;
     this.getServerCaller = appRouterFactory.getServerCaller;
     this.utilities = {
@@ -36,7 +40,20 @@ export class ClimateAiSDK<T extends SupportedPDSDomain> {
       parseAtUri,
     };
   }
+
+  /**
+   * Creates a tRPC context using the stored SDK instance.
+   *
+   * @param opts.req - Optional request object
+   * @returns The tRPC context
+   */
+  createContext = (opts?: { req?: Request }) => {
+    return createContextInternal({
+      sdk: this.sdk,
+      allowedPDSDomains: this.allowedPDSDomains,
+      ...opts,
+    });
+  };
 }
 
-export type { AppRouter };
-export { createContext } from "./server/trpc";
+export type { AppRouter, HypercertsATProtoSDK };
