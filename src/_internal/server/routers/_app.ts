@@ -26,6 +26,7 @@ import { getAllAudioRecordingsFactory } from "./atproto/gainforest/organization/
 import { createAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/create";
 import { updateAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/update";
 import { deleteAudioRecordingFactory } from "./atproto/gainforest/organization/recordings/audio/delete";
+import { onboardFactory } from "./miscellaneous/onboard";
 
 import type { SupportedPDSDomain } from "@/_internal/index";
 import type { ATProtoSDK as HypercertsATProtoSDK } from "@hypercerts-org/sdk-core";
@@ -91,6 +92,9 @@ export class AppRouterFactory<T extends SupportedPDSDomain> {
             },
           },
         },
+      },
+      miscellaneous: {
+        onboard: onboardFactory(this.allowedPDSDomainSchema),
       },
       hypercerts: {
         claim: {
